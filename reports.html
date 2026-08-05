@@ -33,7 +33,7 @@
 
 <div class="brand">
 
-<h1>Reports</h1>
+<h1>AL HUDU Reports</h1>
 
 <p>Luxury Jalabiya</p>
 
@@ -46,11 +46,13 @@
 
 <div class="card">
 
-<h3>Daily Sales</h3>
+<h3>📅 Daily Sales</h3>
 
 <p id="dailySales">0 AED</p>
 
-<button>PDF Daily</button>
+<button onclick="downloadPDF('Daily')">
+Download PDF
+</button>
 
 </div>
 
@@ -58,11 +60,13 @@
 
 <div class="card">
 
-<h3>Monthly Sales</h3>
+<h3>📆 Monthly Sales</h3>
 
 <p id="monthlySales">0 AED</p>
 
-<button>PDF Monthly</button>
+<button onclick="downloadPDF('Monthly')">
+Download PDF
+</button>
 
 </div>
 
@@ -70,11 +74,13 @@
 
 <div class="card">
 
-<h3>Yearly Sales</h3>
+<h3>🗓 Yearly Sales</h3>
 
 <p id="yearlySales">0 AED</p>
 
-<button>PDF Yearly</button>
+<button onclick="downloadPDF('Yearly')">
+Download PDF
+</button>
 
 </div>
 
@@ -86,8 +92,8 @@
 
 <div class="card" style="margin-top:40px;">
 
-<h2>Profit Summary</h2>
 
+<h2>Profit Summary</h2>
 
 <p id="reportProfit">
 0 AED
@@ -101,6 +107,11 @@
 
 </div>
 
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module" src="reports.js"></script>
 
 
 </body>
