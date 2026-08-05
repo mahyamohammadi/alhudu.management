@@ -22,15 +22,21 @@ let report = {
 cash:0,
 card:0,
 sales:0,
-expenses:0,
-profit:0
+expenses:[],
+expenseTotal:0
 
 };
 
 
 
+let today = new Date()
+.toISOString()
+.split("T")[0];
+
+
 
 async function loadReports(){
+
 
 
 const salesSnap = await getDocs(collection(db,"sales"));
@@ -42,21 +48,18 @@ salesSnap.forEach((doc)=>{
 let data = doc.data();
 
 
-let cash = Number(data.cash || 0);
-let card = Number(data.card || 0);
+if(data.date === today){
 
 
+report.cash += Number(data.cash || 0);
 
-report.cash += cash;
-report.card += card;
+report.card += Number(data.card || 0);
+
+
+}
 
 
 });
-
-
-
-report.sales = report.cash + report.card;
-
 
 
 
@@ -65,16 +68,35 @@ const expenseSnap = await getDocs(collection(db,"expenses"));
 
 expenseSnap.forEach((doc)=>{
 
+
 let data = doc.data();
 
-report.expenses += Number(data.amount || 0);
+
+
+if(data.date === today){
+
+
+report.expenseTotal += Number(data.amount || 0);
+
+
+report.expenses.push({
+
+category:data.category || "",
+amount:data.amount || 0,
+note:data.note || ""
+
+});
+
+
+}
+
+
 
 });
 
 
 
-report.profit = report.sales - report.expenses;
-
+report.sales = report.cash + report.card;
 
 
 
@@ -90,12 +112,12 @@ document.getElementById("totalSales").innerHTML =
 report.sales+" AED";
 
 
-document.getElementById("expenses").innerHTML =
-report.expenses+" AED";
+document.getElementById("totalExpenses").innerHTML =
+report.expenseTotal+" AED";
 
 
 document.getElementById("profit").innerHTML =
-report.profit+" AED";
+(report.sales - report.expenseTotal)+" AED";
 
 
 
@@ -104,7 +126,7 @@ report.profit+" AED";
 
 
 
-window.downloadPDF=function(type){
+window.downloadReport=function(){
 
 
 const {jsPDF}=window.jspdf;
@@ -114,15 +136,20 @@ let pdf=new jsPDF();
 
 
 
-pdf.setFontSize(20);
+pdf.setFontSize(18);
 
-pdf.text("AL HUDU",20,20);
+pdf.text("AL HUDU Daily Report",20,20);
 
 
 
-pdf.setFontSize(14);
+pdf.setFontSize(12);
 
-pdf.text(type+" Report",20,35);
+
+pdf.text(
+"Date: "+today,
+20,
+35
+);
 
 
 
@@ -151,23 +178,51 @@ pdf.text(
 
 
 pdf.text(
-"Expenses: "+report.expenses+" AED",
+"EXPENSES (COST)",
 20,
-100
+105
+);
+
+
+
+let y=120;
+
+
+report.expenses.forEach((item)=>{
+
+
+pdf.text(
+item.category+" - "+item.amount+" AED - "+item.note,
+20,
+y
+);
+
+
+y+=10;
+
+
+});
+
+
+
+pdf.text(
+"Total Expenses (Cost): "+report.expenseTotal+" AED",
+20,
+y+10
 );
 
 
 
 pdf.text(
-"Net Profit: "+report.profit+" AED",
+"Net Profit: "+(report.sales-report.expenseTotal)+" AED",
 20,
-115
+y+25
 );
 
 
 
 pdf.save(
-"AL_HUDU_"+type+"_Report.pdf"
+"AL_HUDU_Daily_"+today+".pdf"
 );
 
 
