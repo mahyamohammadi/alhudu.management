@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 const firebaseConfig = {
@@ -19,58 +19,26 @@ const db = getFirestore(app);
 
 document.getElementById("saveExpense").onclick = async function(){
 
+
     await addDoc(collection(db,"expenses"),{
 
-        date: document.getElementById("expenseDate").value,
-        type: document.getElementById("expenseType").value,
-        amount: document.getElementById("expenseAmount").value,
-        note: document.getElementById("expenseNote").value
+
+        date: document.getElementById("date").value,
+
+
+        category: document.getElementById("category").value,
+
+
+        amount: Number(document.getElementById("amount").value || 0),
+
+
+        note: document.getElementById("note").value
+
 
     });
 
 
     alert("Expense Saved ✅");
 
-    loadExpenses();
 
 };
-
-
-
-async function loadExpenses(){
-
-    const list = document.getElementById("expenseList");
-
-    list.innerHTML = "";
-
-
-    const snapshot = await getDocs(collection(db,"expenses"));
-
-
-    snapshot.forEach((doc)=>{
-
-        const expense = doc.data();
-
-
-        list.innerHTML += `
-
-        <tr>
-
-        <td>${expense.date}</td>
-
-        <td>${expense.type}</td>
-
-        <td>${expense.amount} AED</td>
-
-        <td>${expense.note}</td>
-
-        </tr>
-
-        `;
-
-    });
-
-}
-
-
-loadExpenses();
