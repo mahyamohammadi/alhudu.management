@@ -19,10 +19,11 @@ const db = getFirestore(app);
 
 async function loadDashboard(){
 
+    const today = new Date();
 
-    let today = new Date();
-    let currentMonth = today.getMonth();
-    let currentYear = today.getFullYear();
+    const currentMonth =
+    today.getFullYear() + "-" + 
+    String(today.getMonth()+1).padStart(2,'0');
 
 
     let totalCash = 0;
@@ -43,26 +44,22 @@ async function loadDashboard(){
 
         let sale = doc.data();
 
+
         totalCash += Number(sale.cash || 0);
         totalCard += Number(sale.card || 0);
         count++;
 
 
-        if(sale.date){
+        if(
+            sale.date &&
+            sale.date.startsWith(currentMonth)
+        ){
 
-            let saleDate = new Date(sale.date);
-
-            if(
-                saleDate.getMonth() === currentMonth &&
-                saleDate.getFullYear() === currentYear
-            ){
-
-                monthlySales += Number(sale.cash || 0);
-                monthlySales += Number(sale.card || 0);
-
-            }
+            monthlySales += Number(sale.cash || 0);
+            monthlySales += Number(sale.card || 0);
 
         }
+
 
     });
 
@@ -78,19 +75,12 @@ async function loadDashboard(){
         let expense = doc.data();
 
 
-        if(expense.date){
+        if(
+            expense.date &&
+            expense.date.startsWith(currentMonth)
+        ){
 
-            let expenseDate = new Date(expense.date);
-
-
-            if(
-                expenseDate.getMonth() === currentMonth &&
-                expenseDate.getFullYear() === currentYear
-            ){
-
-                monthlyExpenses += Number(expense.amount || 0);
-
-            }
+            monthlyExpenses += Number(expense.amount || 0);
 
         }
 
