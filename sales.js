@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
@@ -10,54 +11,53 @@ const firebaseConfig = {
   appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-async function loadSales() {
 
-    const salesList = document.getElementById("salesList");
+const cashInput = document.getElementById("cash");
+const cardInput = document.getElementById("card");
+const totalInput = document.getElementById("totalSale");
 
-    if (!salesList) {
-        console.log("salesList not found");
-        return;
-    }
 
-    salesList.innerHTML = "";
 
-    const querySnapshot = await getDocs(collection(db, "sales"));
+function calculateTotal(){
 
-    querySnapshot.forEach((doc) => {
+    let cash = Number(cashInput.value || 0);
+    let card = Number(cardInput.value || 0);
 
-        const sale = doc.data();
+    totalInput.value = cash + card;
 
-        salesList.innerHTML += `
-        <tr>
-            <td>${sale.date || ""}</td>
-            <td>${sale.invoice || ""}</td>
-            <td>${sale.cash || 0}</td>
-            <td>${sale.card || 0}</td>
-            <td>${sale.customer || ""}</td>
-        </tr>
-        `;
-    });
 }
 
 
-document.getElementById("saveSale").onclick = async function () {
 
-    await addDoc(collection(db, "sales"), {
+cashInput.addEventListener("input", calculateTotal);
+cardInput.addEventListener("input", calculateTotal);
+
+
+
+document.getElementById("saveSale").onclick = async function(){
+
+
+    await addDoc(collection(db,"sales"),{
+
         date: document.getElementById("date").value,
-        invoice: document.getElementById("invoice").value,
-        cash: document.getElementById("cash").value,
-        card: document.getElementById("card").value,
-        customer: document.getElementById("customer").value
+
+        cash: Number(cashInput.value || 0),
+
+        card: Number(cardInput.value || 0),
+
+        total: Number(totalInput.value || 0),
+
+        note: document.getElementById("note").value
+
     });
+
 
     alert("Sale Saved ✅");
 
-    loadSales();
+
 };
-
-
-loadSales();
