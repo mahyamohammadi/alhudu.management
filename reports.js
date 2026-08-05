@@ -17,28 +17,20 @@ const db = getFirestore(app);
 
 
 
-let reports = {
+let report = {
 
-daily:0,
-monthly:0,
-yearly:0,
-expenses:0
+cash:0,
+card:0,
+sales:0,
+expenses:0,
+profit:0
 
 };
 
 
 
+
 async function loadReports(){
-
-
-let today = new Date();
-
-let todayDate = today.toISOString().split("T")[0];
-
-let currentMonth = today.getMonth();
-
-let currentYear = today.getFullYear();
-
 
 
 const salesSnap = await getDocs(collection(db,"sales"));
@@ -50,55 +42,20 @@ salesSnap.forEach((doc)=>{
 let data = doc.data();
 
 
-let amount =
-Number(data.cash || 0) +
-Number(data.card || 0);
+let cash = Number(data.cash || 0);
+let card = Number(data.card || 0);
 
 
 
-let date = data.date;
-
-
-if(date){
-
-
-let saleDate = new Date(date);
-
-
-
-if(date === todayDate){
-
-reports.daily += amount;
-
-}
-
-
-
-if(
-saleDate.getMonth() === currentMonth &&
-saleDate.getFullYear() === currentYear
-){
-
-reports.monthly += amount;
-
-}
-
-
-
-if(
-saleDate.getFullYear() === currentYear
-){
-
-reports.yearly += amount;
-
-}
-
-
-}
+report.cash += cash;
+report.card += card;
 
 
 });
 
+
+
+report.sales = report.cash + report.card;
 
 
 
@@ -108,39 +65,42 @@ const expenseSnap = await getDocs(collection(db,"expenses"));
 
 expenseSnap.forEach((doc)=>{
 
-
 let data = doc.data();
 
-
-reports.expenses += Number(data.amount || 0);
-
+report.expenses += Number(data.amount || 0);
 
 });
 
 
 
+report.profit = report.sales - report.expenses;
 
 
 
-document.getElementById("dailySales").innerHTML =
-reports.daily+" AED";
+
+document.getElementById("cashSales").innerHTML =
+report.cash+" AED";
 
 
-document.getElementById("monthlySales").innerHTML =
-reports.monthly+" AED";
+document.getElementById("cardSales").innerHTML =
+report.card+" AED";
 
 
-document.getElementById("yearlySales").innerHTML =
-reports.yearly+" AED";
+document.getElementById("totalSales").innerHTML =
+report.sales+" AED";
 
 
-document.getElementById("reportProfit").innerHTML =
-(reports.yearly - reports.expenses)+" AED";
+document.getElementById("expenses").innerHTML =
+report.expenses+" AED";
 
+
+document.getElementById("profit").innerHTML =
+report.profit+" AED";
 
 
 
 }
+
 
 
 
@@ -153,51 +113,55 @@ const {jsPDF}=window.jspdf;
 let pdf=new jsPDF();
 
 
+
+pdf.setFontSize(20);
+
 pdf.text("AL HUDU",20,20);
+
+
+
+pdf.setFontSize(14);
 
 pdf.text(type+" Report",20,35);
 
 
-if(type==="Daily"){
 
 pdf.text(
-"Sales: "+reports.daily+" AED",
+"Cash Sales: "+report.cash+" AED",
 20,
 55
 );
 
-}
 
-
-
-if(type==="Monthly"){
 
 pdf.text(
-"Sales: "+reports.monthly+" AED",
+"Card Sales: "+report.card+" AED",
 20,
-55
+70
 );
 
-}
 
-
-
-if(type==="Yearly"){
 
 pdf.text(
-"Sales: "+reports.yearly+" AED",
+"Total Sales: "+report.sales+" AED",
 20,
-55
+85
 );
 
-}
+
+
+pdf.text(
+"Expenses: "+report.expenses+" AED",
+20,
+100
+);
 
 
 
 pdf.text(
-"Expenses: "+reports.expenses+" AED",
+"Net Profit: "+report.profit+" AED",
 20,
-75
+115
 );
 
 
@@ -205,6 +169,7 @@ pdf.text(
 pdf.save(
 "AL_HUDU_"+type+"_Report.pdf"
 );
+
 
 
 }
