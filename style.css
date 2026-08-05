@@ -1,49 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
+    font-family: 'Poppins', sans-serif;
+    background: #f7f0e3;
+    color: #3b2a1a;
 }
+
+
+/* Sidebar */
 
 .sidebar {
     position: fixed;
-    left: 0;
     top: 0;
-    width: 220px;
-    height: 100%;
-    background: #111;
-    color: white;
-    padding-top: 20px;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #b08d57, #8c6a35);
+    padding-top: 30px;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
 }
 
+
 .sidebar h2 {
+    color: #fff;
     text-align: center;
+    font-size: 28px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    margin-bottom: 40px;
 }
+
 
 .sidebar a {
     display: block;
-    padding: 15px 20px;
     color: white;
     text-decoration: none;
+    padding: 15px 30px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.3s;
 }
+
 
 .sidebar a:hover {
-    background: #333;
+    background: rgba(255,255,255,0.18);
+    padding-left: 40px;
 }
 
+
+/* Main */
+
 .main {
-    margin-left: 220px;
+    margin-left: 270px;
     padding: 40px;
 }
 
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #8c6a35;
+}
+
+
+h2 {
+    color: #8c6a35;
+    margin-top: 35px;
+}
+
+
+/* Form Card */
+
+.card {
+    background: #ffffff;
+    width: 500px;
+    max-width: 100%;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+input {
+    width: 100%;
+    padding: 13px;
+    margin-top: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ddc79c;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+
+input:focus {
+    border-color: #b08d57;
+}
+
+
+/* Button */
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg,#b08d57,#d4af37);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+button:hover {
+    opacity: 0.9;
+}
+
+
+/* Dashboard Cards */
+
 .cards {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 25px;
+}
+
+
+.cards .card {
+    width: auto;
+    text-align: center;
+}
+
+
+.card h3 {
+    color: #8c6a35;
+    font-size: 18px;
+}
+
+
+.card p {
+    font-size: 25px;
+    font-weight: 700;
+}
+
+
+/* Table */
+
+table {
+    width: 100%;
+    margin-top: 30px;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    border-collapse: collapse;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+
+th {
+    background: #b08d57;
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+}
+
+
+td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+
+tr:hover {
+    background: #faf4e8;
+}
+
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+}
+
+.main {
+    margin-left: 0;
+    padding: 20px;
 }
 
 .card {
-    background: white;
-    padding: 25px;
-    width: 200px;
-    border-radius: 10px;
+    width: 100%;
+}
+
 }
