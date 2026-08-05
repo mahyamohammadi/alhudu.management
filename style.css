@@ -1,0 +1,43 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+.login-box {
+    background: #1c1c1c;
+    width: 350px;
+    padding: 40px;
+    text-align: center;
+    border-radius: 15px;
+}
+
+h1 {
+    color: #d4af37;
+    font-size: 40px;
+}
+
+h3 {
+    color: white;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    width: 95%;
+    padding: 12px;
+    background: #d4af37;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
