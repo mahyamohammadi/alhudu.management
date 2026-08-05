@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
@@ -13,27 +13,50 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const button = document.getElementById("saveSale");
 
-button.onclick = async function() {
-
-  try {
+// Save Sale
+document.getElementById("saveSale").onclick = async function () {
 
     await addDoc(collection(db, "sales"), {
-      date: document.getElementById("date").value,
-      invoice: document.getElementById("invoice").value,
-      cash: Number(document.getElementById("cash").value || 0),
-      card: Number(document.getElementById("card").value || 0),
-      customer: document.getElementById("customer").value
+        date: document.getElementById("date").value,
+        invoice: document.getElementById("invoice").value,
+        cash: document.getElementById("cash").value,
+        card: document.getElementById("card").value,
+        customer: document.getElementById("customer").value
     });
 
-    alert("Saved Successfully ✅");
+    alert("Sale Saved ✅");
 
-  } catch(error) {
-
-    alert(error.message);
-    console.log(error);
-
-  }
-
+    loadSales();
 };
+
+
+// Show Sales
+async function loadSales() {
+
+    const salesList = document.getElementById("salesList");
+    salesList.innerHTML = "";
+
+    const querySnapshot = await getDocs(collection(db, "sales"));
+
+    querySnapshot.forEach((doc) => {
+
+        const sale = doc.data();
+
+        salesList.innerHTML += `
+        <tr>
+            <td>${sale.date}</td>
+            <td>${sale.invoice}</td>
+            <td>${sale.cash}</td>
+            <td>${sale.card}</td>
+            <td>${sale.customer}</td>
+        </tr>
+        `;
+
+    });
+
+}
+
+
+// Load when page opens
+loadSales();
