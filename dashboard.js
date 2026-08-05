@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JkKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
   projectId: "al-hudu-management",
   storageBucket: "al-hudu-management.firebasestorage.app",
@@ -23,49 +23,49 @@ async function loadDashboard(){
 let totalSales = 0;
 let totalCash = 0;
 let totalCard = 0;
-
-
 let totalExpenses = 0;
 
 
 
-const sales = await getDocs(collection(db,"sales"));
+// Sales
+
+const salesSnap = await getDocs(collection(db,"sales"));
 
 
-sales.forEach((doc)=>{
+salesSnap.forEach((doc)=>{
 
 let data = doc.data();
 
+let cash = Number(data.cash || 0);
+let card = Number(data.card || 0);
 
-totalSales += Number(data.total || 0);
+totalCash += cash;
+totalCard += card;
 
-totalCash += Number(data.cash || 0);
-
-totalCard += Number(data.card || 0);
-
+totalSales += cash + card;
 
 });
 
 
 
 
+// Expenses
 
-const expenses = await getDocs(collection(db,"expenses"));
+const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
-expenses.forEach((doc)=>{
+expenseSnap.forEach((doc)=>{
 
 let data = doc.data();
-
 
 totalExpenses += Number(data.amount || 0);
 
-
 });
 
 
 
 
+// Dashboard Numbers
 
 document.getElementById("totalSales").innerHTML =
 totalSales + " AED";
@@ -75,10 +75,8 @@ document.getElementById("totalExpenses").innerHTML =
 totalExpenses + " AED";
 
 
-
 document.getElementById("monthlyProfit").innerHTML =
 (totalSales - totalExpenses) + " AED";
-
 
 
 document.getElementById("cashBalance").innerHTML =
@@ -96,6 +94,48 @@ totalCard + " AED";
 
 document.getElementById("todayExpense").innerHTML =
 totalExpenses + " AED";
+
+
+
+
+// Chart
+
+const ctx = document.getElementById("salesChart");
+
+
+new Chart(ctx, {
+
+type:"bar",
+
+data:{
+
+labels:[
+"Sales",
+"Expenses",
+"Profit"
+],
+
+datasets:[{
+
+label:"AED",
+
+data:[
+totalSales,
+totalExpenses,
+totalSales-totalExpenses
+]
+
+}]
+
+},
+
+options:{
+
+responsive:true
+
+}
+
+});
 
 
 }
