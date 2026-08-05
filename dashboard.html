@@ -2,8 +2,13 @@
 <html>
 
 <head>
-    <title>AL HUDU Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+
+<title>AL HUDU Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 
@@ -12,14 +17,14 @@
 
 <div class="sidebar">
 
-    <h2>AL HUDU</h2>
+<h2>AL HUDU</h2>
 
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <a href="sales.html">💰 Sales</a>
-    <a href="expenses.html">💸 Expenses</a>
-    <a>👨‍💼 Staff Salary</a>
-    <a>💵 Cash Flow</a>
-    <a>📊 Reports</a>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
 
 </div>
 
@@ -29,6 +34,7 @@
 
 
 <h1>AL HUDU MANAGEMENT</h1>
+
 
 
 <div class="cards">
@@ -66,10 +72,10 @@
 
 
 
+
 <h2 style="margin-top:45px;">
 Today's Summary
 </h2>
-
 
 
 <div class="cards">
@@ -96,6 +102,18 @@ Today's Summary
 
 
 </div>
+
+
+
+
+<div class="card" style="margin-top:40px;">
+
+<h2>Sales Overview</h2>
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
 
 
 </div>
