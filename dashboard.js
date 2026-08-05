@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
@@ -10,21 +11,25 @@ const firebaseConfig = {
   appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
+
 async function loadDashboard(){
 
-    const snapshot = await getDocs(collection(db,"sales"));
 
-    let totalSales = 0;
+    // Sales
+
+    const salesSnapshot = await getDocs(collection(db,"sales"));
+
     let totalCash = 0;
     let totalCard = 0;
     let count = 0;
 
 
-    snapshot.forEach((doc)=>{
+    salesSnapshot.forEach((doc)=>{
 
         let sale = doc.data();
 
@@ -35,7 +40,9 @@ async function loadDashboard(){
     });
 
 
-    totalSales = totalCash + totalCard;
+
+    let totalSales = totalCash + totalCard;
+
 
 
     document.getElementById("todaySales").innerHTML =
@@ -53,7 +60,31 @@ async function loadDashboard(){
     document.getElementById("salesCount").innerHTML =
     count;
 
+
+
+    // Expenses
+
+    const expenseSnapshot = await getDocs(collection(db,"expenses"));
+
+    let totalExpenses = 0;
+
+
+    expenseSnapshot.forEach((doc)=>{
+
+        let expense = doc.data();
+
+        totalExpenses += Number(expense.amount || 0);
+
+    });
+
+
+
+    document.getElementById("todayExpenses").innerHTML =
+    totalExpenses + " AED";
+
+
 }
+
 
 
 loadDashboard();
