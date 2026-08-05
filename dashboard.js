@@ -27,8 +27,6 @@ let totalExpenses = 0;
 
 
 
-// Sales
-
 const salesSnap = await getDocs(collection(db,"sales"));
 
 
@@ -49,8 +47,6 @@ totalSales += cash + card;
 
 
 
-// Expenses
-
 const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
@@ -65,7 +61,6 @@ totalExpenses += Number(data.amount || 0);
 
 
 
-// Dashboard Numbers
 
 document.getElementById("totalSales").innerHTML =
 totalSales + " AED";
@@ -98,7 +93,7 @@ totalExpenses + " AED";
 
 
 
-// Chart
+
 
 const ctx = document.getElementById("salesChart");
 
@@ -110,9 +105,9 @@ type:"bar",
 data:{
 
 labels:[
-"Sales",
-"Expenses",
-"Profit"
+"Sales 💰",
+"Expenses 💸",
+"Profit 📈"
 ],
 
 datasets:[{
@@ -123,17 +118,44 @@ data:[
 totalSales,
 totalExpenses,
 totalSales-totalExpenses
-]
+],
+
+borderWidth:1
 
 }]
 
 },
 
+
 options:{
 
-responsive:true
+responsive:true,
+
+
+plugins:{
+
+legend:{
+
+display:true
 
 }
+
+},
+
+
+scales:{
+
+y:{
+
+beginAtZero:true
+
+}
+
+}
+
+
+}
+
 
 });
 
