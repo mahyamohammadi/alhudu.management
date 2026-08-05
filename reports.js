@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4DQR-wv4JKhKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
   projectId: "al-hudu-management",
   storageBucket: "al-hudu-management.firebasestorage.app",
@@ -25,25 +25,23 @@ let expenses = 0;
 
 
 
-const salesData = await getDocs(collection(db,"sales"));
+const salesSnap = await getDocs(collection(db,"sales"));
 
 
-salesData.forEach((doc)=>{
+salesSnap.forEach((doc)=>{
 
 let data = doc.data();
 
-sales += Number(data.total || 0);
+sales += Number(data.cash || 0) + Number(data.card || 0);
 
 });
 
 
 
+const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
-const expenseData = await getDocs(collection(db,"expenses"));
-
-
-expenseData.forEach((doc)=>{
+expenseSnap.forEach((doc)=>{
 
 let data = doc.data();
 
@@ -54,23 +52,24 @@ expenses += Number(data.amount || 0);
 
 
 
-
-document.getElementById("reportSales").innerHTML =
+document.getElementById("dailySales").innerHTML =
 sales + " AED";
 
 
+document.getElementById("monthlySales").innerHTML =
+sales + " AED";
 
-document.getElementById("reportExpenses").innerHTML =
-expenses + " AED";
 
+document.getElementById("yearlySales").innerHTML =
+sales + " AED";
 
 
 document.getElementById("reportProfit").innerHTML =
 (sales - expenses) + " AED";
 
 
-}
 
+}
 
 
 loadReports();
