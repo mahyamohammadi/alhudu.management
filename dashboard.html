@@ -9,12 +9,14 @@
 
 <div class="sidebar">
     <h2>AL HUDU</h2>
-    <a>Dashboard</a>
+
+    <a href="dashboard.html">Dashboard</a>
     <a href="sales.html">Sales</a>
     <a href="expenses.html">Expenses</a>
     <a href="staff.html">Staff Salary</a>
     <a href="cashflow.html">Cash Flow</a>
     <a href="reports.html">Reports</a>
+
 </div>
 
 
@@ -22,31 +24,41 @@
 
 <h1>Dashboard</h1>
 
+
 <div class="cards">
+
 
 <div class="card">
 <h3>Today Sales</h3>
-<p>0 AED</p>
+<p id="todaySales">0 AED</p>
 </div>
+
 
 <div class="card">
-<h3>Today Expenses</h3>
-<p>0 AED</p>
+<h3>Cash Sales</h3>
+<p id="todayCash">0 AED</p>
 </div>
+
 
 <div class="card">
-<h3>Monthly Profit</h3>
-<p>0 AED</p>
+<h3>Card Sales</h3>
+<p id="todayCard">0 AED</p>
 </div>
+
 
 <div class="card">
-<h3>Cash Balance</h3>
-<p>0 AED</p>
+<h3>Total Invoices</h3>
+<p id="salesCount">0</p>
 </div>
+
 
 </div>
 
+
 </div>
+
+
+<script type="module" src="dashboard.js"></script>
 
 </body>
 </html>
