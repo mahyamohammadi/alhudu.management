@@ -47,6 +47,7 @@ totalSales += cash + card;
 
 
 
+
 const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
@@ -57,6 +58,7 @@ let data = doc.data();
 totalExpenses += Number(data.amount || 0);
 
 });
+
 
 
 
@@ -94,9 +96,10 @@ totalExpenses + " AED";
 
 
 
-
 const ctx = document.getElementById("salesChart");
 
+
+if(ctx){
 
 new Chart(ctx, {
 
@@ -131,18 +134,6 @@ options:{
 
 responsive:true,
 
-
-plugins:{
-
-legend:{
-
-display:true
-
-}
-
-},
-
-
 scales:{
 
 y:{
@@ -153,14 +144,27 @@ beginAtZero:true
 
 }
 
-
 }
-
 
 });
 
+}
+
 
 }
+
+
+
+
+
+function logout(){
+
+localStorage.removeItem("alhuduLogin");
+
+window.location.href="login.html";
+
+}
+
 
 
 
