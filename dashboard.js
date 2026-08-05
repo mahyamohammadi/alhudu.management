@@ -20,13 +20,23 @@ const db = getFirestore(app);
 async function loadDashboard(){
 
 
-    // Sales
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
 
-    const salesSnapshot = await getDocs(collection(db,"sales"));
 
     let totalCash = 0;
     let totalCard = 0;
     let count = 0;
+
+    let monthlySales = 0;
+    let monthlyExpenses = 0;
+
+
+
+    // SALES
+
+    const salesSnapshot = await getDocs(collection(db,"sales"));
 
 
     salesSnapshot.forEach((doc)=>{
@@ -37,11 +47,61 @@ async function loadDashboard(){
         totalCard += Number(sale.card || 0);
         count++;
 
+
+        if(sale.date){
+
+            let saleDate = new Date(sale.date);
+
+            if(
+                saleDate.getMonth() === currentMonth &&
+                saleDate.getFullYear() === currentYear
+            ){
+
+                monthlySales += Number(sale.cash || 0);
+                monthlySales += Number(sale.card || 0);
+
+            }
+
+        }
+
+    });
+
+
+
+    // EXPENSES
+
+    const expenseSnapshot = await getDocs(collection(db,"expenses"));
+
+
+    expenseSnapshot.forEach((doc)=>{
+
+        let expense = doc.data();
+
+
+        if(expense.date){
+
+            let expenseDate = new Date(expense.date);
+
+
+            if(
+                expenseDate.getMonth() === currentMonth &&
+                expenseDate.getFullYear() === currentYear
+            ){
+
+                monthlyExpenses += Number(expense.amount || 0);
+
+            }
+
+        }
+
+
     });
 
 
 
     let totalSales = totalCash + totalCard;
+
+    let profit = monthlySales - monthlyExpenses;
 
 
 
@@ -61,26 +121,12 @@ async function loadDashboard(){
     count;
 
 
-
-    // Expenses
-
-    const expenseSnapshot = await getDocs(collection(db,"expenses"));
-
-    let totalExpenses = 0;
-
-
-    expenseSnapshot.forEach((doc)=>{
-
-        let expense = doc.data();
-
-        totalExpenses += Number(expense.amount || 0);
-
-    });
-
-
-
     document.getElementById("todayExpenses").innerHTML =
-    totalExpenses + " AED";
+    monthlyExpenses + " AED";
+
+
+    document.getElementById("monthlyProfit").innerHTML =
+    profit + " AED";
 
 
 }
