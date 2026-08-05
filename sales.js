@@ -15,16 +15,25 @@ const db = getFirestore(app);
 
 const button = document.getElementById("saveSale");
 
-button.addEventListener("click", async () => {
+button.onclick = async function() {
 
-  await addDoc(collection(db, "sales"), {
-    date: document.getElementById("date").value,
-    invoice: document.getElementById("invoice").value,
-    cash: document.getElementById("cash").value,
-    card: document.getElementById("card").value,
-    customer: document.getElementById("customer").value
-  });
+  try {
 
-  alert("Sale Saved ✅");
+    await addDoc(collection(db, "sales"), {
+      date: document.getElementById("date").value,
+      invoice: document.getElementById("invoice").value,
+      cash: Number(document.getElementById("cash").value || 0),
+      card: Number(document.getElementById("card").value || 0),
+      customer: document.getElementById("customer").value
+    });
 
-});
+    alert("Saved Successfully ✅");
+
+  } catch(error) {
+
+    alert(error.message);
+    console.log(error);
+
+  }
+
+};
