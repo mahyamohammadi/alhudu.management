@@ -1,100 +1,49 @@
 body {
     margin: 0;
-    height: 100vh;
-    background: #111;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-family: Arial, sans-serif;
-}
-
-.login-box {
-    background: #1c1c1c;
-    width: 350px;
-    padding: 40px;
-    text-align: center;
-    border-radius: 15px;
-}
-
-h1 {
-    color: #d4af37;
-    font-size: 40px;
-}
-
-h3 {
-    color: white;
-}
-
-input {
-    width: 90%;
-    padding: 12px;
-    margin: 10px;
-    border-radius: 8px;
-    border: none;
-}
-
-button {
-    width: 95%;
-    padding: 12px;
-    background: #d4af37;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-}
-body {
-    margin: 0;
-    background: #111;
-    color: white;
-    font-family: Arial, sans-serif;
+    background: #f5f5f5;
 }
 
 .sidebar {
     position: fixed;
+    left: 0;
+    top: 0;
     width: 230px;
-    height: 100%;
-    background: #1c1c1c;
+    height: 100vh;
+    background: #111;
+    color: white;
     padding-top: 30px;
 }
 
 .sidebar h2 {
-    color: #d4af37;
     text-align: center;
+    margin-bottom: 40px;
 }
 
 .sidebar a {
     display: block;
     color: white;
-    padding: 15px 25px;
     text-decoration: none;
+    padding: 15px 25px;
+    font-size: 16px;
 }
 
 .sidebar a:hover {
-    background: #d4af37;
-    color: black;
+    background: #333;
 }
 
 .main {
-    margin-left: 250px;
-    padding: 30px;
+    margin-left: 230px;
+    padding: 40px;
 }
 
-.cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+h1 {
+    margin-top: 0;
 }
 
 .card {
-    background: #1c1c1c;
+    background: white;
     padding: 25px;
-    border-radius: 15px;
-    text-align: center;
-}
-
-.card h3 {
-    color: #d4af37;
-}
-
-.card p {
-    font-size: 25px;
+    border-radius: 12px;
+    max-width: 600px;
 }
