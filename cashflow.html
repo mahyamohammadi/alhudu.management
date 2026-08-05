@@ -1,49 +1,78 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>AL HUDU Cash Flow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
+
 <body>
 
+
 <div class="sidebar">
-    <h2>AL HUDU</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="sales.html">Sales</a>
-    <a href="expenses.html">Expenses</a>
-    <a href="staff.html">Staff Salary</a>
-    <a href="cashflow.html">Cash Flow</a>
-    <a>Reports</a>
+
+<h2>AL HUDU</h2>
+
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+
 </div>
+
 
 
 <div class="main">
 
+
 <h1>Cash Flow</h1>
 
+
+
+<div class="cards">
+
+
 <div class="card">
+<h3>Cash Sales</h3>
+<p id="cashSales">0 AED</p>
+</div>
 
-<label>Opening Cash (AED)</label>
-<input type="number" placeholder="0">
 
-<label>Cash Sales (AED)</label>
-<input type="number" placeholder="0">
 
-<label>Cash Expenses (AED)</label>
-<input type="number" placeholder="0">
+<div class="card">
+<h3>Expenses</h3>
+<p id="expenses">0 AED</p>
+</div>
 
-<label>Personal Withdrawal (AED)</label>
-<input type="number" placeholder="0">
 
-<label>Closing Cash (AED)</label>
-<input type="number" placeholder="0">
 
-<button>Save Cash Flow</button>
+<div class="card">
+<h3>Paid Salary</h3>
+<p id="salary">0 AED</p>
+</div>
+
+
+
+<div class="card">
+<h3>Cash In Hand</h3>
+<p id="cashHand">0 AED</p>
+</div>
+
+
 
 </div>
 
+
 </div>
+
+
+
+<script type="module" src="cashflow.js"></script>
+
 
 </body>
+
 </html>
