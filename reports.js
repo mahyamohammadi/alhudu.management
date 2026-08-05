@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4DQR-wv4JKhKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
   projectId: "al-hudu-management",
   storageBucket: "al-hudu-management.firebasestorage.app",
@@ -17,47 +17,43 @@ const db = getFirestore(app);
 
 
 
-let report = {
-
-cash:0,
-card:0,
-sales:0,
-expenses:[],
-expenseTotal:0
-
-};
+let salesData=[];
+let expensesData=[];
 
 
 
-let today = new Date()
-.toISOString()
-.split("T")[0];
+document.getElementById("reportType").onchange=function(){
+
+let type=this.value;
+
+
+document.getElementById("dateBox").style.display =
+type==="daily" ? "block":"none";
+
+
+document.getElementById("monthBox").style.display =
+type==="monthly" ? "block":"none";
+
+
+}
 
 
 
-async function loadReports(){
+
+async function getData(){
+
+
+salesData=[];
+expensesData=[];
 
 
 
 const salesSnap = await getDocs(collection(db,"sales"));
 
 
-salesSnap.forEach((doc)=>{
+salesSnap.forEach(doc=>{
 
-
-let data = doc.data();
-
-
-if(data.date === today){
-
-
-report.cash += Number(data.cash || 0);
-
-report.card += Number(data.card || 0);
-
-
-}
-
+salesData.push(doc.data());
 
 });
 
@@ -66,24 +62,9 @@ report.card += Number(data.card || 0);
 const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
-expenseSnap.forEach((doc)=>{
+expenseSnap.forEach(doc=>{
 
-
-let data = doc.data();
-
-
-
-if(data.date === today){
-
-
-report.expenseTotal += Number(data.amount || 0);
-
-
-report.expenses.push({
-
-category:data.category || "",
-amount:data.amount || 0,
-note:data.note || ""
+expensesData.push(doc.data());
 
 });
 
@@ -92,32 +73,183 @@ note:data.note || ""
 
 
 
+
+
+window.generateReport = async function(){
+
+
+await getData();
+
+
+
+let type =
+document.getElementById("reportType").value;
+
+
+
+let selectedDate =
+document.getElementById("selectedDate").value;
+
+
+
+let month =
+document.getElementById("month").value;
+
+
+
+let year =
+document.getElementById("year").value;
+
+
+
+let cash=0;
+let card=0;
+let totalExpenses=0;
+
+let expenseList=[];
+
+
+
+salesData.forEach(item=>{
+
+
+let include=false;
+
+
+
+if(type==="daily" && item.date===selectedDate){
+
+include=true;
+
+}
+
+
+
+if(type==="monthly"){
+
+let d=new Date(item.date);
+
+if(
+d.getMonth()+1==month &&
+d.getFullYear()==year
+){
+
+include=true;
+
+}
+
+}
+
+
+
+if(type==="yearly"){
+
+let d=new Date(item.date);
+
+if(d.getFullYear()==year){
+
+include=true;
+
+}
+
+}
+
+
+
+
+if(include){
+
+cash += Number(item.cash||0);
+
+card += Number(item.card||0);
+
+}
+
+
 });
 
 
 
-report.sales = report.cash + report.card;
+
+
+expensesData.forEach(item=>{
+
+
+let include=false;
 
 
 
-document.getElementById("cashSales").innerHTML =
-report.cash+" AED";
+if(type==="daily" && item.date===selectedDate){
+
+include=true;
+
+}
 
 
-document.getElementById("cardSales").innerHTML =
-report.card+" AED";
+
+if(type==="monthly"){
+
+let d=new Date(item.date);
 
 
-document.getElementById("totalSales").innerHTML =
-report.sales+" AED";
+if(
+d.getMonth()+1==month &&
+d.getFullYear()==year
+){
+
+include=true;
+
+}
+
+}
 
 
-document.getElementById("totalExpenses").innerHTML =
-report.expenseTotal+" AED";
+
+if(type==="yearly"){
+
+let d=new Date(item.date);
 
 
-document.getElementById("profit").innerHTML =
-(report.sales - report.expenseTotal)+" AED";
+if(d.getFullYear()==year){
+
+include=true;
+
+}
+
+}
+
+
+
+if(include){
+
+totalExpenses += Number(item.amount||0);
+
+
+expenseList.push(item);
+
+}
+
+
+});
+
+
+
+
+let totalSales=cash+card;
+
+let profit=totalSales-totalExpenses;
+
+
+
+createPDF(
+type,
+cash,
+card,
+totalSales,
+expenseList,
+totalExpenses,
+profit
+);
 
 
 
@@ -126,7 +258,18 @@ document.getElementById("profit").innerHTML =
 
 
 
-window.downloadReport=function(){
+
+
+function createPDF(
+type,
+cash,
+card,
+sales,
+expenses,
+expenseTotal,
+profit
+){
+
 
 
 const {jsPDF}=window.jspdf;
@@ -136,99 +279,145 @@ let pdf=new jsPDF();
 
 
 
-pdf.setFontSize(18);
+let y=20;
 
-pdf.text("AL HUDU Daily Report",20,20);
 
+
+pdf.setFontSize(22);
+
+pdf.text(
+"AL HUDU",
+20,
+y
+);
+
+
+
+y+=12;
+
+
+pdf.setFontSize(14);
+
+
+pdf.text(
+type.toUpperCase()+" REPORT",
+20,
+y
+);
+
+
+
+y+=15;
 
 
 pdf.setFontSize(12);
 
 
 pdf.text(
-"Date: "+today,
-20,
-35
-);
-
-
-
-pdf.text(
-"Cash Sales: "+report.cash+" AED",
-20,
-55
-);
-
-
-
-pdf.text(
-"Card Sales: "+report.card+" AED",
-20,
-70
-);
-
-
-
-pdf.text(
-"Total Sales: "+report.sales+" AED",
-20,
-85
-);
-
-
-
-pdf.text(
-"EXPENSES (COST)",
-20,
-105
-);
-
-
-
-let y=120;
-
-
-report.expenses.forEach((item)=>{
-
-
-pdf.text(
-item.category+" - "+item.amount+" AED - "+item.note,
+"Cash Sales: "+cash+" AED",
 20,
 y
 );
 
 
+y+=8;
+
+
+pdf.text(
+"Card Sales: "+card+" AED",
+20,
+y
+);
+
+
+y+=8;
+
+
+pdf.text(
+"Total Sales: "+sales+" AED",
+20,
+y
+);
+
+
+
+y+=15;
+
+
+pdf.text(
+"EXPENSES (COST)",
+20,
+y
+);
+
+
+
 y+=10;
+
+
+
+expenses.forEach(e=>{
+
+
+pdf.text(
+`${e.category} - ${e.amount} AED`,
+20,
+y
+);
+
+
+y+=7;
+
+
+if(e.note){
+
+pdf.text(
+"Note: "+e.note,
+30,
+y
+);
+
+y+=7;
+
+}
 
 
 });
 
 
 
+y+=5;
+
+
 pdf.text(
-"Total Expenses (Cost): "+report.expenseTotal+" AED",
+"Total Expenses (Cost): "+expenseTotal+" AED",
 20,
-y+10
+y
 );
 
 
 
+y+=10;
+
+
 pdf.text(
-"Net Profit: "+(report.sales-report.expenseTotal)+" AED",
+"NET PROFIT: "+profit+" AED",
 20,
-y+25
+y
 );
+
+
+
+let date=new Date()
+.toISOString()
+.split("T")[0];
 
 
 
 pdf.save(
-"AL_HUDU_Daily_"+today+".pdf"
+"AL_HUDU_"+type+"_"+date+".pdf"
 );
 
 
 
 }
-
-
-
-loadReports();
