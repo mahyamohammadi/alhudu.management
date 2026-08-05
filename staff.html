@@ -1,46 +1,81 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>AL HUDU Staff Salary</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
+
 <body>
 
+
 <div class="sidebar">
+
     <h2>AL HUDU</h2>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="sales.html">Sales</a>
-    <a href="expenses.html">Expenses</a>
-    <a href="staff.html">Staff Salary</a>
-    <a>Cash Flow</a>
-    <a>Reports</a>
+
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="sales.html">💰 Sales</a>
+    <a href="expenses.html">💸 Expenses</a>
+    <a href="staff.html">👨‍💼 Staff Salary</a>
+    <a href="cashflow.html">💵 Cash Flow</a>
+    <a href="reports.html">📊 Reports</a>
+
 </div>
+
 
 
 <div class="main">
 
+
 <h1>Staff Salary</h1>
+
+
 
 <div class="card">
 
+
 <label>Employee Name</label>
-<input type="text" placeholder="Name">
+<input id="name" type="text" placeholder="Name">
 
-<label>Monthly Salary (AED)</label>
-<input type="number" placeholder="0">
 
-<label>Paid Amount (AED)</label>
-<input type="number" placeholder="0">
+
+<label>Salary Amount (AED)</label>
+<input id="salary" type="number" placeholder="0">
+
+
 
 <label>Payment Date</label>
-<input type="date">
+<input id="date" type="date">
 
-<button>Save Salary</button>
+
+
+<label>Status</label>
+
+<select id="status">
+
+<option>Paid</option>
+<option>Pending</option>
+
+</select>
+
+
+
+<button id="saveStaff">
+Save Salary
+</button>
+
 
 </div>
 
+
 </div>
+
+
+
+<script type="module" src="staff.js"></script>
+
 
 </body>
+
 </html>
