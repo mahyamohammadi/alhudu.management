@@ -8,59 +8,50 @@
 <body>
 
 <div class="sidebar">
+
     <h2>AL HUDU</h2>
+
     <a href="dashboard.html">Dashboard</a>
     <a href="sales.html">Sales</a>
     <a href="expenses.html">Expenses</a>
-    <a href="staff.html">Staff Salary</a>
-    <a href="cashflow.html">Cash Flow</a>
-    <a href="reports.html">Reports</a>
+    <a>Staff Salary</a>
+    <a>Cash Flow</a>
+    <a>Reports</a>
+
 </div>
 
 
 <div class="main">
 
-<h1>Sales Entry</h1>
+<h1>Daily Sales Report</h1>
+
 
 <div class="card">
 
 <label>Date</label>
 <input type="date" id="date">
 
-<label>Invoice Number</label>
-<input type="text" id="invoice" placeholder="Invoice No">
 
 <label>Cash Sale (AED)</label>
 <input type="number" id="cash" placeholder="0">
 
+
 <label>Card Sale (AED)</label>
 <input type="number" id="card" placeholder="0">
 
-<label>Customer Name</label>
-<input type="text" id="customer" placeholder="Optional">
+
+<label>Total Sale (AED)</label>
+<input type="number" id="totalSale" readonly>
+
+
+<label>Note</label>
+<input type="text" id="note" placeholder="Optional">
+
 
 <button id="saveSale">Save Sale</button>
 
+
 </div>
-
-
-<h2>Sales History</h2>
-
-<table border="1" width="100%">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Invoice</th>
-            <th>Cash</th>
-            <th>Card</th>
-            <th>Customer</th>
-        </tr>
-    </thead>
-
-    <tbody id="salesList">
-    </tbody>
-
-</table>
 
 
 </div>
