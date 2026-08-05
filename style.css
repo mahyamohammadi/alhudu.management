@@ -41,3 +41,60 @@ button {
     border-radius: 8px;
     font-weight: bold;
 }
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    width: 230px;
+    height: 100%;
+    background: #1c1c1c;
+    padding-top: 30px;
+}
+
+.sidebar h2 {
+    color: #d4af37;
+    text-align: center;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    background: #d4af37;
+    color: black;
+}
+
+.main {
+    margin-left: 250px;
+    padding: 30px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background: #1c1c1c;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.card h3 {
+    color: #d4af37;
+}
+
+.card p {
+    font-size: 25px;
+}
