@@ -1,54 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
-
 *{
     box-sizing:border-box;
-    font-family:'Cairo', sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 
 body{
+
     margin:0;
-    background:#f5eee4;
-    color:#3b2a1a;
+    background:#faf6ef;
+    color:#4a3b2a;
+
 }
 
 
-
-/* Sidebar */
 
 .sidebar{
 
+    width:250px;
+    height:100vh;
+    background:#efe2cc;
     position:fixed;
     left:0;
     top:0;
-
-    width:260px;
-    height:100vh;
-
-    background:linear-gradient(
-        180deg,
-        #b58b4c,
-        #8d6735
-    );
-
-    padding:35px 20px;
-
-    box-shadow:5px 0 20px rgba(0,0,0,.15);
+    padding:25px;
 
 }
+
 
 
 .sidebar h2{
 
+    color:#b08a3c;
     text-align:center;
-
-    color:white;
-
-    font-size:32px;
-
-    letter-spacing:3px;
-
-    margin-bottom:45px;
+    margin-bottom:40px;
 
 }
 
@@ -56,25 +40,12 @@ body{
 
 .sidebar a{
 
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-    color:white;
-
+    display:block;
+    color:#5a4630;
     text-decoration:none;
-
-    padding:15px 18px;
-
-    margin-bottom:12px;
-
-    border-radius:15px;
-
-    transition:.3s;
-
-    font-size:16px;
+    padding:14px;
+    margin:10px 0;
+    border-radius:10px;
 
 }
 
@@ -82,48 +53,35 @@ body{
 
 .sidebar a:hover{
 
-    background:rgba(255,255,255,.2);
-
-    transform:translateX(5px);
+    background:#d9b56d;
+    color:white;
 
 }
 
 
-
-/* Main */
 
 .main{
 
-    margin-left:260px;
-
-    padding:45px;
-
-}
-
-
-
-.main h1{
-
-    color:#8d6735;
-
-    font-size:36px;
-
-    margin-bottom:35px;
+    margin-left:270px;
+    padding:35px;
 
 }
 
 
 
-/* Cards */
+h1{
+
+    color:#8b6a2e;
+
+}
+
+
 
 .cards{
 
     display:grid;
-
-    grid-template-columns:
-    repeat(auto-fit,minmax(240px,1fr));
-
-    gap:25px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
 
 }
 
@@ -132,26 +90,9 @@ body{
 .card{
 
     background:white;
-
-    border-radius:25px;
-
-    padding:30px;
-
-    box-shadow:
-
-    0 15px 35px rgba(0,0,0,.08);
-
-    border:1px solid #ead7b7;
-
-    transition:.3s;
-
-}
-
-
-
-.card:hover{
-
-    transform:translateY(-5px);
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(176,138,60,0.15);
 
 }
 
@@ -159,45 +100,7 @@ body{
 
 .card h3{
 
-    color:#b58b4c;
-
-    font-size:18px;
-
-}
-
-
-
-.card p{
-
-    font-size:30px;
-
-    font-weight:700;
-
-    margin:15px 0 0;
-
-    color:#3b2a1a;
-
-}
-
-
-
-/* Inputs */
-
-input,select{
-
-    width:100%;
-
-    padding:15px;
-
-    border-radius:15px;
-
-    border:1px solid #d8bb8a;
-
-    margin-bottom:20px;
-
-    font-size:16px;
-
-    background:#fffaf2;
+    color:#b08a3c;
 
 }
 
@@ -205,20 +108,11 @@ input,select{
 
 button{
 
-    width:100%;
-
-    padding:16px;
-
-    border:none;
-
-    border-radius:15px;
-
-    background:#b58b4c;
-
+    background:#b08a3c;
     color:white;
-
-    font-size:18px;
-
+    border:none;
+    padding:12px 25px;
+    border-radius:8px;
     cursor:pointer;
 
 }
@@ -227,33 +121,18 @@ button{
 
 button:hover{
 
-    background:#8d6735;
+    background:#8b6a2e;
 
 }
 
 
 
-/* Mobile */
-
-@media(max-width:700px){
-
-.sidebar{
-
-    position:relative;
+input, select{
 
     width:100%;
-
-    height:auto;
-
-}
-
-
-.main{
-
-    margin-left:0;
-
-    padding:20px;
-
-}
+    padding:12px;
+    margin:8px 0 18px;
+    border:1px solid #dfcda8;
+    border-radius:8px;
 
 }
