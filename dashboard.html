@@ -7,8 +7,6 @@
 
 <link rel="stylesheet" href="style.css">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
 
@@ -33,7 +31,15 @@
 <div class="main">
 
 
-<h1>AL HUDU MANAGEMENT</h1>
+
+<div class="brand">
+
+<h1>AL HUDU</h1>
+
+<p>Luxury Jalabiya</p>
+
+</div>
+
 
 
 
@@ -41,29 +47,41 @@
 
 
 <div class="card">
+
 <h3>💰 Total Sales</h3>
+
 <p id="totalSales">0 AED</p>
+
 </div>
 
 
 
 <div class="card">
+
 <h3>💸 Total Expenses</h3>
+
 <p id="totalExpenses">0 AED</p>
+
 </div>
 
 
 
 <div class="card">
+
 <h3>📈 Net Profit</h3>
+
 <p id="monthlyProfit">0 AED</p>
+
 </div>
 
 
 
 <div class="card">
+
 <h3>💵 Cash Balance</h3>
+
 <p id="cashBalance">0 AED</p>
+
 </div>
 
 
@@ -78,47 +96,63 @@ Today's Summary
 </h2>
 
 
+
 <div class="cards">
 
 
 <div class="card">
+
 <h3>Cash Sales</h3>
+
 <p id="todayCash">0 AED</p>
+
 </div>
 
 
 
 <div class="card">
+
 <h3>Card Sales</h3>
+
 <p id="todayCard">0 AED</p>
+
 </div>
 
 
 
 <div class="card">
+
 <h3>Expenses</h3>
+
 <p id="todayExpense">0 AED</p>
+
 </div>
 
 
 </div>
+
 
 
 
 
 <div class="card" style="margin-top:40px;">
 
+
 <h2>Sales Overview</h2>
 
-<canvas id="salesChart"></canvas>
 
-</div>
-
+<canvas id="salesChart" width="400" height="200"></canvas>
 
 
 </div>
 
 
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script type="module" src="dashboard.js"></script>
 
