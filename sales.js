@@ -14,7 +14,36 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-// Save Sale
+async function loadSales() {
+
+    const salesList = document.getElementById("salesList");
+
+    if (!salesList) {
+        console.log("salesList not found");
+        return;
+    }
+
+    salesList.innerHTML = "";
+
+    const querySnapshot = await getDocs(collection(db, "sales"));
+
+    querySnapshot.forEach((doc) => {
+
+        const sale = doc.data();
+
+        salesList.innerHTML += `
+        <tr>
+            <td>${sale.date || ""}</td>
+            <td>${sale.invoice || ""}</td>
+            <td>${sale.cash || 0}</td>
+            <td>${sale.card || 0}</td>
+            <td>${sale.customer || ""}</td>
+        </tr>
+        `;
+    });
+}
+
+
 document.getElementById("saveSale").onclick = async function () {
 
     await addDoc(collection(db, "sales"), {
@@ -31,32 +60,4 @@ document.getElementById("saveSale").onclick = async function () {
 };
 
 
-// Show Sales
-async function loadSales() {
-
-    const salesList = document.getElementById("salesList");
-    salesList.innerHTML = "";
-
-    const querySnapshot = await getDocs(collection(db, "sales"));
-
-    querySnapshot.forEach((doc) => {
-
-        const sale = doc.data();
-
-        salesList.innerHTML += `
-        <tr>
-            <td>${sale.date}</td>
-            <td>${sale.invoice}</td>
-            <td>${sale.cash}</td>
-            <td>${sale.card}</td>
-            <td>${sale.customer}</td>
-        </tr>
-        `;
-
-    });
-
-}
-
-
-// Load when page opens
 loadSales();
