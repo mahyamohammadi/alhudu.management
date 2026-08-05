@@ -2,16 +2,11 @@
 <html>
 
 <head>
-
 <title>AL HUDU Reports</title>
-
 <link rel="stylesheet" href="style.css">
-
 </head>
 
-
 <body>
-
 
 <div class="sidebar">
 
@@ -30,46 +25,38 @@
 
 <div class="main">
 
-
-<div class="brand">
-
 <h1>AL HUDU Reports</h1>
-
-<p>Luxury Jalabiya</p>
-
-</div>
-
 
 
 <div class="cards">
 
 
 <div class="card">
-<h3>💵 Cash Sales</h3>
+<h3>Cash Sales</h3>
 <p id="cashSales">0 AED</p>
 </div>
 
 
 <div class="card">
-<h3>💳 Card Sales</h3>
+<h3>Card Sales</h3>
 <p id="cardSales">0 AED</p>
 </div>
 
 
 <div class="card">
-<h3>💰 Total Sales</h3>
+<h3>Total Sales</h3>
 <p id="totalSales">0 AED</p>
 </div>
 
 
 <div class="card">
-<h3>💸 Expenses</h3>
-<p id="expenses">0 AED</p>
+<h3>Expenses (Cost)</h3>
+<p id="totalExpenses">0 AED</p>
 </div>
 
 
 <div class="card">
-<h3>📈 Net Profit</h3>
+<h3>Net Profit</h3>
 <p id="profit">0 AED</p>
 </div>
 
@@ -77,24 +64,16 @@
 </div>
 
 
+<div class="card">
 
-<div class="card" style="margin-top:40px;">
+<h2>Download PDF</h2>
 
-<button onclick="downloadPDF('Daily')">
-Daily PDF
-</button>
-
-<button onclick="downloadPDF('Monthly')">
-Monthly PDF
-</button>
-
-<button onclick="downloadPDF('Yearly')">
-Yearly PDF
+<button onclick="downloadReport()">
+📄 Daily PDF
 </button>
 
 
 </div>
-
 
 
 </div>
