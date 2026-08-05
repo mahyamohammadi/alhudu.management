@@ -3,7 +3,7 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JkKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
   projectId: "al-hudu-management",
   storageBucket: "al-hudu-management.firebasestorage.app",
@@ -19,104 +19,83 @@ const db = getFirestore(app);
 
 async function loadDashboard(){
 
-    const today = new Date();
 
-    const currentMonth =
-    today.getFullYear() + "-" + 
-    String(today.getMonth()+1).padStart(2,'0');
+let totalSales = 0;
+let totalCash = 0;
+let totalCard = 0;
 
 
-    let totalCash = 0;
-    let totalCard = 0;
-    let count = 0;
-
-    let monthlySales = 0;
-    let monthlyExpenses = 0;
+let totalExpenses = 0;
 
 
 
-    // SALES
-
-    const salesSnapshot = await getDocs(collection(db,"sales"));
+const sales = await getDocs(collection(db,"sales"));
 
 
-    salesSnapshot.forEach((doc)=>{
+sales.forEach((doc)=>{
 
-        let sale = doc.data();
-
-
-        totalCash += Number(sale.cash || 0);
-        totalCard += Number(sale.card || 0);
-        count++;
+let data = doc.data();
 
 
-        if(
-            sale.date &&
-            sale.date.startsWith(currentMonth)
-        ){
+totalSales += Number(data.total || 0);
 
-            monthlySales += Number(sale.cash || 0);
-            monthlySales += Number(sale.card || 0);
+totalCash += Number(data.cash || 0);
 
-        }
+totalCard += Number(data.card || 0);
 
 
-    });
+});
 
 
 
-    // EXPENSES
-
-    const expenseSnapshot = await getDocs(collection(db,"expenses"));
 
 
-    expenseSnapshot.forEach((doc)=>{
-
-        let expense = doc.data();
+const expenses = await getDocs(collection(db,"expenses"));
 
 
-        if(
-            expense.date &&
-            expense.date.startsWith(currentMonth)
-        ){
+expenses.forEach((doc)=>{
 
-            monthlyExpenses += Number(expense.amount || 0);
-
-        }
+let data = doc.data();
 
 
-    });
+totalExpenses += Number(data.amount || 0);
+
+
+});
 
 
 
-    let totalSales = totalCash + totalCard;
-
-    let profit = monthlySales - monthlyExpenses;
 
 
-
-    document.getElementById("todaySales").innerHTML =
-    totalSales + " AED";
-
-
-    document.getElementById("todayCash").innerHTML =
-    totalCash + " AED";
+document.getElementById("totalSales").innerHTML =
+totalSales + " AED";
 
 
-    document.getElementById("todayCard").innerHTML =
-    totalCard + " AED";
+document.getElementById("totalExpenses").innerHTML =
+totalExpenses + " AED";
 
 
-    document.getElementById("salesCount").innerHTML =
-    count;
+
+document.getElementById("monthlyProfit").innerHTML =
+(totalSales - totalExpenses) + " AED";
 
 
-    document.getElementById("todayExpenses").innerHTML =
-    monthlyExpenses + " AED";
+
+document.getElementById("cashBalance").innerHTML =
+(totalCash - totalExpenses) + " AED";
 
 
-    document.getElementById("monthlyProfit").innerHTML =
-    profit + " AED";
+
+document.getElementById("todayCash").innerHTML =
+totalCash + " AED";
+
+
+document.getElementById("todayCard").innerHTML =
+totalCard + " AED";
+
+
+document.getElementById("todayExpense").innerHTML =
+totalExpenses + " AED";
 
 
 }
