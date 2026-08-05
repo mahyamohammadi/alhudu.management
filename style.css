@@ -5,134 +5,165 @@
 
 
 body{
-
     margin:0;
-    background:#faf6ef;
-    color:#4a3b2a;
-
+    background:#faf5ec;
+    color:#4b3a26;
 }
 
 
+/* Sidebar */
 
 .sidebar{
 
-    width:250px;
+    width:280px;
     height:100vh;
-    background:#efe2cc;
+    background:#f0dfc2;
     position:fixed;
     left:0;
     top:0;
-    padding:25px;
+    padding:35px 25px;
 
 }
-
 
 
 .sidebar h2{
 
-    color:#b08a3c;
+    color:#a77b28;
     text-align:center;
-    margin-bottom:40px;
+    font-size:36px;
+    letter-spacing:3px;
+    margin-bottom:50px;
 
 }
-
 
 
 .sidebar a{
 
     display:block;
-    color:#5a4630;
+    color:#4b3a26;
     text-decoration:none;
-    padding:14px;
-    margin:10px 0;
+    font-size:20px;
+    font-weight:bold;
+    padding:18px;
+    margin:12px 0;
+    border-radius:12px;
+
+}
+
+
+.sidebar a:hover{
+
+    background:#c9a45b;
+    color:white;
+
+}
+
+
+
+/* Main */
+
+.main{
+
+    margin-left:310px;
+    padding:45px;
+
+}
+
+
+h1{
+
+    font-size:42px;
+    color:#9a7028;
+    margin-bottom:35px;
+
+}
+
+
+
+/* Cards */
+
+.cards{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:25px;
+
+}
+
+
+.card{
+
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 8px 25px rgba(160,120,40,0.15);
+
+}
+
+
+.card h3{
+
+    font-size:24px;
+    color:#a77b28;
+    margin-bottom:15px;
+
+}
+
+
+.card p{
+
+    font-size:32px;
+    font-weight:bold;
+    color:#4b3a26;
+
+}
+
+
+
+/* Inputs */
+
+input,
+select{
+
+    width:100%;
+    padding:15px;
+    font-size:18px;
+    margin:10px 0 20px;
+    border:1px solid #dcc59a;
     border-radius:10px;
 
 }
 
 
 
-.sidebar a:hover{
-
-    background:#d9b56d;
-    color:white;
-
-}
-
-
-
-.main{
-
-    margin-left:270px;
-    padding:35px;
-
-}
-
-
-
-h1{
-
-    color:#8b6a2e;
-
-}
-
-
-
-.cards{
-
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-
-}
-
-
-
-.card{
-
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(176,138,60,0.15);
-
-}
-
-
-
-.card h3{
-
-    color:#b08a3c;
-
-}
-
-
+/* Button */
 
 button{
 
-    background:#b08a3c;
+    background:#b58a3c;
     color:white;
     border:none;
-    padding:12px 25px;
-    border-radius:8px;
+    padding:15px 35px;
+    font-size:18px;
+    border-radius:12px;
     cursor:pointer;
 
 }
 
 
-
 button:hover{
 
-    background:#8b6a2e;
+    background:#8e6828;
 
 }
 
 
 
-input, select{
+/* Chart */
 
-    width:100%;
-    padding:12px;
-    margin:8px 0 18px;
-    border:1px solid #dfcda8;
-    border-radius:8px;
+canvas{
+
+    margin-top:20px;
+    max-height:400px;
 
 }
