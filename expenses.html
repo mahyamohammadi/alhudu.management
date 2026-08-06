@@ -1,34 +1,101 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>AL HUDU Expenses</title>
-    <link rel="stylesheet" href="style.css">
+
+<title>AL HUDU Expenses</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.exp-card{
+
+background:white;
+border-radius:15px;
+padding:15px;
+margin-top:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+
+.exp-header{
+
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+
+}
+
+
+.exp-row{
+
+display:flex;
+justify-content:space-between;
+margin-top:8px;
+
+}
+
+
+.action button{
+
+padding:8px 12px;
+border:none;
+border-radius:8px;
+
+}
+
+
+.edit{
+
+background:#d4af37;
+
+}
+
+
+.delete{
+
+background:#eee;
+
+}
+
+</style>
+
 </head>
+
 
 <body>
 
 
 <div class="sidebar">
 
-    <h2>AL HUDU</h2>
+<h2>AL HUDU</h2>
 
-    <a href="dashboard.html">Dashboard</a>
-    <a href="sales.html">Sales</a>
-    <a href="expenses.html">Expenses</a>
-    <a>Staff Salary</a>
-    <a>Cash Flow</a>
-    <a>Reports</a>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
 
 
 
+
 <div class="main">
 
-<h1>Daily Expenses Report</h1>
+
+<h1>Expenses (Cost)</h1>
+
 
 
 <div class="card">
+
+
+<h2>Add Expense</h2>
 
 
 <label>Date</label>
@@ -37,27 +104,17 @@
 
 
 <label>Category</label>
-
-<select id="category">
-
-<option>Rent</option>
-<option>Salary</option>
-<option>Marketing</option>
-<option>Transportation</option>
-<option>Shop Supplies</option>
-<option>Other</option>
-
-</select>
+<input type="text" id="category">
 
 
 
-<label>Amount (AED)</label>
-<input type="number" id="amount" placeholder="0">
+<label>Amount</label>
+<input type="number" id="amount">
 
 
 
 <label>Note</label>
-<input type="text" id="note" placeholder="Optional">
+<input type="text" id="note">
 
 
 
@@ -69,6 +126,30 @@ Save Expense
 </div>
 
 
+
+
+<div class="card">
+
+
+<h2>Expense History</h2>
+
+
+<input 
+type="text"
+id="searchExpense"
+placeholder="🔍 Search..."
+>
+
+
+
+<div id="expenseList"></div>
+
+
+</div>
+
+
+
+
 </div>
 
 
@@ -77,4 +158,6 @@ Save Expense
 
 
 </body>
+
+
 </html>
