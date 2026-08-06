@@ -2,74 +2,224 @@
 <html>
 
 <head>
-    <title>AL HUDU Staff Salary</title>
-    <link rel="stylesheet" href="style.css">
+
+<title>AL HUDU Staff Payment</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+<style>
+
+.staff-card{
+
+background:white;
+border-radius:16px;
+padding:18px;
+margin-top:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.staff-top{
+
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+
+}
+
+
+.staff-line{
+
+display:flex;
+justify-content:space-between;
+margin-top:10px;
+
+}
+
+
+.total{
+
+font-size:18px;
+font-weight:bold;
+
+}
+
+
+.paid{
+
+color:green;
+
+}
+
+
+.unpaid{
+
+color:red;
+
+}
+
+
+.action button{
+
+padding:8px 12px;
+border:0;
+border-radius:8px;
+
+}
+
+
+.edit{
+
+background:#d4af37;
+
+}
+
+
+.delete{
+
+background:#eee;
+
+}
+
+</style>
+
+
 </head>
 
 
 <body>
 
 
+
 <div class="sidebar">
 
-    <h2>AL HUDU</h2>
+<h2>AL HUDU</h2>
 
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <a href="sales.html">💰 Sales</a>
-    <a href="expenses.html">💸 Expenses</a>
-    <a href="staff.html">👨‍💼 Staff Salary</a>
-    <a href="cashflow.html">💵 Cash Flow</a>
-    <a href="reports.html">📊 Reports</a>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
+
+
 
 
 
 <div class="main">
 
 
-<h1>Staff Salary</h1>
+<h1>Staff Payment</h1>
 
 
 
 <div class="card">
 
 
-<label>Employee Name</label>
-<input id="name" type="text" placeholder="Name">
+<h2>Add Payment</h2>
+
+
+<label>Staff Name</label>
+
+<input type="text" id="name">
 
 
 
-<label>Salary Amount (AED)</label>
-<input id="salary" type="number" placeholder="0">
+<label>Basic Salary</label>
+
+<input type="number" id="salary">
 
 
 
-<label>Payment Date</label>
-<input id="date" type="date">
+<label>Commission</label>
+
+<input type="number" id="commission">
+
+
+
+<label>Car Lift</label>
+
+<input type="number" id="carLift">
+
+
+
+<label>Total Payment</label>
+
+<input type="number" id="total" readonly>
+
+
+
+
+<label>Date</label>
+
+<input type="date" id="date">
+
 
 
 
 <label>Status</label>
 
+
 <select id="status">
 
-<option>Paid</option>
-<option>Pending</option>
+<option value="Paid">
+Paid ✅
+</option>
+
+<option value="Unpaid">
+Unpaid ⏳
+</option>
 
 </select>
 
 
 
+
 <button id="saveStaff">
-Save Salary
+
+Save Payment
+
 </button>
 
 
 </div>
 
 
+
+
+
+
+<div class="card">
+
+
+<h2>Payment History</h2>
+
+
+<input 
+type="text"
+id="searchStaff"
+placeholder="🔍 Search staff..."
+>
+
+
+
+<div id="staffList"></div>
+
+
 </div>
+
+
+
+
+
+</div>
+
+
 
 
 
@@ -77,5 +227,6 @@ Save Salary
 
 
 </body>
+
 
 </html>
