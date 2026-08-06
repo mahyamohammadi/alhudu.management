@@ -1,14 +1,12 @@
 import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-
 import {
 getFirestore,
 collection,
 getDocs
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 
 const firebaseConfig = {
@@ -21,7 +19,6 @@ const firebaseConfig = {
 };
 
 
-
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
@@ -32,83 +29,75 @@ let currentReport = null;
 
 
 
-
-
-
 async function getData(){
 
 
-let sales=[];
-let expenses=[];
-let staff=[];
+let sales = [];
+let expenses = [];
+let staff = [];
+
+
+const salesSnap = await getDocs(collection(db,"sales"));
+
+salesSnap.forEach(doc=>{
+sales.push(doc.data());
+});
 
 
 
-const s = await getDocs(collection(db,"sales"));
+const expenseSnap = await getDocs(collection(db,"expenses"));
 
-s.forEach(x=>sales.push(x.data()));
-
-
-
-const e = await getDocs(collection(db,"expenses"));
-
-e.forEach(x=>expenses.push(x.data()));
+expenseSnap.forEach(doc=>{
+expenses.push(doc.data());
+});
 
 
 
-const st = await getDocs(collection(db,"staff"));
+const staffSnap = await getDocs(collection(db,"staff"));
 
-st.forEach(x=>staff.push(x.data()));
+staffSnap.forEach(doc=>{
+staff.push(doc.data());
+});
 
 
-
-return {sales,expenses,staff};
-
+return {
+sales,
+expenses,
+staff
+};
 
 }
 
 
 
 
-
-
-
-
-function inRange(date,from,to){
-
+function checkDate(date,from,to){
 
 return date >= from && date <= to;
 
-
 }
 
 
 
 
 
+function calculateReport(data,from,to){
 
 
-
-function calculate(data,from,to){
-
-
-let cash=0;
-
-let card=0;
-
-let expensesTotal=0;
-
-let staffTotal=0;
+let cash = 0;
+let card = 0;
+let expensesTotal = 0;
+let staffTotal = 0;
 
 
-let expenseDetails=[];
+let expenseDetails = [];
 
 
 
 data.sales.forEach(s=>{
 
 
-if(inRange(s.date,from,to)){
+if(checkDate(s.date,from,to)){
 
 
 cash += Number(s.cash || 0);
@@ -118,11 +107,7 @@ card += Number(s.card || 0);
 
 }
 
-
 });
-
-
-
 
 
 
@@ -130,22 +115,17 @@ card += Number(s.card || 0);
 data.expenses.forEach(e=>{
 
 
-if(inRange(e.date,from,to)){
+if(checkDate(e.date,from,to)){
 
 
 expensesTotal += Number(e.amount || 0);
-
 
 expenseDetails.push(e);
 
 
 }
 
-
 });
-
-
-
 
 
 
@@ -153,14 +133,13 @@ expenseDetails.push(e);
 data.staff.forEach(s=>{
 
 
-if(inRange(s.date,from,to)){
+if(checkDate(s.date,from,to)){
 
 
 staffTotal += Number(s.total || 0);
 
 
 }
-
 
 });
 
@@ -180,109 +159,71 @@ return {
 
 from,
 to,
+
 cash,
 card,
+
 salesTotal,
+
 expensesTotal,
+
 staffTotal,
+
 profit,
+
 expenseDetails
 
 };
 
 
-
-}
-
-
-
-
-
-
-
-
-
-function showReport(r){
+}function showReport(r){
 
 
 document.getElementById("reportResult").innerHTML = `
 
 
-
 <div class="report-row">
-
 <span>💵 Cash Sales</span>
-
 <b>${r.cash} AED</b>
-
 </div>
 
 
-
 <div class="report-row">
-
 <span>💳 Card Sales</span>
-
 <b>${r.card} AED</b>
-
 </div>
 
 
-
 <div class="report-row">
-
 <span>💰 Total Sales</span>
-
 <b>${r.salesTotal} AED</b>
-
 </div>
 
 
-
 <div class="report-row">
-
 <span>💸 Expenses (Cost)</span>
-
 <b>${r.expensesTotal} AED</b>
-
 </div>
-
 
 
 <div class="report-row">
-
 <span>👨‍💼 Staff Payment</span>
-
 <b>${r.staffTotal} AED</b>
-
 </div>
-
 
 
 <hr>
 
 
-
 <div class="report-row">
-
 <span>📈 Net Profit</span>
-
 <b>${r.profit} AED</b>
-
 </div>
-
 
 
 `;
 
-
-
 }
-
-
-
-
-
 
 
 
@@ -294,7 +235,6 @@ let from =
 document.getElementById("fromDate").value;
 
 
-
 let to =
 document.getElementById("toDate").value;
 
@@ -302,7 +242,7 @@ document.getElementById("toDate").value;
 
 if(!from || !to){
 
-alert("Select Date Range");
+alert("Please select date range");
 
 return;
 
@@ -315,7 +255,11 @@ let data = await getData();
 
 
 currentReport =
-calculate(data,from,to);
+calculateReport(
+data,
+from,
+to
+);
 
 
 
@@ -332,13 +276,12 @@ showReport(currentReport);
 
 
 
-
 document.getElementById("exportPDF").onclick = ()=>{
 
 
 if(!currentReport){
 
-alert("Generate Report First");
+alert("Generate report first");
 
 return;
 
@@ -349,15 +292,16 @@ return;
 const {jsPDF}=window.jspdf;
 
 
+
 let pdf = new jsPDF();
 
 
 
-let y=20;
+let y = 20;
 
 
 
-pdf.setFontSize(20);
+pdf.setFontSize(22);
 
 pdf.text(
 "AL HUDU",
@@ -370,13 +314,27 @@ y
 y += 12;
 
 
-pdf.setFontSize(12);
 
+pdf.setFontSize(13);
 
 pdf.text(
-"Report Date: "+
+"Financial Report",
+20,
+y
+);
+
+
+
+y += 10;
+
+
+
+pdf.setFontSize(11);
+
+pdf.text(
+"Period: "+
 currentReport.from+
-" to "+
+" To "+
 currentReport.to,
 20,
 y
@@ -384,7 +342,7 @@ y
 
 
 
-y += 15;
+y += 18;
 
 
 
@@ -392,9 +350,9 @@ pdf.text(
 "Cash Sales: "+
 currentReport.cash+
 " AED",
-20,y
+20,
+y
 );
-
 
 
 y += 8;
@@ -404,9 +362,9 @@ pdf.text(
 "Card Sales: "+
 currentReport.card+
 " AED",
-20,y
+20,
+y
 );
-
 
 
 y += 8;
@@ -416,7 +374,8 @@ pdf.text(
 "Total Sales: "+
 currentReport.salesTotal+
 " AED",
-20,y
+20,
+y
 );
 
 
@@ -426,7 +385,8 @@ y += 10;
 
 pdf.text(
 "EXPENSES (COST)",
-20,y
+20,
+y
 );
 
 
@@ -457,8 +417,7 @@ y += 7;
 
 
 
-
-y += 8;
+y += 10;
 
 
 
@@ -466,12 +425,13 @@ pdf.text(
 "Staff Payment: "+
 currentReport.staffTotal+
 " AED",
-20,y
+20,
+y
 );
 
 
 
-y += 8;
+y += 10;
 
 
 
@@ -479,7 +439,8 @@ pdf.text(
 "NET PROFIT: "+
 currentReport.profit+
 " AED",
-20,y
+20,
+y
 );
 
 
