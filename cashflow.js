@@ -5,7 +5,9 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
 getFirestore,
 collection,
-getDocs
+getDocs,
+doc,
+getDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -33,11 +35,38 @@ const db = getFirestore(app);
 async function loadCashFlow(){
 
 
+let openingCash = 0;
+
 let cashSales = 0;
 
 let expenses = 0;
 
 let staffPayment = 0;
+
+
+
+
+
+// OPENING CASH BALANCE
+
+const openingSnap = await getDoc(
+doc(db,"settings","openingBalance")
+);
+
+
+
+if(openingSnap.exists()){
+
+
+openingCash = Number(
+openingSnap.data().amount || 0
+);
+
+
+}
+
+
+
 
 
 
@@ -72,6 +101,7 @@ s.cash || 0
 
 
 
+
 // EXPENSES
 
 const expenseSnap = await getDocs(
@@ -94,6 +124,7 @@ e.amount || 0
 
 
 });
+
 
 
 
@@ -131,13 +162,27 @@ s.total || 0
 
 
 
+
+// FINAL CASH BALANCE
+
 let balance =
-cashSales - expenses - staffPayment;
+openingCash
++
+cashSales
+-
+expenses
+-
+staffPayment;
 
 
 
 
 
+
+
+document.getElementById("openingCash")
+.innerHTML =
+openingCash + " AED";
 
 
 
