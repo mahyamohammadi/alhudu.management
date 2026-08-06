@@ -2,12 +2,52 @@
 <html>
 
 <head>
-    <title>AL HUDU Cash Flow</title>
-    <link rel="stylesheet" href="style.css">
+
+<title>AL HUDU Cash Flow</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+<style>
+
+.flow-card{
+
+background:white;
+border-radius:16px;
+padding:18px;
+margin-top:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.flow-line{
+
+display:flex;
+justify-content:space-between;
+margin:12px 0;
+font-size:17px;
+
+}
+
+
+.profit{
+
+font-size:22px;
+font-weight:bold;
+
+}
+
+
+</style>
+
+
 </head>
 
 
+
 <body>
+
 
 
 <div class="sidebar">
@@ -17,11 +57,14 @@
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="sales.html">💰 Sales</a>
 <a href="expenses.html">💸 Expenses</a>
-<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
+
+
 
 
 
@@ -32,41 +75,103 @@
 
 
 
-<div class="cards">
-
 
 <div class="card">
-<h3>Cash Sales</h3>
-<p id="cashSales">0 AED</p>
-</div>
 
 
+<label>Select Date</label>
 
-<div class="card">
-<h3>Expenses</h3>
-<p id="expenses">0 AED</p>
-</div>
+<input type="date" id="selectDate">
 
 
+<button id="loadCashFlow">
 
-<div class="card">
-<h3>Paid Salary</h3>
-<p id="salary">0 AED</p>
-</div>
+View
 
-
-
-<div class="card">
-<h3>Cash In Hand</h3>
-<p id="cashHand">0 AED</p>
-</div>
-
+</button>
 
 
 </div>
 
 
+
+
+
+
+<div class="flow-card">
+
+
+<h2>Cash Summary</h2>
+
+
+
+<div class="flow-line">
+
+<span>💰 Total Sales</span>
+
+<b id="salesTotal">
+0 AED
+</b>
+
 </div>
+
+
+
+
+<div class="flow-line">
+
+<span>💸 Expenses (Cost)</span>
+
+<b id="expenseTotal">
+0 AED
+</b>
+
+</div>
+
+
+
+
+
+<div class="flow-line">
+
+<span>👨‍💼 Staff Payment</span>
+
+<b id="staffTotal">
+0 AED
+</b>
+
+</div>
+
+
+
+
+
+<hr>
+
+
+
+
+
+<div class="flow-line profit">
+
+<span>💵 Cash In Hand</span>
+
+<b id="cashResult">
+0 AED
+</b>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+</div>
+
 
 
 
@@ -74,5 +179,6 @@
 
 
 </body>
+
 
 </html>
