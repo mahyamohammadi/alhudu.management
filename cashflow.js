@@ -1,5 +1,14 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+getFirestore,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 
 const firebaseConfig = {
@@ -12,84 +21,167 @@ const firebaseConfig = {
 };
 
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 
 
-async function loadCashFlow(){
 
 
-let cashSales = 0;
+
+document.getElementById("loadCashFlow").onclick = async()=>{
+
+
+let selectedDate =
+document.getElementById("selectDate").value;
+
+
+
+let sales = 0;
+
 let expenses = 0;
-let salary = 0;
 
-
-
-const salesSnap = await getDocs(collection(db,"sales"));
-
-salesSnap.forEach((doc)=>{
-
-let data = doc.data();
-
-cashSales += Number(data.cash || 0);
-
-});
+let staff = 0;
 
 
 
 
-const expenseSnap = await getDocs(collection(db,"expenses"));
 
-expenseSnap.forEach((doc)=>{
+// SALES
 
-let data = doc.data();
-
-expenses += Number(data.amount || 0);
-
-});
+const salesSnap = await getDocs(
+collection(db,"sales")
+);
 
 
 
-
-const staffSnap = await getDocs(collection(db,"staff"));
-
-staffSnap.forEach((doc)=>{
-
-let data = doc.data();
+salesSnap.forEach(item=>{
 
 
-if(data.status === "Paid"){
+let s=item.data();
 
-salary += Number(data.salary || 0);
+
+
+if(s.date === selectedDate){
+
+
+sales += Number(s.cash || 0);
+
 
 }
 
+
 });
 
 
 
 
 
-document.getElementById("cashSales").innerHTML =
-cashSales + " AED";
 
 
-document.getElementById("expenses").innerHTML =
+
+// EXPENSES
+
+const expSnap = await getDocs(
+collection(db,"expenses")
+);
+
+
+
+expSnap.forEach(item=>{
+
+
+let e=item.data();
+
+
+
+if(e.date === selectedDate){
+
+
+expenses += Number(e.amount || 0);
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+// STAFF
+
+const staffSnap = await getDocs(
+collection(db,"staff")
+);
+
+
+
+staffSnap.forEach(item=>{
+
+
+let s=item.data();
+
+
+
+if(s.date === selectedDate){
+
+
+staff += Number(s.total || 0);
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+let cash = sales - expenses - staff;
+
+
+
+
+
+
+
+document.getElementById("salesTotal")
+.innerHTML =
+sales + " AED";
+
+
+
+document.getElementById("expenseTotal")
+.innerHTML =
 expenses + " AED";
 
 
-document.getElementById("salary").innerHTML =
-salary + " AED";
+
+document.getElementById("staffTotal")
+.innerHTML =
+staff + " AED";
 
 
 
-document.getElementById("cashHand").innerHTML =
-(cashSales - expenses - salary) + " AED";
-
-
-}
+document.getElementById("cashResult")
+.innerHTML =
+cash + " AED";
 
 
 
-loadCashFlow();
+};
