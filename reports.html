@@ -7,47 +7,10 @@
 
 <link rel="stylesheet" href="style.css">
 
-
-<style>
-
-.report-card{
-
-background:white;
-padding:20px;
-border-radius:18px;
-margin-top:20px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-
-}
-
-
-.report-row{
-
-display:flex;
-justify-content:space-between;
-padding:12px 0;
-
-}
-
-
-.gold-btn{
-
-background:#d4af37;
-border:none;
-padding:12px 20px;
-border-radius:10px;
-cursor:pointer;
-
-}
-
-</style>
-
-
 </head>
 
 
 <body>
-
 
 
 <div class="sidebar">
@@ -66,7 +29,6 @@ cursor:pointer;
 
 <a href="reports.html">📊 Reports</a>
 
-
 </div>
 
 
@@ -80,7 +42,7 @@ cursor:pointer;
 
 
 
-<div class="report-card">
+<div class="card">
 
 
 <h2>Date Range</h2>
@@ -99,10 +61,10 @@ cursor:pointer;
 
 
 
-<br><br>
+<br>
 
 
-<button class="gold-btn" id="generateReport">
+<button id="generateReport">
 
 Generate Report
 
@@ -110,7 +72,7 @@ Generate Report
 
 
 
-<button class="gold-btn" id="exportPDF">
+<button id="exportPDF">
 
 Export PDF
 
@@ -126,11 +88,10 @@ Export PDF
 
 
 
+<div class="card">
 
-<div class="report-card">
 
-
-<h2>Summary</h2>
+<h2>Report Summary</h2>
 
 
 
@@ -139,7 +100,6 @@ Export PDF
 
 Select Date Range
 
-
 </div>
 
 
@@ -151,6 +111,7 @@ Select Date Range
 
 
 </div>
+
 
 
 
