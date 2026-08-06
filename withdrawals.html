@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>AL HUDU Cash Withdrawal</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="sidebar">
+
+<h2>AL HUDU</h2>
+
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+<a href="settings.html">⚙️ Settings</a>
+<a href="withdrawals.html">💸 Cash Withdrawal</a>
+
+</div>
+
+
+
+<div class="main">
+
+
+<div class="brand-header">
+
+AL HUDU
+
+<span>
+Accounting & Management System
+</span>
+
+</div>
+
+
+
+<h1>💸 Cash Withdrawal</h1>
+
+
+
+<div class="card">
+
+
+<h2>Add Withdrawal</h2>
+
+
+<label>Person Name</label>
+
+<input id="person" placeholder="Who took money?">
+
+
+
+<label>Amount (AED)</label>
+
+<input id="amount" type="number" placeholder="Amount">
+
+
+
+<label>Reason</label>
+
+<input id="reason" placeholder="Reason">
+
+
+
+<label>Date</label>
+
+<input id="date" type="date">
+
+
+
+<button id="saveWithdrawal">
+
+Save Withdrawal
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<h2>Withdrawal History</h2>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Person</th>
+<th>Amount</th>
+<th>Reason</th>
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="withdrawalList">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+<script type="module" src="withdrawals.js"></script>
+
+
+</body>
+
+</html>
