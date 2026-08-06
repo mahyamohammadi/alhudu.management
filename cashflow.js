@@ -30,26 +30,20 @@ const db = getFirestore(app);
 
 
 
-
-document.getElementById("loadCashFlow").onclick = async()=>{
-
-
-let selectedDate =
-document.getElementById("selectDate").value;
+async function loadCashFlow(){
 
 
-
-let sales = 0;
+let cashSales = 0;
 
 let expenses = 0;
 
-let staff = 0;
+let staffPayment = 0;
 
 
 
 
 
-// SALES
+// CASH SALES ONLY
 
 const salesSnap = await getDocs(
 collection(db,"sales")
@@ -60,21 +54,17 @@ collection(db,"sales")
 salesSnap.forEach(item=>{
 
 
-let s=item.data();
+let s = item.data();
 
 
 
-if(s.date === selectedDate){
+cashSales += Number(
+s.cash || 0
+);
 
-
-sales += Number(s.cash || 0);
-
-
-}
 
 
 });
-
 
 
 
@@ -84,26 +74,22 @@ sales += Number(s.cash || 0);
 
 // EXPENSES
 
-const expSnap = await getDocs(
+const expenseSnap = await getDocs(
 collection(db,"expenses")
 );
 
 
 
-expSnap.forEach(item=>{
+expenseSnap.forEach(item=>{
 
 
 let e=item.data();
 
 
 
-if(e.date === selectedDate){
-
-
-expenses += Number(e.amount || 0);
-
-
-}
+expenses += Number(
+e.amount || 0
+);
 
 
 
@@ -115,10 +101,7 @@ expenses += Number(e.amount || 0);
 
 
 
-
-
-
-// STAFF
+// STAFF PAYMENT
 
 const staffSnap = await getDocs(
 collection(db,"staff")
@@ -133,13 +116,9 @@ let s=item.data();
 
 
 
-if(s.date === selectedDate){
-
-
-staff += Number(s.total || 0);
-
-
-}
+staffPayment += Number(
+s.total || 0
+);
 
 
 
@@ -152,7 +131,8 @@ staff += Number(s.total || 0);
 
 
 
-let cash = sales - expenses - staff;
+let balance =
+cashSales - expenses - staffPayment;
 
 
 
@@ -160,28 +140,34 @@ let cash = sales - expenses - staff;
 
 
 
-document.getElementById("salesTotal")
+
+document.getElementById("totalCashSales")
 .innerHTML =
-sales + " AED";
+cashSales + " AED";
 
 
 
-document.getElementById("expenseTotal")
+document.getElementById("totalExpenses")
 .innerHTML =
 expenses + " AED";
 
 
 
-document.getElementById("staffTotal")
+document.getElementById("totalStaff")
 .innerHTML =
-staff + " AED";
+staffPayment + " AED";
 
 
 
-document.getElementById("cashResult")
+document.getElementById("cashBalance")
 .innerHTML =
-cash + " AED";
+balance + " AED";
 
 
 
-};
+}
+
+
+
+
+loadCashFlow();
