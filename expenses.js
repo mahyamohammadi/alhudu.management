@@ -1,5 +1,17 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+getFirestore,
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 
 const firebaseConfig = {
@@ -12,33 +24,352 @@ const firebaseConfig = {
 };
 
 
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
 
-document.getElementById("saveExpense").onclick = async function(){
+let editId = null;
+let allExpenses = [];
 
 
-    await addDoc(collection(db,"expenses"),{
 
 
-        date: document.getElementById("date").value,
+
+document.getElementById("saveExpense").onclick = async()=>{
 
 
-        category: document.getElementById("category").value,
+let expense={
 
 
-        amount: Number(document.getElementById("amount").value || 0),
+date:document.getElementById("date").value,
 
 
-        note: document.getElementById("note").value
+category:document.getElementById("category").value,
 
 
-    });
+amount:Number(
+document.getElementById("amount").value || 0
+),
 
 
-    alert("Expense Saved ✅");
+note:document.getElementById("note").value
 
 
 };
+
+
+
+
+if(editId){
+
+
+await updateDoc(
+doc(db,"expenses",editId),
+expense
+);
+
+
+alert("Expense Updated ✅");
+
+
+editId=null;
+
+
+}
+
+else{
+
+
+await addDoc(
+collection(db,"expenses"),
+expense
+);
+
+
+alert("Expense Saved ✅");
+
+
+}
+
+
+
+clearForm();
+
+loadExpenses();
+
+
+
+};
+
+
+
+
+
+
+
+function clearForm(){
+
+
+document.getElementById("date").value="";
+
+document.getElementById("category").value="";
+
+document.getElementById("amount").value="";
+
+document.getElementById("note").value="";
+
+
+}
+
+
+
+
+
+
+
+async function loadExpenses(){
+
+
+allExpenses=[];
+
+
+
+const snap = await getDocs(
+collection(db,"expenses")
+);
+
+
+
+snap.forEach(item=>{
+
+
+allExpenses.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+
+});
+
+
+
+displayExpenses(allExpenses);
+
+
+
+}
+
+
+
+
+
+
+
+function displayExpenses(list){
+
+
+let box=document.getElementById("expenseList");
+
+
+box.innerHTML="";
+
+
+
+list.reverse().forEach(exp=>{
+
+
+box.innerHTML += `
+
+
+<div class="exp-card">
+
+
+<div class="exp-header">
+
+
+<span>📅 ${exp.date}</span>
+
+
+<span>${exp.amount} AED</span>
+
+
+</div>
+
+
+
+<div class="exp-row">
+
+<span>🏷 Category</span>
+
+<b>${exp.category}</b>
+
+</div>
+
+
+
+
+<div class="exp-row">
+
+<span>📝 Note</span>
+
+<b>${exp.note || "-"}</b>
+
+</div>
+
+
+
+
+<div class="action">
+
+
+<button 
+class="edit"
+onclick="editExpense('${exp.id}')">
+
+✏️ Edit
+
+</button>
+
+
+
+<button 
+class="delete"
+onclick="deleteExpense('${exp.id}')">
+
+🗑 Delete
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+document.getElementById("searchExpense").oninput=function(){
+
+
+let text=this.value.toLowerCase();
+
+
+
+let result=allExpenses.filter(e=>
+
+e.category.toLowerCase().includes(text) ||
+
+(e.note || "")
+.toLowerCase()
+.includes(text)
+
+);
+
+
+
+displayExpenses(result);
+
+
+};
+
+
+
+
+
+
+
+
+window.deleteExpense = async(id)=>{
+
+
+await deleteDoc(
+doc(db,"expenses",id)
+);
+
+
+alert("Deleted ✅");
+
+
+loadExpenses();
+
+
+};
+
+
+
+
+
+
+
+
+window.editExpense = async(id)=>{
+
+
+const snap=await getDocs(
+collection(db,"expenses")
+);
+
+
+
+snap.forEach(item=>{
+
+
+if(item.id===id){
+
+
+let e=item.data();
+
+
+
+document.getElementById("date").value=e.date;
+
+
+document.getElementById("category").value=e.category;
+
+
+document.getElementById("amount").value=e.amount;
+
+
+document.getElementById("note").value=e.note;
+
+
+
+editId=id;
+
+
+
+}
+
+
+});
+
+
+
+};
+
+
+
+
+
+
+loadExpenses();
