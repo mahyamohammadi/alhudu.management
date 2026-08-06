@@ -1,63 +1,106 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>AL HUDU Sales</title>
-    <link rel="stylesheet" href="style.css">
+<title>AL HUDU Sales</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 
 <body>
 
+
 <div class="sidebar">
 
-    <h2>AL HUDU</h2>
+<h2>AL HUDU</h2>
 
-    <a href="dashboard.html">Dashboard</a>
-    <a href="sales.html">Sales</a>
-    <a href="expenses.html">Expenses</a>
-    <a>Staff Salary</a>
-    <a>Cash Flow</a>
-    <a>Reports</a>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses</a>
+<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
 
 
+
 <div class="main">
 
-<h1>Daily Sales Report</h1>
+
+<h1>Sales</h1>
 
 
 <div class="card">
+
 
 <label>Date</label>
 <input type="date" id="date">
 
 
-<label>Cash Sale (AED)</label>
-<input type="number" id="cash" placeholder="0">
+<label>Cash</label>
+<input type="number" id="cash">
 
 
-<label>Card Sale (AED)</label>
-<input type="number" id="card" placeholder="0">
+<label>Card</label>
+<input type="number" id="card">
 
 
-<label>Total Sale (AED)</label>
+<label>Total</label>
 <input type="number" id="totalSale" readonly>
 
 
 <label>Note</label>
-<input type="text" id="note" placeholder="Optional">
+<input type="text" id="note">
 
 
-<button id="saveSale">Save Sale</button>
+<button id="saveSale">
+Save Sale
+</button>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>Sales List</h2>
+
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Cash</th>
+<th>Card</th>
+<th>Total</th>
+<th>Note</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+
+<tbody id="salesList"></tbody>
+
+
+</table>
 
 
 </div>
 
 
 </div>
+
 
 
 <script type="module" src="sales.js"></script>
 
+
 </body>
+
 </html>
