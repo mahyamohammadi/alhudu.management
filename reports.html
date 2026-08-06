@@ -13,24 +13,24 @@
 .report-card{
 
 background:white;
-border-radius:16px;
 padding:20px;
-margin-top:15px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
+border-radius:18px;
+margin-top:20px;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
 
 
-.report-line{
+.report-row{
 
 display:flex;
 justify-content:space-between;
-margin:10px 0;
+padding:12px 0;
 
 }
 
 
-.report-btn{
+.gold-btn{
 
 background:#d4af37;
 border:none;
@@ -40,11 +40,10 @@ cursor:pointer;
 
 }
 
-
 </style>
 
-</head>
 
+</head>
 
 
 <body>
@@ -56,12 +55,17 @@ cursor:pointer;
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
+
 <a href="sales.html">💰 Sales</a>
-<a href="expenses.html">💸 Expenses</a>
+
+<a href="expenses.html">💸 Expenses (Cost)</a>
+
 <a href="staff.html">👨‍💼 Staff Payment</a>
+
 <a href="cashflow.html">💵 Cash Flow</a>
+
 <a href="reports.html">📊 Reports</a>
-<a href="inventory.html">📦 Inventory</a>
+
 
 </div>
 
@@ -72,32 +76,46 @@ cursor:pointer;
 <div class="main">
 
 
-<h1>Reports</h1>
-
+<h1>📊 Reports</h1>
 
 
 
 <div class="report-card">
 
 
-<h2>Daily Report</h2>
+<h2>Date Range</h2>
 
 
-<input type="date" id="dailyDate">
+
+<label>From Date</label>
+
+<input type="date" id="fromDate">
 
 
-<button class="report-btn" id="dailyReport">
 
-View Daily
+<label>To Date</label>
+
+<input type="date" id="toDate">
+
+
+
+<br><br>
+
+
+<button class="gold-btn" id="generateReport">
+
+Generate Report
 
 </button>
 
 
-<button class="report-btn" id="dailyPDF">
+
+<button class="gold-btn" id="exportPDF">
 
 Export PDF
 
 </button>
+
 
 
 </div>
@@ -112,85 +130,40 @@ Export PDF
 <div class="report-card">
 
 
-<h2>Monthly Report</h2>
-
-
-<select id="month">
-
-<option value="1">January</option>
-<option value="2">February</option>
-<option value="3">March</option>
-<option value="4">April</option>
-<option value="5">May</option>
-<option value="6">June</option>
-<option value="7">July</option>
-<option value="8">August</option>
-<option value="9">September</option>
-<option value="10">October</option>
-<option value="11">November</option>
-<option value="12">December</option>
-
-</select>
-
-
-<input type="number" id="year" placeholder="Year">
-
-
-
-<button class="report-btn" id="monthlyReport">
-
-View Monthly
-
-</button>
-
-
-<button class="report-btn" id="monthlyPDF">
-
-Export PDF
-
-</button>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<div class="report-card">
-
-
-<h2>Report Summary</h2>
+<h2>Summary</h2>
 
 
 
 <div id="reportResult">
 
-Select a report
 
-</div>
-
+Select Date Range
 
 
 </div>
 
 
 
+</div>
+
+
+
 
 
 </div>
 
 
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 
 <script type="module" src="reports.js"></script>
 
 
-</body>
 
+</body>
 
 </html>
