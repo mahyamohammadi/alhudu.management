@@ -17,154 +17,110 @@ const db = getFirestore(app);
 
 
 
+let today = new Date()
+.toISOString()
+.split("T")[0];
+
+
+
+document.getElementById("todayDate").innerHTML =
+"Date: " + today;
+
+
+
 async function loadDashboard(){
 
 
-let totalSales = 0;
-let totalCash = 0;
-let totalCard = 0;
-let totalExpenses = 0;
+let cash = 0;
+let card = 0;
+let expenses = 0;
 
 
+
+// SALES
 
 const salesSnap = await getDocs(collection(db,"sales"));
 
 
 salesSnap.forEach((doc)=>{
 
+
 let data = doc.data();
 
-let cash = Number(data.cash || 0);
-let card = Number(data.card || 0);
 
-totalCash += cash;
-totalCard += card;
+if(data.date === today){
 
-totalSales += cash + card;
+
+cash += Number(data.cash || 0);
+
+card += Number(data.card || 0);
+
+
+}
+
 
 });
 
 
 
 
+// EXPENSES
 
 const expenseSnap = await getDocs(collection(db,"expenses"));
 
 
 expenseSnap.forEach((doc)=>{
 
+
 let data = doc.data();
 
-totalExpenses += Number(data.amount || 0);
+
+
+if(data.date === today){
+
+
+expenses += Number(data.amount || 0);
+
+
+}
+
 
 });
 
 
 
+let totalSales = cash + card;
 
+let profit = totalSales - expenses;
+
+
+
+document.getElementById("cashSales").innerHTML =
+cash + " AED";
+
+
+document.getElementById("cardSales").innerHTML =
+card + " AED";
 
 
 document.getElementById("totalSales").innerHTML =
 totalSales + " AED";
 
 
-document.getElementById("totalExpenses").innerHTML =
-totalExpenses + " AED";
+document.getElementById("expenses").innerHTML =
+expenses + " AED";
 
 
-document.getElementById("monthlyProfit").innerHTML =
-(totalSales - totalExpenses) + " AED";
+document.getElementById("profit").innerHTML =
+profit + " AED";
 
 
-document.getElementById("cashBalance").innerHTML =
-(totalCash - totalExpenses) + " AED";
+document.getElementById("cashHand").innerHTML =
+(cash - expenses) + " AED";
 
-
-
-document.getElementById("todayCash").innerHTML =
-totalCash + " AED";
-
-
-document.getElementById("todayCard").innerHTML =
-totalCard + " AED";
-
-
-document.getElementById("todayExpense").innerHTML =
-totalExpenses + " AED";
-
-
-
-
-
-const ctx = document.getElementById("salesChart");
-
-
-if(ctx){
-
-new Chart(ctx, {
-
-type:"bar",
-
-data:{
-
-labels:[
-"Sales 💰",
-"Expenses 💸",
-"Profit 📈"
-],
-
-datasets:[{
-
-label:"AED",
-
-data:[
-totalSales,
-totalExpenses,
-totalSales-totalExpenses
-],
-
-borderWidth:1
-
-}]
-
-},
-
-
-options:{
-
-responsive:true,
-
-scales:{
-
-y:{
-
-beginAtZero:true
-
-}
-
-}
-
-}
-
-});
-
-}
 
 
 }
-
-
-
-
-
-function logout(){
-
-localStorage.removeItem("alhuduLogin");
-
-window.location.href="login.html";
-
-}
-
 
 
 
