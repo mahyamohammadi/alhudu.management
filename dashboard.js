@@ -1,5 +1,14 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+getFirestore,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 
 const firebaseConfig = {
@@ -12,111 +21,250 @@ const firebaseConfig = {
 };
 
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 
 
-let today = new Date()
-.toISOString()
-.split("T")[0];
-
-
-
-document.getElementById("todayDate").innerHTML =
-"Date: " + today;
 
 
 
 async function loadDashboard(){
 
 
-let cash = 0;
-let card = 0;
-let expenses = 0;
+let totalSales=0;
+let totalCash=0;
+let totalCard=0;
+
+let totalCost=0;
+
+let totalStaff=0;
+
+
+
+
+let todaySales=0;
+let todayCost=0;
+let todayStaff=0;
+
+
+
+let today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+
+
 
 
 
 // SALES
 
-const salesSnap = await getDocs(collection(db,"sales"));
+const salesSnap =
+await getDocs(
+collection(db,"sales")
+);
 
 
-salesSnap.forEach((doc)=>{
+
+salesSnap.forEach(item=>{
 
 
-let data = doc.data();
+let s=item.data();
 
 
-if(data.date === today){
+
+totalCash += Number(s.cash || 0);
+
+totalCard += Number(s.card || 0);
 
 
-cash += Number(data.cash || 0);
 
-card += Number(data.card || 0);
+totalSales += Number(s.total || 0);
 
+
+
+
+
+if(s.date === today){
+
+todaySales += Number(s.total || 0);
 
 }
 
 
+
 });
+
+
+
+
+
 
 
 
 
 // EXPENSES
 
-const expenseSnap = await getDocs(collection(db,"expenses"));
-
-
-expenseSnap.forEach((doc)=>{
-
-
-let data = doc.data();
+const expSnap =
+await getDocs(
+collection(db,"expenses")
+);
 
 
 
-if(data.date === today){
+expSnap.forEach(item=>{
 
 
-expenses += Number(data.amount || 0);
+let e=item.data();
 
+
+
+totalCost += Number(e.amount || 0);
+
+
+
+if(e.date === today){
+
+todayCost += Number(e.amount || 0);
 
 }
+
 
 
 });
 
 
 
-let totalSales = cash + card;
-
-let profit = totalSales - expenses;
 
 
 
-document.getElementById("cashSales").innerHTML =
-cash + " AED";
 
 
-document.getElementById("cardSales").innerHTML =
-card + " AED";
+
+// STAFF
+
+const staffSnap =
+await getDocs(
+collection(db,"staff")
+);
 
 
-document.getElementById("totalSales").innerHTML =
-totalSales + " AED";
+
+staffSnap.forEach(item=>{
 
 
-document.getElementById("expenses").innerHTML =
-expenses + " AED";
+let s=item.data();
 
 
-document.getElementById("profit").innerHTML =
-profit + " AED";
+
+totalStaff += Number(s.total || 0);
 
 
-document.getElementById("cashHand").innerHTML =
-(cash - expenses) + " AED";
+
+if(s.date === today){
+
+todayStaff += Number(s.total || 0);
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+let netProfit =
+totalSales - totalCost - totalStaff;
+
+
+
+let todayProfit =
+todaySales - todayCost - todayStaff;
+
+
+
+
+
+
+
+
+
+document.getElementById("totalSales")
+.innerHTML =
+totalSales+" AED";
+
+
+
+document.getElementById("totalCash")
+.innerHTML =
+totalCash+" AED";
+
+
+
+document.getElementById("totalCard")
+.innerHTML =
+totalCard+" AED";
+
+
+
+document.getElementById("totalCost")
+.innerHTML =
+totalCost+" AED";
+
+
+
+document.getElementById("totalStaff")
+.innerHTML =
+totalStaff+" AED";
+
+
+
+document.getElementById("netProfit")
+.innerHTML =
+netProfit+" AED";
+
+
+
+
+
+
+
+
+document.getElementById("todaySales")
+.innerHTML =
+todaySales+" AED";
+
+
+
+document.getElementById("todayCost")
+.innerHTML =
+todayCost+" AED";
+
+
+
+document.getElementById("todayStaff")
+.innerHTML =
+todayStaff+" AED";
+
+
+
+document.getElementById("todayProfit")
+.innerHTML =
+todayProfit+" AED";
+
+
 
 
 
