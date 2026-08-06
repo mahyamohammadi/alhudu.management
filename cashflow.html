@@ -7,47 +7,42 @@
 
 <link rel="stylesheet" href="style.css">
 
-
 <style>
 
 .flow-card{
 
 background:white;
-border-radius:16px;
-padding:18px;
-margin-top:15px;
+padding:25px;
+border-radius:18px;
+margin-top:20px;
 box-shadow:0 5px 15px rgba(0,0,0,0.08);
 
 }
 
 
-.flow-line{
+.flow-row{
 
 display:flex;
 justify-content:space-between;
-margin:12px 0;
+padding:15px 0;
 font-size:17px;
 
 }
 
 
-.profit{
+.balance{
 
 font-size:22px;
 font-weight:bold;
 
 }
 
-
 </style>
-
 
 </head>
 
 
-
 <body>
-
 
 
 <div class="sidebar">
@@ -55,12 +50,17 @@ font-weight:bold;
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
+
 <a href="sales.html">💰 Sales</a>
-<a href="expenses.html">💸 Expenses</a>
+
+<a href="expenses.html">💸 Expenses (Cost)</a>
+
 <a href="staff.html">👨‍💼 Staff Payment</a>
+
 <a href="cashflow.html">💵 Cash Flow</a>
+
 <a href="reports.html">📊 Reports</a>
-<a href="inventory.html">📦 Inventory</a>
+
 
 </div>
 
@@ -71,45 +71,22 @@ font-weight:bold;
 <div class="main">
 
 
-<h1>Cash Flow</h1>
-
-
-
-
-<div class="card">
-
-
-<label>Select Date</label>
-
-<input type="date" id="selectDate">
-
-
-<button id="loadCashFlow">
-
-View
-
-</button>
-
-
-</div>
-
-
-
+<h1>💵 Cash Flow</h1>
 
 
 
 <div class="flow-card">
 
 
-<h2>Cash Summary</h2>
+<h2>Overall Cash Flow</h2>
 
 
 
-<div class="flow-line">
+<div class="flow-row">
 
-<span>💰 Total Sales</span>
+<span>💵 Total Cash Sales</span>
 
-<b id="salesTotal">
+<b id="totalCashSales">
 0 AED
 </b>
 
@@ -118,11 +95,11 @@ View
 
 
 
-<div class="flow-line">
+<div class="flow-row">
 
 <span>💸 Expenses (Cost)</span>
 
-<b id="expenseTotal">
+<b id="totalExpenses">
 0 AED
 </b>
 
@@ -132,16 +109,15 @@ View
 
 
 
-<div class="flow-line">
+<div class="flow-row">
 
 <span>👨‍💼 Staff Payment</span>
 
-<b id="staffTotal">
+<b id="totalStaff">
 0 AED
 </b>
 
 </div>
-
 
 
 
@@ -152,11 +128,11 @@ View
 
 
 
-<div class="flow-line profit">
+<div class="flow-row balance">
 
-<span>💵 Cash In Hand</span>
+<span>💰 Current Cash Balance</span>
 
-<b id="cashResult">
+<b id="cashBalance">
 0 AED
 </b>
 
@@ -169,8 +145,8 @@ View
 
 
 
-
 </div>
+
 
 
 
@@ -179,6 +155,5 @@ View
 
 
 </body>
-
 
 </html>
