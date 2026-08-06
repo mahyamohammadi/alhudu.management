@@ -2,8 +2,67 @@
 <html>
 
 <head>
+
 <title>AL HUDU Sales</title>
+
 <link rel="stylesheet" href="style.css">
+
+<style>
+
+.sale-card{
+
+background:white;
+border-radius:15px;
+padding:15px;
+margin-top:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+
+.sale-header{
+
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+
+}
+
+
+.sale-row{
+
+display:flex;
+justify-content:space-between;
+margin-top:8px;
+
+}
+
+
+.action button{
+
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+
+}
+
+
+.edit{
+
+background:#d4af37;
+}
+
+
+.delete{
+
+background:#eee;
+
+}
+
+
+</style>
+
 </head>
 
 
@@ -32,7 +91,11 @@
 <h1>Sales</h1>
 
 
+
 <div class="card">
+
+
+<h2>Add Sale</h2>
 
 
 <label>Date</label>
@@ -55,6 +118,7 @@
 <input type="text" id="note">
 
 
+
 <button id="saveSale">
 Save Sale
 </button>
@@ -64,34 +128,25 @@ Save Sale
 
 
 
+
 <div class="card">
 
-<h2>Sales List</h2>
+
+<h2>Sales History</h2>
 
 
-<table>
-
-<thead>
-
-<tr>
-<th>Date</th>
-<th>Cash</th>
-<th>Card</th>
-<th>Total</th>
-<th>Note</th>
-<th>Action</th>
-</tr>
-
-</thead>
+<input 
+type="text"
+id="searchSale"
+placeholder="🔍 Search..."
+>
 
 
-<tbody id="salesList"></tbody>
-
-
-</table>
+<div id="salesList"></div>
 
 
 </div>
+
 
 
 </div>
@@ -102,5 +157,6 @@ Save Sale
 
 
 </body>
+
 
 </html>
