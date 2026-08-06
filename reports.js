@@ -28,11 +28,14 @@ const db = getFirestore(app);
 
 
 
-let reportData = null;
+let currentReport = null;
 
 
 
-async function getAllData(){
+
+
+
+async function getData(){
 
 
 let sales=[];
@@ -41,35 +44,25 @@ let staff=[];
 
 
 
-const salesSnap = await getDocs(collection(db,"sales"));
+const s = await getDocs(collection(db,"sales"));
 
-salesSnap.forEach(d=>{
-sales.push(d.data());
-});
+s.forEach(x=>sales.push(x.data()));
 
 
 
-const expSnap = await getDocs(collection(db,"expenses"));
+const e = await getDocs(collection(db,"expenses"));
 
-expSnap.forEach(d=>{
-expenses.push(d.data());
-});
+e.forEach(x=>expenses.push(x.data()));
 
 
 
-const staffSnap = await getDocs(collection(db,"staff"));
+const st = await getDocs(collection(db,"staff"));
 
-staffSnap.forEach(d=>{
-staff.push(d.data());
-});
+st.forEach(x=>staff.push(x.data()));
 
 
 
-return {
-sales,
-expenses,
-staff
-};
+return {sales,expenses,staff};
 
 
 }
@@ -79,49 +72,49 @@ staff
 
 
 
-function calculateReport(type,date,month,year,data){
+
+
+function inRange(date,from,to){
+
+
+return date >= from && date <= to;
+
+
+}
+
+
+
+
+
+
+
+
+function calculate(data,from,to){
 
 
 let cash=0;
+
 let card=0;
-let expenseTotal=0;
+
+let expensesTotal=0;
+
 let staffTotal=0;
 
-let expenseList=[];
 
+let expenseDetails=[];
 
 
 
 data.sales.forEach(s=>{
 
 
-let ok=false;
+if(inRange(s.date,from,to)){
 
 
-if(type==="daily" && s.date===date)
-ok=true;
+cash += Number(s.cash || 0);
 
+card += Number(s.card || 0);
 
-
-if(type==="monthly"){
-
-let d=new Date(s.date);
-
-if(
-d.getMonth()+1==month &&
-d.getFullYear()==year
-)
-ok=true;
-
-}
-
-
-
-if(ok){
-
-cash+=Number(s.cash||0);
-
-card+=Number(s.card||0);
 
 }
 
@@ -137,39 +130,20 @@ card+=Number(s.card||0);
 data.expenses.forEach(e=>{
 
 
-let ok=false;
+if(inRange(e.date,from,to)){
 
 
-if(type==="daily" && e.date===date)
-ok=true;
+expensesTotal += Number(e.amount || 0);
 
 
+expenseDetails.push(e);
 
-if(type==="monthly"){
-
-let d=new Date(e.date);
-
-
-if(
-d.getMonth()+1==month &&
-d.getFullYear()==year
-)
-ok=true;
-
-}
-
-
-
-if(ok){
-
-expenseTotal+=Number(e.amount||0);
-
-expenseList.push(e);
 
 }
 
 
 });
+
 
 
 
@@ -179,34 +153,11 @@ expenseList.push(e);
 data.staff.forEach(s=>{
 
 
-let ok=false;
+if(inRange(s.date,from,to)){
 
 
+staffTotal += Number(s.total || 0);
 
-if(type==="daily" && s.date===date)
-ok=true;
-
-
-
-if(type==="monthly"){
-
-let d=new Date(s.date);
-
-
-if(
-d.getMonth()+1==month &&
-d.getFullYear()==year
-)
-ok=true;
-
-
-}
-
-
-
-if(ok){
-
-staffTotal+=Number(s.total||0);
 
 }
 
@@ -217,20 +168,25 @@ staffTotal+=Number(s.total||0);
 
 
 
-let totalSales=cash+card;
+let salesTotal = cash + card;
+
+
+let profit =
+salesTotal - expensesTotal - staffTotal;
 
 
 
 return {
 
+from,
+to,
 cash,
 card,
-totalSales,
-expenseTotal,
+salesTotal,
+expensesTotal,
 staffTotal,
-profit:
-totalSales-expenseTotal-staffTotal,
-expenseList
+profit,
+expenseDetails
 
 };
 
@@ -244,48 +200,78 @@ expenseList
 
 
 
-function showResult(r){
 
 
-document.getElementById("reportResult").innerHTML=`
+function showReport(r){
 
-<div class="report-line">
-<span>💵 Cash</span>
+
+document.getElementById("reportResult").innerHTML = `
+
+
+
+<div class="report-row">
+
+<span>💵 Cash Sales</span>
+
 <b>${r.cash} AED</b>
+
 </div>
 
 
-<div class="report-line">
-<span>💳 Card</span>
+
+<div class="report-row">
+
+<span>💳 Card Sales</span>
+
 <b>${r.card} AED</b>
+
 </div>
 
 
-<div class="report-line">
+
+<div class="report-row">
+
 <span>💰 Total Sales</span>
-<b>${r.totalSales} AED</b>
+
+<b>${r.salesTotal} AED</b>
+
 </div>
 
 
-<div class="report-line">
+
+<div class="report-row">
+
 <span>💸 Expenses (Cost)</span>
-<b>${r.expenseTotal} AED</b>
+
+<b>${r.expensesTotal} AED</b>
+
 </div>
 
 
-<div class="report-line">
-<span>👨‍💼 Staff</span>
+
+<div class="report-row">
+
+<span>👨‍💼 Staff Payment</span>
+
 <b>${r.staffTotal} AED</b>
+
 </div>
+
 
 
 <hr>
 
 
-<div class="report-line">
+
+<div class="report-row">
+
 <span>📈 Net Profit</span>
+
 <b>${r.profit} AED</b>
+
 </div>
+
+
 
 `;
 
@@ -300,13 +286,70 @@ document.getElementById("reportResult").innerHTML=`
 
 
 
-function createPDF(r,title){
+
+document.getElementById("generateReport").onclick = async()=>{
+
+
+let from =
+document.getElementById("fromDate").value;
+
+
+
+let to =
+document.getElementById("toDate").value;
+
+
+
+if(!from || !to){
+
+alert("Select Date Range");
+
+return;
+
+}
+
+
+
+let data = await getData();
+
+
+
+currentReport =
+calculate(data,from,to);
+
+
+
+showReport(currentReport);
+
+
+
+};
+
+
+
+
+
+
+
+
+
+document.getElementById("exportPDF").onclick = ()=>{
+
+
+if(!currentReport){
+
+alert("Generate Report First");
+
+return;
+
+}
+
 
 
 const {jsPDF}=window.jspdf;
 
 
-let pdf=new jsPDF();
+let pdf = new jsPDF();
 
 
 
@@ -314,7 +357,7 @@ let y=20;
 
 
 
-pdf.setFontSize(22);
+pdf.setFontSize(20);
 
 pdf.text(
 "AL HUDU",
@@ -324,48 +367,61 @@ y
 
 
 
-y+=12;
-
-
-pdf.setFontSize(14);
-
-pdf.text(
-title,
-20,
-y
-);
-
-
-y+=15;
-
+y += 12;
 
 
 pdf.setFontSize(12);
 
 
 pdf.text(
-"Cash Sales: "+r.cash+" AED",
-20,y
+"Report Date: "+
+currentReport.from+
+" to "+
+currentReport.to,
+20,
+y
 );
 
-y+=8;
+
+
+y += 15;
+
 
 
 pdf.text(
-"Card Sales: "+r.card+" AED",
+"Cash Sales: "+
+currentReport.cash+
+" AED",
 20,y
 );
 
-y+=8;
+
+
+y += 8;
 
 
 pdf.text(
-"Total Sales: "+r.totalSales+" AED",
+"Card Sales: "+
+currentReport.card+
+" AED",
 20,y
 );
 
 
-y+=12;
+
+y += 8;
+
+
+pdf.text(
+"Total Sales: "+
+currentReport.salesTotal+
+" AED",
+20,y
+);
+
+
+
+y += 10;
 
 
 pdf.text(
@@ -374,52 +430,55 @@ pdf.text(
 );
 
 
-y+=8;
+
+y += 8;
 
 
 
-r.expenseList.forEach(e=>{
+currentReport.expenseDetails.forEach(e=>{
 
 
 pdf.text(
-`${e.category} - ${e.amount} AED`,
+e.category+
+" - "+
+e.amount+
+" AED",
 20,
 y
 );
 
 
-y+=7;
+
+y += 7;
 
 
 });
 
 
 
-y+=8;
+
+
+y += 8;
+
 
 
 pdf.text(
-"Total Expenses: "+r.expenseTotal+" AED",
+"Staff Payment: "+
+currentReport.staffTotal+
+" AED",
 20,y
 );
 
 
 
-y+=10;
+y += 8;
+
 
 
 pdf.text(
-"Staff Payment: "+r.staffTotal+" AED",
-20,y
-);
-
-
-
-y+=10;
-
-
-pdf.text(
-"NET PROFIT: "+r.profit+" AED",
+"NET PROFIT: "+
+currentReport.profit+
+" AED",
 20,y
 );
 
@@ -431,14 +490,4 @@ pdf.save(
 
 
 
-}
-
-
-
-
-
-
-
-
-
-document.getElementById("
+};
