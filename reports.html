@@ -7,10 +7,48 @@
 
 <link rel="stylesheet" href="style.css">
 
+
+<style>
+
+.report-card{
+
+background:white;
+border-radius:16px;
+padding:20px;
+margin-top:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.report-line{
+
+display:flex;
+justify-content:space-between;
+margin:10px 0;
+
+}
+
+
+.report-btn{
+
+background:#d4af37;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+
+</style>
+
 </head>
 
 
+
 <body>
+
 
 
 <div class="sidebar">
@@ -20,58 +58,62 @@
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="sales.html">💰 Sales</a>
 <a href="expenses.html">💸 Expenses</a>
-<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
+
+
 
 
 
 <div class="main">
 
 
-<h1>AL HUDU Reports</h1>
-
-
-<div class="card">
-
-
-<h3>Report Type</h3>
-
-<select id="reportType">
-
-<option value="daily">
-Daily
-</option>
-
-<option value="monthly">
-Monthly
-</option>
-
-<option value="yearly">
-Yearly
-</option>
-
-
-</select>
+<h1>Reports</h1>
 
 
 
-<div id="dateBox">
 
-<label>Date</label>
+<div class="report-card">
 
-<input type="date" id="selectedDate">
+
+<h2>Daily Report</h2>
+
+
+<input type="date" id="dailyDate">
+
+
+<button class="report-btn" id="dailyReport">
+
+View Daily
+
+</button>
+
+
+<button class="report-btn" id="dailyPDF">
+
+Export PDF
+
+</button>
+
 
 </div>
 
 
 
-<div id="monthBox" style="display:none">
 
 
-<label>Month</label>
+
+
+
+<div class="report-card">
+
+
+<h2>Monthly Report</h2>
+
 
 <select id="month">
 
@@ -88,33 +130,23 @@ Yearly
 <option value="11">November</option>
 <option value="12">December</option>
 
-
 </select>
 
 
-</div>
+<input type="number" id="year" placeholder="Year">
 
 
 
+<button class="report-btn" id="monthlyReport">
 
-<div id="yearBox">
+View Monthly
 
-
-<label>Year</label>
-
-<input type="number" id="year">
+</button>
 
 
-</div>
+<button class="report-btn" id="monthlyPDF">
 
-
-
-<br>
-
-
-<button onclick="generateReport()">
-
-📄 Generate PDF
+Export PDF
 
 </button>
 
@@ -122,16 +154,43 @@ Yearly
 </div>
 
 
+
+
+
+
+
+
+
+<div class="report-card">
+
+
+<h2>Report Summary</h2>
+
+
+
+<div id="reportResult">
+
+Select a report
+
 </div>
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</div>
+
+
+
+
+
+</div>
+
+
 
 
 <script type="module" src="reports.js"></script>
 
 
 </body>
+
 
 </html>
