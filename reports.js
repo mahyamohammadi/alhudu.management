@@ -1,9 +1,18 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+getFirestore,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4DQR-wv4JKhKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
   authDomain: "al-hudu-management.firebaseapp.com",
   projectId: "al-hudu-management",
   storageBucket: "al-hudu-management.firebasestorage.app",
@@ -12,61 +21,55 @@ const firebaseConfig = {
 };
 
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 
 
-let salesData=[];
-let expensesData=[];
+let reportData = null;
 
 
 
-document.getElementById("reportType").onchange=function(){
-
-let type=this.value;
+async function getAllData(){
 
 
-document.getElementById("dateBox").style.display =
-type==="daily" ? "block":"none";
-
-
-document.getElementById("monthBox").style.display =
-type==="monthly" ? "block":"none";
-
-
-}
-
-
-
-
-async function getData(){
-
-
-salesData=[];
-expensesData=[];
+let sales=[];
+let expenses=[];
+let staff=[];
 
 
 
 const salesSnap = await getDocs(collection(db,"sales"));
 
-
-salesSnap.forEach(doc=>{
-
-salesData.push(doc.data());
-
+salesSnap.forEach(d=>{
+sales.push(d.data());
 });
 
 
 
-const expenseSnap = await getDocs(collection(db,"expenses"));
+const expSnap = await getDocs(collection(db,"expenses"));
 
-
-expenseSnap.forEach(doc=>{
-
-expensesData.push(doc.data());
-
+expSnap.forEach(d=>{
+expenses.push(d.data());
 });
+
+
+
+const staffSnap = await getDocs(collection(db,"staff"));
+
+staffSnap.forEach(d=>{
+staff.push(d.data());
+});
+
+
+
+return {
+sales,
+expenses,
+staff
+};
 
 
 }
@@ -75,93 +78,50 @@ expensesData.push(doc.data());
 
 
 
-window.generateReport = async function(){
 
-
-await getData();
-
-
-
-let type =
-document.getElementById("reportType").value;
-
-
-
-let selectedDate =
-document.getElementById("selectedDate").value;
-
-
-
-let month =
-document.getElementById("month").value;
-
-
-
-let year =
-document.getElementById("year").value;
-
+function calculateReport(type,date,month,year,data){
 
 
 let cash=0;
 let card=0;
-let totalExpenses=0;
+let expenseTotal=0;
+let staffTotal=0;
 
 let expenseList=[];
 
 
 
-salesData.forEach(item=>{
+
+data.sales.forEach(s=>{
 
 
-let include=false;
+let ok=false;
 
 
-
-if(type==="daily" && item.date===selectedDate){
-
-include=true;
-
-}
+if(type==="daily" && s.date===date)
+ok=true;
 
 
 
 if(type==="monthly"){
 
-let d=new Date(item.date);
+let d=new Date(s.date);
 
 if(
 d.getMonth()+1==month &&
 d.getFullYear()==year
-){
-
-include=true;
-
-}
+)
+ok=true;
 
 }
 
 
 
-if(type==="yearly"){
+if(ok){
 
-let d=new Date(item.date);
+cash+=Number(s.cash||0);
 
-if(d.getFullYear()==year){
-
-include=true;
-
-}
-
-}
-
-
-
-
-if(include){
-
-cash += Number(item.cash||0);
-
-card += Number(item.card||0);
+card+=Number(s.card||0);
 
 }
 
@@ -172,84 +132,107 @@ card += Number(item.card||0);
 
 
 
-expensesData.forEach(item=>{
 
 
-let include=false;
+data.expenses.forEach(e=>{
 
 
+let ok=false;
 
-if(type==="daily" && item.date===selectedDate){
 
-include=true;
-
-}
+if(type==="daily" && e.date===date)
+ok=true;
 
 
 
 if(type==="monthly"){
 
-let d=new Date(item.date);
+let d=new Date(e.date);
 
 
 if(
 d.getMonth()+1==month &&
 d.getFullYear()==year
-){
-
-include=true;
-
-}
+)
+ok=true;
 
 }
 
 
 
-if(type==="yearly"){
+if(ok){
 
-let d=new Date(item.date);
+expenseTotal+=Number(e.amount||0);
 
-
-if(d.getFullYear()==year){
-
-include=true;
-
-}
-
-}
-
-
-
-if(include){
-
-totalExpenses += Number(item.amount||0);
-
-
-expenseList.push(item);
+expenseList.push(e);
 
 }
 
 
 });
+
+
+
+
+
+
+data.staff.forEach(s=>{
+
+
+let ok=false;
+
+
+
+if(type==="daily" && s.date===date)
+ok=true;
+
+
+
+if(type==="monthly"){
+
+let d=new Date(s.date);
+
+
+if(
+d.getMonth()+1==month &&
+d.getFullYear()==year
+)
+ok=true;
+
+
+}
+
+
+
+if(ok){
+
+staffTotal+=Number(s.total||0);
+
+}
+
+
+});
+
 
 
 
 
 let totalSales=cash+card;
 
-let profit=totalSales-totalExpenses;
 
 
+return {
 
-createPDF(
-type,
 cash,
 card,
 totalSales,
-expenseList,
-totalExpenses,
-profit
-);
+expenseTotal,
+staffTotal,
+profit:
+totalSales-expenseTotal-staffTotal,
+expenseList
+
+};
 
 
 
@@ -260,16 +243,64 @@ profit
 
 
 
-function createPDF(
-type,
-cash,
-card,
-sales,
-expenses,
-expenseTotal,
-profit
-){
 
+function showResult(r){
+
+
+document.getElementById("reportResult").innerHTML=`
+
+<div class="report-line">
+<span>💵 Cash</span>
+<b>${r.cash} AED</b>
+</div>
+
+
+<div class="report-line">
+<span>💳 Card</span>
+<b>${r.card} AED</b>
+</div>
+
+
+<div class="report-line">
+<span>💰 Total Sales</span>
+<b>${r.totalSales} AED</b>
+</div>
+
+
+<div class="report-line">
+<span>💸 Expenses (Cost)</span>
+<b>${r.expenseTotal} AED</b>
+</div>
+
+
+<div class="report-line">
+<span>👨‍💼 Staff</span>
+<b>${r.staffTotal} AED</b>
+</div>
+
+
+<hr>
+
+
+<div class="report-line">
+<span>📈 Net Profit</span>
+<b>${r.profit} AED</b>
+</div>
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+
+function createPDF(r,title){
 
 
 const {jsPDF}=window.jspdf;
@@ -298,65 +329,56 @@ y+=12;
 
 pdf.setFontSize(14);
 
-
 pdf.text(
-type.toUpperCase()+" REPORT",
+title,
 20,
 y
 );
 
 
-
 y+=15;
+
 
 
 pdf.setFontSize(12);
 
 
 pdf.text(
-"Cash Sales: "+cash+" AED",
-20,
-y
+"Cash Sales: "+r.cash+" AED",
+20,y
 );
-
 
 y+=8;
 
 
 pdf.text(
-"Card Sales: "+card+" AED",
-20,
-y
+"Card Sales: "+r.card+" AED",
+20,y
 );
-
 
 y+=8;
 
 
 pdf.text(
-"Total Sales: "+sales+" AED",
-20,
-y
+"Total Sales: "+r.totalSales+" AED",
+20,y
 );
 
 
-
-y+=15;
+y+=12;
 
 
 pdf.text(
 "EXPENSES (COST)",
-20,
-y
+20,y
 );
 
 
-
-y+=10;
-
+y+=8;
 
 
-expenses.forEach(e=>{
+
+r.expenseList.forEach(e=>{
 
 
 pdf.text(
@@ -369,30 +391,16 @@ y
 y+=7;
 
 
-if(e.note){
-
-pdf.text(
-"Note: "+e.note,
-30,
-y
-);
-
-y+=7;
-
-}
-
-
 });
 
 
 
-y+=5;
+y+=8;
 
 
 pdf.text(
-"Total Expenses (Cost): "+expenseTotal+" AED",
-20,
-y
+"Total Expenses: "+r.expenseTotal+" AED",
+20,y
 );
 
 
@@ -401,23 +409,36 @@ y+=10;
 
 
 pdf.text(
-"NET PROFIT: "+profit+" AED",
-20,
-y
+"Staff Payment: "+r.staffTotal+" AED",
+20,y
 );
 
 
 
-let date=new Date()
-.toISOString()
-.split("T")[0];
+y+=10;
+
+
+pdf.text(
+"NET PROFIT: "+r.profit+" AED",
+20,y
+);
 
 
 
 pdf.save(
-"AL_HUDU_"+type+"_"+date+".pdf"
+"AL_HUDU_Report.pdf"
 );
 
 
 
 }
+
+
+
+
+
+
+
+
+
+document.getElementById("
