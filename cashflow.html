@@ -7,38 +7,6 @@
 
 <link rel="stylesheet" href="style.css">
 
-<style>
-
-.flow-card{
-
-background:white;
-padding:25px;
-border-radius:18px;
-margin-top:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
-}
-
-
-.flow-row{
-
-display:flex;
-justify-content:space-between;
-padding:15px 0;
-font-size:17px;
-
-}
-
-
-.balance{
-
-font-size:22px;
-font-weight:bold;
-
-}
-
-</style>
-
 </head>
 
 
@@ -53,13 +21,15 @@ font-weight:bold;
 
 <a href="sales.html">💰 Sales</a>
 
-<a href="expenses.html">💸 Expenses (Cost)</a>
+<a href="expenses.html">💸 Expenses</a>
 
 <a href="staff.html">👨‍💼 Staff Payment</a>
 
 <a href="cashflow.html">💵 Cash Flow</a>
 
 <a href="reports.html">📊 Reports</a>
+
+<a href="settings.html">⚙️ Settings</a>
 
 
 </div>
@@ -69,6 +39,9 @@ font-weight:bold;
 
 
 <div class="main">
+
+
+
 <div class="brand-header">
 
 AL HUDU
@@ -79,37 +52,63 @@ Accounting & Management System
 
 </div>
 
+
+
+
+
 <h1>💵 Cash Flow</h1>
 
 
 
-<div class="flow-card">
-
-
-<h2>Overall Cash Flow</h2>
 
 
 
-<div class="flow-row">
 
-<span>💵 Total Cash Sales</span>
+<div class="dashboard-grid">
 
-<b id="totalCashSales">
+
+
+
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Opening Cash
+
+</div>
+
+
+<div class="dash-value" id="openingCash">
+
 0 AED
-</b>
+
+</div>
+
 
 </div>
 
 
 
 
-<div class="flow-row">
 
-<span>💸 Expenses (Cost)</span>
 
-<b id="totalExpenses">
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Cash Sales
+
+</div>
+
+
+<div class="dash-value" id="totalCashSales">
+
 0 AED
-</b>
+
+</div>
+
 
 </div>
 
@@ -117,43 +116,88 @@ Accounting & Management System
 
 
 
-<div class="flow-row">
 
-<span>👨‍💼 Staff Payment</span>
 
-<b id="totalStaff">
+<div class="dash-card">
+
+<div class="dash-title">
+
+Expenses
+
+</div>
+
+
+<div class="dash-value" id="totalExpenses">
+
 0 AED
-</b>
+
+</div>
+
 
 </div>
 
 
 
 
-<hr>
 
 
 
+<div class="dash-card">
+
+<div class="dash-title">
+
+Staff Payment
+
+</div>
 
 
-<div class="flow-row balance">
+<div class="dash-value" id="totalStaff">
 
-<span>💰 Current Cash Balance</span>
-
-<b id="cashBalance">
 0 AED
-</b>
+
+</div>
+
 
 </div>
 
 
 
+
+
+
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Current Cash Balance
+
+</div>
+
+
+<div class="dash-value" id="cashBalance">
+
+0 AED
+
+</div>
+
+
 </div>
 
 
 
 
+
 </div>
+
+
+
+
+
+
+
+</div>
+
 
 
 
