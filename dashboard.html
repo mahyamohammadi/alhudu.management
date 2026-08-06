@@ -2,13 +2,11 @@
 <html>
 
 <head>
-
 <title>AL HUDU Dashboard</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
-
 
 <body>
 
@@ -23,6 +21,7 @@
 <a href="staff.html">👨‍💼 Staff Salary</a>
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
+<a href="inventory.html">📦 Inventory</a>
 
 </div>
 
@@ -31,15 +30,9 @@
 <div class="main">
 
 
+<h1>Today's Summary</h1>
 
-<div class="brand">
-
-<h1>AL HUDU</h1>
-
-<p>Luxury Jalabiya</p>
-
-</div>
-
+<h3 id="todayDate"></h3>
 
 
 
@@ -47,112 +40,46 @@
 
 
 <div class="card">
+<h3>💵 Cash Sales</h3>
+<p id="cashSales">0 AED</p>
+</div>
 
+
+<div class="card">
+<h3>💳 Card Sales</h3>
+<p id="cardSales">0 AED</p>
+</div>
+
+
+<div class="card">
 <h3>💰 Total Sales</h3>
-
 <p id="totalSales">0 AED</p>
-
 </div>
 
 
-
 <div class="card">
-
-<h3>💸 Total Expenses</h3>
-
-<p id="totalExpenses">0 AED</p>
-
+<h3>💸 Expenses (Cost)</h3>
+<p id="expenses">0 AED</p>
 </div>
 
 
-
 <div class="card">
-
 <h3>📈 Net Profit</h3>
-
-<p id="monthlyProfit">0 AED</p>
-
+<p id="profit">0 AED</p>
 </div>
-
 
 
 <div class="card">
-
-<h3>💵 Cash Balance</h3>
-
-<p id="cashBalance">0 AED</p>
-
+<h3>💵 Cash In Hand</h3>
+<p id="cashHand">0 AED</p>
 </div>
 
 
 </div>
 
 
-
-
-
-<h2 style="margin-top:45px;">
-Today's Summary
-</h2>
-
-
-
-<div class="cards">
-
-
-<div class="card">
-
-<h3>Cash Sales</h3>
-
-<p id="todayCash">0 AED</p>
-
 </div>
 
-
-
-<div class="card">
-
-<h3>Card Sales</h3>
-
-<p id="todayCard">0 AED</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h3>Expenses</h3>
-
-<p id="todayExpense">0 AED</p>
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="card" style="margin-top:40px;">
-
-
-<h2>Sales Overview</h2>
-
-
-<canvas id="salesChart" width="400" height="200"></canvas>
-
-
-</div>
-
-
-
-</div>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script type="module" src="dashboard.js"></script>
 
