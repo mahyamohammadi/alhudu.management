@@ -1,30 +1,39 @@
 function login(){
 
+const username =
+document.getElementById("username").value.trim();
 
-let username = document.getElementById("username").value;
+const password =
+document.getElementById("password").value;
 
-let password = document.getElementById("password").value;
+if(
+username==="mahya" &&
+password==="11223344"
+){
 
+localStorage.setItem(
+"alhuduLogin",
+"true"
+);
 
+localStorage.setItem(
+"alhuduUser",
+username
+);
 
-if(username === "admin" && password === "1234"){
+window.location.href="dashboard.html";
 
-
-localStorage.setItem("alhuduLogin","true");
-
-
-window.location.href = "dashboard.html";
-
+return;
 
 }
 
-else{
-
-
-alert("Wrong username or password");
-
+alert("Wrong Username or Password");
 
 }
 
+
+if(localStorage.getItem("alhuduLogin")==="true"){
+
+window.location.href="dashboard.html";
 
 }
