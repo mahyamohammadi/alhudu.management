@@ -3,9 +3,59 @@
 
 <head>
 
+<meta charset="UTF-8">
+
 <title>AL HUDU Reports</title>
 
 <link rel="stylesheet" href="style.css">
+
+<style>
+
+.report-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.report-box{
+background:#fff;
+padding:18px;
+border-radius:15px;
+box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+.report-box span{
+display:block;
+font-size:14px;
+color:#777;
+margin-bottom:8px;
+}
+
+.report-box b{
+font-size:22px;
+}
+
+.report-section{
+margin-top:25px;
+}
+
+.report-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:15px;
+}
+
+.detail-card{
+background:#fafafa;
+padding:12px;
+border-radius:10px;
+margin-top:8px;
+border:1px solid #eee;
+}
+
+</style>
 
 </head>
 
@@ -29,13 +79,17 @@
 
 <a href="reports.html">📊 Reports</a>
 
+<a href="withdrawals.html">💸 Cash Withdrawal</a>
+
+<a href="settings.html">⚙️ Settings</a>
+
 </div>
 
 
 
-
-
 <div class="main">
+
+
 <div class="brand-header">
 
 AL HUDU
@@ -46,67 +100,274 @@ Accounting & Management System
 
 </div>
 
+
 <h1>📊 Reports</h1>
 
 
 
+<!-- DAILY REPORT -->
+
 <div class="card">
 
+<h2>📅 Daily Report</h2>
 
-<h2>Date Range</h2>
+<label>Select Date</label>
+
+<input
+type="date"
+id="dailyDate"
+>
+
+<button id="generateDaily">
+
+Generate Daily Report
+
+</button>
+
+</div>
 
 
+
+<!-- MONTHLY REPORT -->
+
+<div class="card">
+
+<h2>📆 Monthly Report</h2>
+
+<label>Select Month</label>
+
+<input
+type="month"
+id="monthlyDate"
+>
+
+<button id="generateMonthly">
+
+Generate Monthly Report
+
+</button>
+
+</div>
+
+
+
+<!-- YEARLY REPORT -->
+
+<div class="card">
+
+<h2>🗓 Yearly Report</h2>
+
+<label>Select Year</label>
+
+<input
+type="number"
+id="yearlyDate"
+placeholder="Example: 2026"
+min="2020"
+max="2100"
+>
+
+<button id="generateYearly">
+
+Generate Yearly Report
+
+</button>
+
+</div>
+
+
+
+<!-- CUSTOM RANGE -->
+
+<div class="card">
+
+<h2>🔎 Custom Date Range</h2>
 
 <label>From Date</label>
 
-<input type="date" id="fromDate">
-
-
+<input
+type="date"
+id="fromDate"
+>
 
 <label>To Date</label>
 
-<input type="date" id="toDate">
+<input
+type="date"
+id="toDate"
+>
 
+<button id="generateRange">
 
-
-<br>
-
-
-<button id="generateReport">
-
-Generate Report
+Generate Range Report
 
 </button>
-
-
-
-<button id="exportPDF">
-
-Export PDF
-
-</button>
-
-
 
 </div>
 
 
 
+<!-- REPORT HEADER -->
 
-
-
-
-<div class="card">
-
+<div class="card report-section">
 
 <h2>Report Summary</h2>
 
+<p id="reportPeriod">
+
+Select a report above
+
+</p>
 
 
-<div id="reportResult">
+<div class="report-grid">
 
 
-Select Date Range
+<div class="report-box">
+
+<span>💵 Cash Sales</span>
+
+<b id="reportCash">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>💳 Card Sales</span>
+
+<b id="reportCard">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>💰 Total Sales</span>
+
+<b id="reportSales">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>💸 Expenses (Cost)</span>
+
+<b id="reportExpenses">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>👨‍💼 Staff Payment</span>
+
+<b id="reportStaff">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>🏦 Cash Withdrawal</span>
+
+<b id="reportWithdrawals">
+0 AED
+</b>
+
+</div>
+
+
+
+<div class="report-box">
+
+<span>📈 Net Profit</span>
+
+<b id="reportProfit">
+0 AED
+</b>
+
+</div>
+
+
+</div>
+
+
+
+<div class="report-actions">
+
+<button id="exportPDF">
+
+📄 Export PDF
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<!-- EXPENSE DETAILS -->
+
+<div class="card report-section">
+
+<h2>💸 Expense Details</h2>
+
+<div id="expenseDetails">
+
+No expense data selected.
+
+</div>
+
+</div>
+
+
+
+<!-- WITHDRAWAL DETAILS -->
+
+<div class="card report-section">
+
+<h2>🏦 Cash Withdrawal Details</h2>
+
+<div id="withdrawalDetails">
+
+No withdrawal data selected.
+
+</div>
+
+</div>
+
+
+
+<!-- STAFF DETAILS -->
+
+<div class="card report-section">
+
+<h2>👨‍💼 Staff Payment Details</h2>
+
+<div id="staffDetails">
+
+No staff payment data selected.
+
+</div>
 
 </div>
 
@@ -116,21 +377,14 @@ Select Date Range
 
 
 
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+</script>
 
-
-</div>
-
-
-
-
-
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-
-<script type="module" src="reports.js"></script>
-
+<script
+type="module"
+src="reports.js">
+</script>
 
 
 </body>
