@@ -10,56 +10,39 @@
 <style>
 
 .sale-card{
-
 background:white;
 border-radius:15px;
 padding:15px;
 margin-top:15px;
 box-shadow:0 4px 12px rgba(0,0,0,0.08);
-
 }
 
-
 .sale-header{
-
 display:flex;
 justify-content:space-between;
 font-weight:bold;
-
 }
 
-
 .sale-row{
-
 display:flex;
 justify-content:space-between;
 margin-top:8px;
-
 }
 
-
 .action button{
-
 border:none;
 padding:8px 12px;
 border-radius:8px;
 cursor:pointer;
-
 }
 
-
 .edit{
-
 background:#d4af37;
 }
 
-
 .delete{
-
 background:#eee;
-
 }
-
 
 </style>
 
@@ -75,17 +58,19 @@ background:#eee;
 
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="sales.html">💰 Sales</a>
-<a href="expenses.html">💸 Expenses</a>
-<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="expenses.html">💸 Expenses (Cost)</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
-<a href="inventory.html">📦 Inventory</a>
+<a href="withdrawals.html">💸 Cash Withdrawal</a>
+<a href="settings.html">⚙️ Settings</a>
 
 </div>
 
 
 
 <div class="main">
+
 <div class="brand-header">
 
 AL HUDU
@@ -102,46 +87,34 @@ Accounting & Management System
 
 <div class="card">
 
-
 <h2>Add Sale</h2>
-
 
 <label>Date</label>
 <input type="date" id="date">
 
-
 <label>Cash</label>
 <input type="number" id="cash">
-
 
 <label>Card</label>
 <input type="number" id="card">
 
-
 <label>Total</label>
 <input type="number" id="totalSale" readonly>
 
-
 <label>Note</label>
 <input type="text" id="note">
-
-
 
 <button id="saveSale">
 Save Sale
 </button>
 
-
 </div>
-
 
 
 
 <div class="card">
 
-
 <h2>Sales History</h2>
-
 
 <input 
 type="text"
@@ -149,9 +122,7 @@ id="searchSale"
 placeholder="🔍 Search..."
 >
 
-
 <div id="salesList"></div>
-
 
 </div>
 
@@ -165,6 +136,5 @@ placeholder="🔍 Search..."
 
 
 </body>
-
 
 </html>
