@@ -1,6 +1,10 @@
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+if(localStorage.getItem("alhuduLogin")!=="true"){
 
+window.location.href="login.html";
+
+}
 import {
 getFirestore,
 collection,
