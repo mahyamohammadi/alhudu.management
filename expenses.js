@@ -1,10 +1,6 @@
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-if(localStorage.getItem("alhuduLogin")!=="true"){
 
-window.location.href="login.html";
-
-}
 import {
 getFirestore,
 collection,
@@ -15,6 +11,22 @@ doc,
 updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// =========================
+// LOGIN CHECK
+// =========================
+
+if(localStorage.getItem("alhuduLogin") !== "true"){
+
+window.location.href = "login.html";
+
+}
+
+
+// =========================
+// FIREBASE
+// =========================
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
@@ -28,70 +40,164 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+
+// =========================
+// VARIABLES
+// =========================
+
 let editId = null;
+
 let allExpenses = [];
+
 let currentExpenses = [];
+
+let displayedExpenses = [];
+
+
+// =========================
+// SAVE / UPDATE EXPENSE
+// =========================
 
 document.getElementById("saveExpense").onclick = async()=>{
 
-let expense={
 
-date:document.getElementById("date").value,
+const date =
+document.getElementById("date").value;
 
-category:document.getElementById("category").value,
 
-amount:Number(document.getElementById("amount").value||0),
+const category =
+document.getElementById("category").value.trim();
 
-note:document.getElementById("note").value
+
+const amount =
+Number(document.getElementById("amount").value || 0);
+
+
+const note =
+document.getElementById("note").value.trim();
+
+
+if(!date){
+
+alert("Please select a date");
+
+return;
+
+}
+
+
+if(!category){
+
+alert("Please enter category");
+
+return;
+
+}
+
+
+if(amount <= 0){
+
+alert("Please enter valid amount");
+
+return;
+
+}
+
+
+const expense = {
+
+date,
+
+category,
+
+amount,
+
+note
 
 };
 
+
 if(editId){
+
 
 await updateDoc(
 doc(db,"expenses",editId),
 expense
 );
 
+
 alert("Expense Updated ✅");
 
-editId=null;
+
+editId = null;
+
+
+document
+.getElementById("saveExpense")
+.innerHTML =
+"Save Expense";
+
 
 }else{
+
 
 await addDoc(
 collection(db,"expenses"),
 expense
 );
 
+
 alert("Expense Saved ✅");
 
+
 }
+
 
 clearForm();
 
-loadExpenses();
+await loadExpenses();
+
 
 };
 
+
+// =========================
+// CLEAR FORM
+// =========================
+
 function clearForm(){
 
-document.getElementById("date").value="";
-document.getElementById("category").value="";
-document.getElementById("amount").value="";
-document.getElementById("note").value="";
+
+document.getElementById("date").value = "";
+
+document.getElementById("category").value = "";
+
+document.getElementById("amount").value = "";
+
+document.getElementById("note").value = "";
+
 
 }
 
+
+// =========================
+// LOAD EXPENSES
+// =========================
+
 async function loadExpenses(){
 
-allExpenses=[];
 
-const snap=await getDocs(
+allExpenses = [];
+
+
+const snap =
+await getDocs(
 collection(db,"expenses")
 );
 
+
 snap.forEach(item=>{
+
 
 allExpenses.push({
 
@@ -101,69 +207,133 @@ id:item.id,
 
 });
 
+
 });
 
-allExpenses.sort((a,b)=>
-(b.date||"").localeCompare(a.date||"")
+
+// newest first
+
+allExpenses.sort((a,b)=>{
+
+return (b.date || "")
+.localeCompare(a.date || "");
+
+});
+
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const currentMonth =
+today.substring(0,7);
+
+
+currentExpenses =
+allExpenses.filter(expense=>{
+
+return (
+expense.date &&
+expense.date.startsWith(currentMonth)
 );
 
-const now=new Date();
+});
 
-const year=now.getFullYear();
 
-const month=String(now.getMonth()+1).padStart(2,"0");
+displayedExpenses =
+[...currentExpenses];
 
-currentExpenses=
-allExpenses.filter(e=>
-e.date.startsWith(`${year}-${month}`)
-);
 
-displayExpenses(currentExpenses);
+displayExpenses(displayedExpenses);
+
+updateExpenseSummary();
+
 
 }
+
+
+// =========================
+// DISPLAY EXPENSES
+// =========================
+
 function displayExpenses(list){
 
-let box=document.getElementById("expenseList");
 
-box.innerHTML="";
+const box =
+document.getElementById("expenseList");
 
-if(list.length===0){
 
-box.innerHTML="<p>No expenses found.</p>";
+box.innerHTML = "";
 
-return;
 
-}
+if(list.length === 0){
 
-list.forEach(exp=>{
 
-box.innerHTML+=`
+box.innerHTML = `
 
 <div class="exp-card">
 
-<div class="exp-header">
+<div class="exp-row">
 
-<span>📅 ${exp.date}</span>
-
-<span>${Number(exp.amount)} AED</span>
+<span>No expenses found</span>
 
 </div>
+
+</div>
+
+`;
+
+
+return;
+
+
+}
+
+
+list.forEach(exp=>{
+
+
+box.innerHTML += `
+
+<div class="exp-card">
+
+
+<div class="exp-header">
+
+<span>
+📅 ${exp.date || "-"}
+</span>
+
+<span>
+${Number(exp.amount || 0).toLocaleString()} AED
+</span>
+
+</div>
+
 
 <div class="exp-row">
 
 <span>🏷 Category</span>
 
-<b>${exp.category}</b>
+<b>
+${exp.category || "-"}
+</b>
 
 </div>
+
 
 <div class="exp-row">
 
 <span>📝 Note</span>
 
-<b>${exp.note||"-"}</b>
+<b>
+${exp.note || "-"}
+</b>
 
 </div>
+
 
 <div class="action">
 
@@ -175,6 +345,7 @@ onclick="editExpense('${exp.id}')">
 
 </button>
 
+
 <button
 class="delete"
 onclick="deleteExpense('${exp.id}')">
@@ -185,75 +356,349 @@ onclick="deleteExpense('${exp.id}')">
 
 </div>
 
+
 </div>
 
 `;
 
+
 });
+
 
 }
 
-document.getElementById("searchExpense").oninput=function(){
 
-let text=this.value.toLowerCase();
+// =========================
+// EXPENSE SUMMARY
+// =========================
 
-if(text===""){
+function updateExpenseSummary(){
 
-displayExpenses(currentExpenses);
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const currentMonth =
+today.substring(0,7);
+
+
+let todayTotal = 0;
+
+let monthTotal = 0;
+
+
+allExpenses.forEach(exp=>{
+
+
+const amount =
+Number(exp.amount || 0);
+
+
+if(exp.date === today){
+
+todayTotal += amount;
+
+}
+
+
+if(
+exp.date &&
+exp.date.startsWith(currentMonth)
+){
+
+monthTotal += amount;
+
+}
+
+
+});
+
+
+document
+.getElementById("todayExpenseTotal")
+.innerHTML =
+todayTotal.toLocaleString() + " AED";
+
+
+document
+.getElementById("monthExpenseTotal")
+.innerHTML =
+monthTotal.toLocaleString() + " AED";
+
+
+}
+
+
+// =========================
+// TEXT SEARCH
+// =========================
+
+document
+.getElementById("searchExpense")
+.oninput = function(){
+
+
+const text =
+this.value.trim().toLowerCase();
+
+
+if(text === ""){
+
+
+displayExpenses(displayedExpenses);
+
+return;
+
+
+}
+
+
+const result =
+displayedExpenses.filter(exp=>{
+
+
+const date =
+(exp.date || "").toLowerCase();
+
+
+const category =
+(exp.category || "").toLowerCase();
+
+
+const note =
+(exp.note || "").toLowerCase();
+
+
+return (
+
+date.includes(text)
+
+||
+
+category.includes(text)
+
+||
+
+note.includes(text)
+
+);
+
+
+});
+
+
+displayExpenses(result);
+
+
+};
+
+
+// =========================
+// DATE RANGE FILTER
+// =========================
+
+document
+.getElementById("filterExpenses")
+.onclick = function(){
+
+
+const from =
+document
+.getElementById("fromExpenseDate")
+.value;
+
+
+const to =
+document
+.getElementById("toExpenseDate")
+.value;
+
+
+if(!from || !to){
+
+alert("Select From Date and To Date");
 
 return;
 
 }
 
-let result=allExpenses.filter(e=>
 
-(e.date||"").includes(text) ||
+if(from > to){
 
-(e.category||"").toLowerCase().includes(text) ||
+alert("From Date cannot be after To Date");
 
-(e.note||"").toLowerCase().includes(text)
+return;
 
+}
+
+
+displayedExpenses =
+allExpenses.filter(exp=>{
+
+return (
+exp.date &&
+exp.date >= from &&
+exp.date <= to
 );
 
-displayExpenses(result);
+});
+
+
+displayExpenses(displayedExpenses);
+
 
 };
 
-window.deleteExpense=async(id)=>{
 
-if(!confirm("Delete this expense?")) return;
+// =========================
+// THIS MONTH
+// =========================
+
+document
+.getElementById("showThisMonthExpenses")
+.onclick = function(){
+
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const currentMonth =
+today.substring(0,7);
+
+
+displayedExpenses =
+allExpenses.filter(exp=>{
+
+return (
+exp.date &&
+exp.date.startsWith(currentMonth)
+);
+
+});
+
+
+document
+.getElementById("fromExpenseDate")
+.value = "";
+
+
+document
+.getElementById("toExpenseDate")
+.value = "";
+
+
+document
+.getElementById("searchExpense")
+.value = "";
+
+
+displayExpenses(displayedExpenses);
+
+
+};
+
+
+// =========================
+// EDIT EXPENSE
+// =========================
+
+window.editExpense = function(id){
+
+
+const exp =
+allExpenses.find(
+item=>item.id === id
+);
+
+
+if(!exp){
+
+return;
+
+}
+
+
+document
+.getElementById("date")
+.value =
+exp.date || "";
+
+
+document
+.getElementById("category")
+.value =
+exp.category || "";
+
+
+document
+.getElementById("amount")
+.value =
+Number(exp.amount || 0);
+
+
+document
+.getElementById("note")
+.value =
+exp.note || "";
+
+
+editId = id;
+
+
+document
+.getElementById("saveExpense")
+.innerHTML =
+"Update Expense";
+
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+
+};
+
+
+// =========================
+// DELETE EXPENSE
+// =========================
+
+window.deleteExpense = async function(id){
+
+
+if(!confirm("Delete this expense?")){
+
+return;
+
+}
+
 
 await deleteDoc(
 doc(db,"expenses",id)
 );
 
-alert("Deleted ✅");
 
-loadExpenses();
+alert("Expense Deleted ✅");
 
-};
 
-window.editExpense=function(id){
+await loadExpenses();
 
-let e=allExpenses.find(x=>x.id===id);
-
-if(!e) return;
-
-document.getElementById("date").value=e.date;
-
-document.getElementById("category").value=e.category;
-
-document.getElementById("amount").value=e.amount;
-
-document.getElementById("note").value=e.note;
-
-editId=id;
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
 
 };
+
+
+// =========================
+// START
+// =========================
 
 loadExpenses();
