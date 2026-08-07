@@ -18,7 +18,6 @@ margin-top:20px;
 
 }
 
-
 .dash-card{
 
 background:white;
@@ -28,14 +27,12 @@ box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
 
-
 .dash-title{
 
 font-size:15px;
 color:#777;
 
 }
-
 
 .dash-value{
 
@@ -44,7 +41,6 @@ font-weight:bold;
 margin-top:10px;
 
 }
-
 
 .section{
 
@@ -56,9 +52,7 @@ margin-top:30px;
 
 </head>
 
-
 <body>
-
 
 <div class="sidebar">
 
@@ -76,205 +70,428 @@ margin-top:30px;
 
 <a href="reports.html">📊 Reports</a>
 
-<a href="settings.html">⚙️ Settings</a>
-
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
 
+<a href="settings.html">⚙️ Settings</a>
 
 </div>
 
-
-
 <div class="main">
-
 
 <div class="brand-header">
 
 AL HUDU
 
 <span>
+
 Accounting & Management System
+
 </span>
 
 </div>
 
-
 <h1>🏠 Dashboard</h1>
-
 
 <div class="section">
 
-<h2>📊 Overall Summary</h2>
-
+<h2>📊 Overall Summary (Current Month)</h2>
 
 <div class="dashboard-grid">
 
-
 <div class="dash-card">
 
 <div class="dash-title">
+
 Total Sales
+
 </div>
 
 <div class="dash-value" id="totalSales">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
-Total Cash Sales
+
+Cash Sales
+
 </div>
 
 <div class="dash-value" id="totalCash">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
-Total Card Sales
+
+Card Sales
+
 </div>
 
 <div class="dash-value" id="totalCard">
+
 0 AED
+
 </div>
 
 </div>
+
 <div class="dash-card">
 
 <div class="dash-title">
-Total Expenses (Cost)
+
+Expenses
+
 </div>
 
 <div class="dash-value" id="totalCost">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Staff Payment
+
 </div>
 
 <div class="dash-value" id="totalStaff">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Net Profit
+
 </div>
 
 <div class="dash-value" id="netProfit">
+
 0 AED
-</div>
-
-</div>
-
 
 </div>
 
 </div>
 
+<div class="dash-card">
 
+<div class="dash-title">
 
+Cash Balance
 
+</div>
 
+<div class="dash-value" id="cashBalance">
+
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Cash Withdrawal
+
+</div>
+
+<div class="dash-value" id="totalWithdraw">
+
+0 AED
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 <div class="section">
 
 <h2>📅 Today's Summary</h2>
 
-
 <div class="dashboard-grid">
-
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Today's Sales
+
 </div>
 
 <div class="dash-value" id="todaySales">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Today's Cost
+
 </div>
 
 <div class="dash-value" id="todayCost">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Today's Staff
+
 </div>
 
 <div class="dash-value" id="todayStaff">
+
 0 AED
-</div>
 
 </div>
 
-
+</div>
 
 <div class="dash-card">
 
 <div class="dash-title">
+
 Today's Profit
+
 </div>
 
 <div class="dash-value" id="todayProfit">
+
 0 AED
-</div>
-
-</div>
-
 
 </div>
 
 </div>
 
+<div class="dash-card">
 
+<div class="dash-title">
 
-
+Today's Withdrawal
 
 </div>
 
+<div class="dash-value" id="todayWithdraw">
 
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Opening Cash
+
+</div>
+
+<div class="dash-value" id="openingCashBalance">
+
+0 AED
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="section">
+
+<h2>📈 Business Overview</h2>
+
+<div class="dashboard-grid">
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Opening Balance
+
+</div>
+
+<div class="dash-value" id="openingBalance">
+
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Cash In
+
+</div>
+
+<div class="dash-value" id="cashIn">
+
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Cash Out
+
+</div>
+
+<div class="dash-value" id="cashOut">
+
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Current Cash
+
+</div>
+
+<div class="dash-value" id="currentCash">
+
+0 AED
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Transactions
+
+</div>
+
+<div class="dash-value" id="totalTransactions">
+
+0
+
+</div>
+
+</div>
+
+<div class="dash-card">
+
+<div class="dash-title">
+
+Last Update
+
+</div>
+
+<div class="dash-value" id="lastUpdate">
+
+--
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<div class="section">
+
+<h2>📌 Quick Actions</h2>
+
+<div class="dashboard-grid">
+
+<div class="dash-card">
+
+<button onclick="location.href='sales.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+
+💰 New Sale
+
+</button>
+
+</div>
+
+<div class="dash-card">
+
+<button onclick="location.href='expenses.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+
+💸 New Expense
+
+</button>
+
+</div>
+
+<div class="dash-card">
+
+<button onclick="location.href='withdrawals.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+
+🏦 Cash Withdrawal
+
+</button>
+
+</div>
+
+<div class="dash-card">
+
+<button onclick="location.href='reports.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+
+📊 View Reports
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 <script type="module" src="dashboard.js"></script>
-
 
 </body>
 
