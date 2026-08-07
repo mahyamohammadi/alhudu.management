@@ -276,10 +276,69 @@ todayProfit + " AED";
 if(document.getElementById("cashBalance")){
 
 document.getElementById("cashBalance").innerHTML =
-cashBalance + " AED";
+cashBalance.toLocaleString() + " AED";
 
 }
 
+
+// =========================
+// Cash Withdrawal Card
+// =========================
+
+if(document.getElementById("totalWithdraw")){
+
+document.getElementById("totalWithdraw").innerHTML =
+totalWithdraw.toLocaleString() + " AED";
+
 }
 
-loadDashboard(); 
+
+// =========================
+// Today's Withdrawal
+// =========================
+
+if(document.getElementById("todayWithdraw")){
+
+document.getElementById("todayWithdraw").innerHTML =
+todayWithdraw.toLocaleString() + " AED";
+
+}
+
+
+// =========================
+// Format Other Values
+// =========================
+
+document.getElementById("totalSales").innerHTML =
+totalSales.toLocaleString() + " AED";
+
+document.getElementById("totalCash").innerHTML =
+totalCash.toLocaleString() + " AED";
+
+document.getElementById("totalCard").innerHTML =
+totalCard.toLocaleString() + " AED";
+
+document.getElementById("totalCost").innerHTML =
+totalCost.toLocaleString() + " AED";
+
+document.getElementById("totalStaff").innerHTML =
+totalStaff.toLocaleString() + " AED";
+
+document.getElementById("netProfit").innerHTML =
+netProfit.toLocaleString() + " AED";
+
+document.getElementById("todaySales").innerHTML =
+todaySales.toLocaleString() + " AED";
+
+document.getElementById("todayCost").innerHTML =
+todayCost.toLocaleString() + " AED";
+
+document.getElementById("todayStaff").innerHTML =
+todayStaff.toLocaleString() + " AED";
+
+document.getElementById("todayProfit").innerHTML =
+todayProfit.toLocaleString() + " AED";
+
+}
+
+loadDashboard();
