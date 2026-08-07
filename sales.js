@@ -33,21 +33,22 @@ const db = getFirestore(app);
 
 let editId = null;
 let allSales = [];
+let currentMonthSales = [];
 
 
 
-const cashInput=document.getElementById("cash");
-const cardInput=document.getElementById("card");
-const totalInput=document.getElementById("totalSale");
+const cashInput = document.getElementById("cash");
+const cardInput = document.getElementById("card");
+const totalInput = document.getElementById("totalSale");
 
 
 
 function calculateTotal(){
 
-let cash = Number(cashInput.value || 0);
-let card = Number(cardInput.value || 0);
+    let cash = Number(cashInput.value || 0);
+    let card = Number(cardInput.value || 0);
 
-totalInput.value = cash + card;
+    totalInput.value = cash + card;
 
 }
 
@@ -57,86 +58,90 @@ cardInput.oninput = calculateTotal;
 
 
 
-
 document.getElementById("saveSale").onclick = async()=>{
 
 
-let sale = {
+    let sale = {
 
-date:document.getElementById("date").value,
+        date: document.getElementById("date").value,
 
-cash:Number(cashInput.value || 0),
+        cash: Number(cashInput.value || 0),
 
-card:Number(cardInput.value || 0),
+        card: Number(cardInput.value || 0),
 
-total:Number(totalInput.value || 0),
+        total: Number(totalInput.value || 0),
 
-note:document.getElementById("note").value
+        note: document.getElementById("note").value
+
+    };
+
+
+    if(!sale.date){
+
+        alert("Please select a date");
+
+        return;
+
+    }
+
+
+
+    if(editId){
+
+
+        await updateDoc(
+            doc(db,"sales",editId),
+            sale
+        );
+
+
+        alert("Sale Updated ✅");
+
+
+        editId = null;
+
+
+    }
+
+    else{
+
+
+        await addDoc(
+            collection(db,"sales"),
+            sale
+        );
+
+
+        alert("Sale Saved ✅");
+
+
+    }
+
+
+
+    clearForm();
+
+    loadSales();
+
 
 };
-
-
-
-if(editId){
-
-
-await updateDoc(
-doc(db,"sales",editId),
-sale
-);
-
-
-alert("Sale Updated ✅");
-
-
-editId=null;
-
-
-}
-
-else{
-
-
-await addDoc(
-collection(db,"sales"),
-sale
-);
-
-
-alert("Sale Saved ✅");
-
-
-}
-
-
-
-clearForm();
-
-loadSales();
-
-
-};
-
 
 
 
 
 function clearForm(){
 
-document.getElementById("date").value="";
+    document.getElementById("date").value = "";
 
-cashInput.value="";
+    cashInput.value = "";
 
-cardInput.value="";
+    cardInput.value = "";
 
-totalInput.value="";
+    totalInput.value = "";
 
-document.getElementById("note").value="";
-
+    document.getElementById("note").value = "";
 
 }
-
-
 
 
 
@@ -144,38 +149,82 @@ document.getElementById("note").value="";
 async function loadSales(){
 
 
-allSales=[];
+    allSales = [];
 
 
-const snap = await getDocs(
-collection(db,"sales")
-);
-
-
-
-snap.forEach(item=>{
-
-
-allSales.push({
-
-id:item.id,
-
-...item.data()
-
-});
-
-
-});
+    const snap = await getDocs(
+        collection(db,"sales")
+    );
 
 
 
-displaySales(allSales);
+    snap.forEach(item=>{
+
+
+        allSales.push({
+
+            id:item.id,
+
+            ...item.data()
+
+        });
+
+
+    });
+
+
+
+    // مرتب‌سازی: جدیدترین تاریخ اول
+
+    allSales.sort((a,b)=>{
+
+        return (b.date || "").localeCompare(a.date || "");
+
+    });
+
+
+
+    // فقط ماه جاری
+
+    const now = new Date();
+
+    const currentYear = now.getFullYear();
+
+    const currentMonth = now.getMonth() + 1;
+
+
+
+    currentMonthSales = allSales.filter(sale=>{
+
+
+        if(!sale.date){
+
+            return false;
+
+        }
+
+
+        const parts = sale.date.split("-");
+
+        const year = Number(parts[0]);
+
+        const month = Number(parts[1]);
+
+
+        return (
+            year === currentYear &&
+            month === currentMonth
+        );
+
+
+    });
+
+
+
+    displaySales(currentMonthSales);
 
 
 }
-
-
-
 
 
 
@@ -183,81 +232,112 @@ displaySales(allSales);
 function displaySales(list){
 
 
-let box=document.getElementById("salesList");
+    let box = document.getElementById("salesList");
 
 
-box.innerHTML="";
-
-
-
-list.reverse().forEach(sale=>{
-
-
-box.innerHTML += `
-
-<div class="sale-card">
-
-
-<div class="sale-header">
-
-<span>📅 ${sale.date}</span>
-
-<span>${sale.total} AED</span>
-
-</div>
-
-
-<div class="sale-row">
-<span>💵 Cash</span>
-<b>${sale.cash} AED</b>
-</div>
-
-
-<div class="sale-row">
-<span>💳 Card</span>
-<b>${sale.card} AED</b>
-</div>
+    box.innerHTML = "";
 
 
 
-<div class="sale-row">
-<span>📝 Note</span>
-<b>${sale.note || "-"}</b>
-</div>
+    if(list.length === 0){
+
+
+        box.innerHTML = `
+
+        <div class="sale-card">
+
+        <div class="sale-row">
+
+        <span>No sales found</span>
+
+        </div>
+
+        </div>
+
+        `;
+
+
+        return;
+
+
+    }
 
 
 
-<div class="action">
+    list.forEach(sale=>{
 
 
-<button 
-class="edit"
-onclick="editSale('${sale.id}')">
+        box.innerHTML += `
 
-✏️ Edit
-
-</button>
+        <div class="sale-card">
 
 
+        <div class="sale-header">
 
-<button 
-class="delete"
-onclick="deleteSale('${sale.id}')">
+        <span>📅 ${sale.date || "-"}</span>
 
-🗑 Delete
+        <span>${Number(sale.total || 0)} AED</span>
 
-</button>
-
-
-</div>
+        </div>
 
 
-</div>
+        <div class="sale-row">
+
+        <span>💵 Cash</span>
+
+        <b>${Number(sale.cash || 0)} AED</b>
+
+        </div>
 
 
-`;
+        <div class="sale-row">
 
-});
+        <span>💳 Card</span>
+
+        <b>${Number(sale.card || 0)} AED</b>
+
+        </div>
+
+
+        <div class="sale-row">
+
+        <span>📝 Note</span>
+
+        <b>${sale.note || "-"}</b>
+
+        </div>
+
+
+        <div class="action">
+
+
+        <button 
+        class="edit"
+        onclick="editSale('${sale.id}')">
+
+        ✏️ Edit
+
+        </button>
+
+
+        <button 
+        class="delete"
+        onclick="deleteSale('${sale.id}')">
+
+        🗑 Delete
+
+        </button>
+
+
+        </div>
+
+
+        </div>
+
+        `;
+
+
+    });
 
 
 }
@@ -265,30 +345,46 @@ onclick="deleteSale('${sale.id}')">
 
 
 
+document.getElementById("searchSale").oninput = function(){
+
+
+    let text = this.value.trim().toLowerCase();
+
+
+    if(text === ""){
+
+
+        displaySales(currentMonthSales);
+
+        return;
+
+
+    }
 
 
 
-document.getElementById("searchSale").oninput=function(){
+    let result = allSales.filter(s=>{
 
 
-let text=this.value.toLowerCase();
+        let date = (s.date || "").toLowerCase();
+
+        let note = (s.note || "").toLowerCase();
 
 
-let result = allSales.filter(s=>
-
-s.date.includes(text) ||
-(s.note || "").toLowerCase().includes(text)
-
-);
+        return (
+            date.includes(text) ||
+            note.includes(text)
+        );
 
 
-displaySales(result);
+    });
+
+
+
+    displaySales(result);
 
 
 };
-
-
-
 
 
 
@@ -296,66 +392,66 @@ displaySales(result);
 window.deleteSale = async(id)=>{
 
 
-await deleteDoc(
-doc(db,"sales",id)
-);
+    const ok = confirm("Delete this sale?");
 
 
-alert("Deleted ✅");
+    if(!ok){
+
+        return;
+
+    }
 
 
-loadSales();
+    await deleteDoc(
+        doc(db,"sales",id)
+    );
 
 
-};
+    alert("Deleted ✅");
 
 
-
-
-
-
-window.editSale = async(id)=>{
-
-
-const snap = await getDocs(
-collection(db,"sales")
-);
-
-
-
-snap.forEach(item=>{
-
-
-if(item.id===id){
-
-
-let s=item.data();
-
-
-document.getElementById("date").value=s.date;
-
-cashInput.value=s.cash;
-
-cardInput.value=s.card;
-
-totalInput.value=s.total;
-
-document.getElementById("note").value=s.note;
-
-
-editId=id;
-
-
-}
-
-
-
-});
+    loadSales();
 
 
 };
 
 
+
+
+window.editSale = function(id){
+
+
+    let s = allSales.find(item=>item.id === id);
+
+
+    if(!s){
+
+        return;
+
+    }
+
+
+    document.getElementById("date").value = s.date || "";
+
+    cashInput.value = Number(s.cash || 0);
+
+    cardInput.value = Number(s.card || 0);
+
+    totalInput.value = Number(s.total || 0);
+
+    document.getElementById("note").value = s.note || "";
+
+
+    editId = id;
+
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+
+};
 
 
 
