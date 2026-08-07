@@ -7,6 +7,49 @@
 
 <link rel="stylesheet" href="style.css">
 
+<style>
+
+.withdraw-summary{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.withdraw-box{
+background:white;
+padding:18px;
+border-radius:15px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.withdraw-box span{
+display:block;
+font-size:14px;
+color:#777;
+margin-bottom:8px;
+}
+
+.withdraw-box b{
+font-size:22px;
+}
+
+.action-buttons{
+display:flex;
+gap:8px;
+justify-content:center;
+}
+
+.edit{
+background:#d4af37;
+}
+
+.delete{
+background:#eee;
+}
+
+</style>
+
 </head>
 
 
@@ -18,13 +61,20 @@
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
+
 <a href="sales.html">💰 Sales</a>
+
 <a href="expenses.html">💸 Expenses</a>
+
 <a href="staff.html">👨‍💼 Staff Payment</a>
+
 <a href="cashflow.html">💵 Cash Flow</a>
+
 <a href="reports.html">📊 Reports</a>
-<a href="settings.html">⚙️ Settings</a>
+
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
+
+<a href="settings.html">⚙️ Settings</a>
 
 </div>
 
@@ -44,39 +94,78 @@ Accounting & Management System
 </div>
 
 
-
 <h1>💸 Cash Withdrawal</h1>
+
+
+
+<div class="withdraw-summary">
+
+
+<div class="withdraw-box">
+
+<span>Today's Withdrawal</span>
+
+<b id="todayWithdrawalTotal">
+0 AED
+</b>
+
+</div>
+
+
+<div class="withdraw-box">
+
+<span>This Month Withdrawal</span>
+
+<b id="monthWithdrawalTotal">
+0 AED
+</b>
+
+</div>
+
+
+</div>
 
 
 
 <div class="card">
 
 
-<h2>Add Withdrawal</h2>
+<h2>Add / Edit Withdrawal</h2>
 
 
 <label>Person Name</label>
 
-<input id="person" placeholder="Who took money?">
-
+<input
+id="person"
+type="text"
+placeholder="Who took money?"
+>
 
 
 <label>Amount (AED)</label>
 
-<input id="amount" type="number" placeholder="Amount">
-
+<input
+id="amount"
+type="number"
+placeholder="Amount"
+>
 
 
 <label>Reason</label>
 
-<input id="reason" placeholder="Reason">
-
+<input
+id="reason"
+type="text"
+placeholder="Reason"
+>
 
 
 <label>Date</label>
 
-<input id="date" type="date">
-
+<input
+id="date"
+type="date"
+>
 
 
 <button id="saveWithdrawal">
@@ -86,16 +175,21 @@ Save Withdrawal
 </button>
 
 
-
 </div>
-
-
 
 
 
 <div class="card">
 
+
 <h2>Withdrawal History</h2>
+
+
+<input
+type="text"
+id="searchWithdrawal"
+placeholder="🔍 Search by person, reason or date..."
+>
 
 
 <table>
@@ -105,9 +199,14 @@ Save Withdrawal
 <tr>
 
 <th>Person</th>
+
 <th>Amount</th>
+
 <th>Reason</th>
+
 <th>Date</th>
+
+<th>Action</th>
 
 </tr>
 
@@ -129,9 +228,10 @@ Save Withdrawal
 </div>
 
 
-
-
-<script type="module" src="withdrawals.js"></script>
+<script
+type="module"
+src="withdrawals.js">
+</script>
 
 
 </body>
