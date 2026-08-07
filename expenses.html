@@ -10,54 +10,76 @@
 <style>
 
 .exp-card{
-
 background:white;
 border-radius:15px;
 padding:15px;
 margin-top:15px;
 box-shadow:0 4px 12px rgba(0,0,0,0.08);
-
 }
 
-
 .exp-header{
-
 display:flex;
 justify-content:space-between;
 font-weight:bold;
-
 }
 
-
 .exp-row{
-
 display:flex;
 justify-content:space-between;
 margin-top:8px;
-
 }
 
+.action{
+margin-top:12px;
+display:flex;
+gap:8px;
+}
 
 .action button{
-
 padding:8px 12px;
 border:none;
 border-radius:8px;
-
+cursor:pointer;
 }
-
 
 .edit{
-
 background:#d4af37;
-
 }
 
-
 .delete{
-
 background:#eee;
+}
 
+.exp-summary{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.summary-box{
+background:white;
+padding:18px;
+border-radius:15px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.summary-box span{
+display:block;
+font-size:14px;
+color:#777;
+margin-bottom:8px;
+}
+
+.summary-box b{
+font-size:22px;
+}
+
+.filter-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:12px;
+align-items:end;
 }
 
 </style>
@@ -74,18 +96,19 @@ background:#eee;
 
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="sales.html">💰 Sales</a>
-<a href="expenses.html">💸 Expenses</a>
-<a href="staff.html">👨‍💼 Staff Salary</a>
+<a href="expenses.html">💸 Expenses (Cost)</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
-<a href="inventory.html">📦 Inventory</a>
+<a href="withdrawals.html">💸 Cash Withdrawal</a>
+<a href="settings.html">⚙️ Settings</a>
 
 </div>
 
 
 
-
 <div class="main">
+
 <div class="brand-header">
 
 AL HUDU
@@ -96,76 +119,156 @@ Accounting & Management System
 
 </div>
 
-<h1>Expenses (Cost)</h1>
+<h1>💸 Expenses (Cost)</h1>
 
 
+<div class="exp-summary">
 
-<div class="card">
+<div class="summary-box">
 
+<span>Today's Expenses</span>
 
-<h2>Add Expense</h2>
+<b id="todayExpenseTotal">
+0 AED
+</b>
 
-
-<label>Date</label>
-<input type="date" id="date">
-
-
-
-<label>Category</label>
-<input type="text" id="category">
+</div>
 
 
+<div class="summary-box">
 
-<label>Amount</label>
-<input type="number" id="amount">
+<span>This Month Expenses</span>
 
+<b id="monthExpenseTotal">
+0 AED
+</b>
 
-
-<label>Note</label>
-<input type="text" id="note">
-
-
-
-<button id="saveExpense">
-Save Expense
-</button>
-
+</div>
 
 </div>
 
 
 
+<div class="card">
+
+<h2>Add / Edit Expense</h2>
+
+<label>Date</label>
+
+<input
+type="date"
+id="date"
+>
+
+<label>Category</label>
+
+<input
+type="text"
+id="category"
+placeholder="Expense category"
+>
+
+<label>Amount</label>
+
+<input
+type="number"
+id="amount"
+placeholder="Amount"
+>
+
+<label>Note</label>
+
+<input
+type="text"
+id="note"
+placeholder="Optional note"
+>
+
+<button id="saveExpense">
+
+Save Expense
+
+</button>
+
+</div>
+
+
 
 <div class="card">
 
+<h2>Filter Expenses</h2>
+
+<div class="filter-grid">
+
+<div>
+
+<label>From Date</label>
+
+<input
+type="date"
+id="fromExpenseDate"
+>
+
+</div>
+
+<div>
+
+<label>To Date</label>
+
+<input
+type="date"
+id="toExpenseDate"
+>
+
+</div>
+
+<div>
+
+<button id="filterExpenses">
+
+🔍 Search Range
+
+</button>
+
+</div>
+
+<div>
+
+<button id="showThisMonthExpenses">
+
+📅 This Month
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="card">
 
 <h2>Expense History</h2>
 
-
-<input 
+<input
 type="text"
 id="searchExpense"
-placeholder="🔍 Search..."
+placeholder="🔍 Search by date, category or note..."
 >
-
-
 
 <div id="expenseList"></div>
 
-
 </div>
 
 
-
-
 </div>
-
 
 
 <script type="module" src="expenses.js"></script>
 
 
 </body>
-
 
 </html>
