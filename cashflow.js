@@ -1,10 +1,5 @@
 import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-if(localStorage.getItem("alhuduLogin")!=="true"){
-
-window.location.href="login.html";
-
-}
 
 import {
 getFirestore,
@@ -16,6 +11,20 @@ getDoc
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
+// ================================
+// LOGIN PROTECTION
+// ================================
+
+if(localStorage.getItem("alhuduLogin") !== "true"){
+
+window.location.href = "login.html";
+
+}
+
+
+// ================================
+// FIREBASE
+// ================================
 
 const firebaseConfig = {
   apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
@@ -27,7 +36,6 @@ const firebaseConfig = {
 };
 
 
-
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
@@ -35,6 +43,9 @@ const db = getFirestore(app);
 
 
 
+// ================================
+// CASH FLOW
+// ================================
 
 async function loadCashFlow(){
 
@@ -47,127 +58,116 @@ let expenses = 0;
 
 let staffPayment = 0;
 
+let withdrawals = 0;
 
 
 
-
+// ================================
 // OPENING CASH BALANCE
+// ================================
 
 const openingSnap = await getDoc(
 doc(db,"settings","openingBalance")
 );
 
 
-
 if(openingSnap.exists()){
-
 
 openingCash = Number(
 openingSnap.data().amount || 0
 );
 
-
 }
 
 
 
-
-
-
-
-
-// CASH SALES ONLY
+// ================================
+// CASH SALES
+// ================================
 
 const salesSnap = await getDocs(
 collection(db,"sales")
 );
 
 
-
 salesSnap.forEach(item=>{
 
-
 let s = item.data();
-
-
 
 cashSales += Number(
 s.cash || 0
 );
 
-
-
 });
 
 
 
-
-
-
-
-
+// ================================
 // EXPENSES
+// ================================
 
 const expenseSnap = await getDocs(
 collection(db,"expenses")
 );
 
 
-
 expenseSnap.forEach(item=>{
 
-
-let e=item.data();
-
-
+let e = item.data();
 
 expenses += Number(
 e.amount || 0
 );
 
-
-
 });
 
 
 
-
-
-
-
-
+// ================================
 // STAFF PAYMENT
+// ================================
 
 const staffSnap = await getDocs(
 collection(db,"staff")
 );
 
 
-
 staffSnap.forEach(item=>{
 
-
-let s=item.data();
-
-
+let s = item.data();
 
 staffPayment += Number(
 s.total || 0
 );
 
+});
 
+
+
+// ================================
+// CASH WITHDRAWALS
+// ================================
+
+const withdrawalSnap = await getDocs(
+collection(db,"withdrawals")
+);
+
+
+withdrawalSnap.forEach(item=>{
+
+let w = item.data();
+
+withdrawals += Number(
+w.amount || 0
+);
 
 });
 
 
 
-
-
-
-
-
-
+// ================================
 // FINAL CASH BALANCE
+// ================================
 
 let balance =
 openingCash
@@ -176,46 +176,45 @@ cashSales
 -
 expenses
 -
-staffPayment;
+staffPayment
+-
+withdrawals;
 
 
-
-
-
-
+// ================================
+// DISPLAY
+// ================================
 
 document.getElementById("openingCash")
 .innerHTML =
-openingCash + " AED";
-
+openingCash.toLocaleString() + " AED";
 
 
 document.getElementById("totalCashSales")
 .innerHTML =
-cashSales + " AED";
-
+cashSales.toLocaleString() + " AED";
 
 
 document.getElementById("totalExpenses")
 .innerHTML =
-expenses + " AED";
-
+expenses.toLocaleString() + " AED";
 
 
 document.getElementById("totalStaff")
 .innerHTML =
-staffPayment + " AED";
+staffPayment.toLocaleString() + " AED";
 
+
+document.getElementById("totalWithdrawals")
+.innerHTML =
+withdrawals.toLocaleString() + " AED";
 
 
 document.getElementById("cashBalance")
 .innerHTML =
-balance + " AED";
-
-
+balance.toLocaleString() + " AED";
 
 }
-
 
 
 
