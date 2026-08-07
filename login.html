@@ -3,44 +3,149 @@
 
 <head>
 
+<meta charset="UTF-8">
+
 <title>AL HUDU Login</title>
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+
+background:#f5f1e8;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+height:100vh;
+
+}
+
+.login{
+
+width:380px;
+
+background:white;
+
+padding:35px;
+
+border-radius:20px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+
+text-align:center;
+
+}
+
+.logo{
+
+font-size:34px;
+
+font-weight:bold;
+
+color:#7a5b2e;
+
+margin-bottom:10px;
+
+}
+
+.sub{
+
+color:#777;
+
+margin-bottom:30px;
+
+}
+
+input{
+
+width:100%;
+
+padding:14px;
+
+margin-bottom:15px;
+
+border:1px solid #ddd;
+
+border-radius:10px;
+
+font-size:16px;
+
+}
+
+button{
+
+width:100%;
+
+padding:14px;
+
+background:#8b6b39;
+
+color:white;
+
+border:none;
+
+border-radius:10px;
+
+font-size:17px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#6f542c;
+
+}
+
+</style>
 
 </head>
 
-
 <body>
 
+<div class="login">
 
-<div class="login-box">
+<div class="logo">
 
-
-<h1>AL HUDU</h1>
-
-<p>Luxury Jalabiya</p>
-
-
-
-<input id="username" type="text" placeholder="Username">
-
-
-<input id="password" type="password" placeholder="Password">
-
-
-
-<button onclick="login()">
-Login
-</button>
-
-
+AL HUDU
 
 </div>
 
+<div class="sub">
 
+Accounting & Management
+
+</div>
+
+<input
+id="username"
+placeholder="Username">
+
+<input
+id="password"
+type="password"
+placeholder="Password">
+
+<button onclick="login()">
+
+LOGIN
+
+</button>
+
+</div>
 
 <script src="login.js"></script>
-
 
 </body>
 
