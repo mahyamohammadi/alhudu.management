@@ -14,7 +14,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 // ========================================
 
 if(localStorage.getItem("alhuduLogin") !== "true"){
-window.location.href = "login.html";
+    window.location.href = "login.html";
 }
 
 
@@ -24,18 +24,25 @@ window.location.href = "login.html";
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
-authDomain: "al-hudu-management.firebaseapp.com",
-projectId: "al-hudu-management",
-storageBucket: "al-hudu-management.firebasestorage.app",
-messagingSenderId: "1045649803744",
-appId: "1:1045649803744:web:bc6ead0755d196c020c385"
+    apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+
+    authDomain: "al-hudu-management.firebaseapp.com",
+
+    projectId: "al-hudu-management",
+
+    storageBucket: "al-hudu-management.firebasestorage.app",
+
+    messagingSenderId: "1045649803744",
+
+    appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 
 };
 
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
+
 
 let currentReport = null;
 
@@ -45,46 +52,54 @@ let currentReport = null;
 // ========================================
 
 function number(value){
-return Number(value || 0);
+
+    return Number(value || 0);
+
 }
 
 
 function money(value){
-return number(value).toLocaleString() + " AED";
+
+    return number(value).toLocaleString() + " AED";
+
 }
 
 
 function validDate(date){
-return typeof date === "string" && date.length >= 10;
+
+    return typeof date === "string" && date.length >= 10;
+
 }
 
 
 function isBetween(date,from,to){
 
-if(!validDate(date)) return false;
+    if(!validDate(date)) return false;
 
-return date >= from && date <= to;
+    return date >= from && date <= to;
 
 }
 
 
 function sortNewest(list){
 
-return [...list].sort((a,b)=>{
-return (b.date || "").localeCompare(a.date || "");
-});
+    return [...list].sort((a,b)=>{
+
+        return (b.date || "").localeCompare(a.date || "");
+
+    });
 
 }
 
 
 function escapeHTML(value){
 
-return String(value ?? "")
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
+    return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 
 }
 
@@ -95,73 +110,97 @@ return String(value ?? "")
 
 async function getData(){
 
-let sales = [];
-let expenses = [];
-let staff = [];
-let withdrawals = [];
+
+    let sales = [];
+
+    let expenses = [];
+
+    let staff = [];
+
+    let withdrawals = [];
 
 
-const [
-salesSnap,
-expenseSnap,
-staffSnap,
-withdrawalSnap
-] = await Promise.all([
+    const [
+        salesSnap,
+        expenseSnap,
+        staffSnap,
+        withdrawalSnap
+    ] = await Promise.all([
 
-getDocs(collection(db,"sales")),
-getDocs(collection(db,"expenses")),
-getDocs(collection(db,"staff")),
-getDocs(collection(db,"withdrawals"))
+        getDocs(collection(db,"sales")),
 
-]);
+        getDocs(collection(db,"expenses")),
 
+        getDocs(collection(db,"staff")),
 
-salesSnap.forEach(item=>{
+        getDocs(collection(db,"withdrawals"))
 
-sales.push({
-id:item.id,
-...item.data()
-});
-
-});
+    ]);
 
 
-expenseSnap.forEach(item=>{
+    salesSnap.forEach(item=>{
 
-expenses.push({
-id:item.id,
-...item.data()
-});
+        sales.push({
 
-});
+            id:item.id,
 
+            ...item.data()
 
-staffSnap.forEach(item=>{
+        });
 
-staff.push({
-id:item.id,
-...item.data()
-});
-
-});
+    });
 
 
-withdrawalSnap.forEach(item=>{
+    expenseSnap.forEach(item=>{
 
-withdrawals.push({
-id:item.id,
-...item.data()
-});
+        expenses.push({
 
-});
+            id:item.id,
+
+            ...item.data()
+
+        });
+
+    });
 
 
-return {
-sales,
-expenses,
-staff,
-withdrawals
-};
+    staffSnap.forEach(item=>{
+
+        staff.push({
+
+            id:item.id,
+
+            ...item.data()
+
+        });
+
+    });
+
+
+    withdrawalSnap.forEach(item=>{
+
+        withdrawals.push({
+
+            id:item.id,
+
+            ...item.data()
+
+        });
+
+    });
+
+
+    return {
+
+        sales,
+
+        expenses,
+
+        staff,
+
+        withdrawals
+
+    };
 
 }
 
@@ -171,165 +210,199 @@ withdrawals
 // ========================================
 
 function calculateReport(
-data,
-from,
-to,
-title,
-reportType
+    data,
+    from,
+    to,
+    title,
+    reportType
 ){
 
-let cash = 0;
-let card = 0;
 
-let expensesTotal = 0;
-let staffTotal = 0;
-let withdrawalTotal = 0;
+    let cash = 0;
 
-let expenseDetails = [];
-let staffDetails = [];
-let withdrawalDetails = [];
+    let card = 0;
 
+    let expensesTotal = 0;
 
-// SALES
+    let staffTotal = 0;
 
-data.sales.forEach(s=>{
-
-if(isBetween(s.date,from,to)){
-
-cash += number(s.cash);
-card += number(s.card);
-
-}
-
-});
+    let withdrawalTotal = 0;
 
 
-// EXPENSES (COST)
+    let expenseDetails = [];
 
-data.expenses.forEach(e=>{
+    let staffDetails = [];
 
-if(isBetween(e.date,from,to)){
-
-expensesTotal += number(e.amount);
-expenseDetails.push(e);
-
-}
-
-});
+    let withdrawalDetails = [];
 
 
-// STAFF PAYMENT
+    // SALES
 
-data.staff.forEach(s=>{
+    data.sales.forEach(s=>{
 
-if(isBetween(s.date,from,to)){
+        if(isBetween(s.date,from,to)){
 
-staffTotal += number(s.total);
-staffDetails.push(s);
+            cash += number(s.cash);
 
-}
+            card += number(s.card);
 
-});
+        }
 
-
-// CASH WITHDRAWAL
-
-data.withdrawals.forEach(w=>{
-
-if(isBetween(w.date,from,to)){
-
-withdrawalTotal += number(w.amount);
-withdrawalDetails.push(w);
-
-}
-
-});
+    });
 
 
-const salesTotal =
-cash + card;
+    // EXPENSES
+
+    data.expenses.forEach(e=>{
+
+        if(isBetween(e.date,from,to)){
+
+            expensesTotal += number(e.amount);
+
+            expenseDetails.push(e);
+
+        }
+
+    });
 
 
-// Cash Withdrawal does NOT reduce Net Sales Amount
+    // STAFF
 
-const netSalesAmount =
-salesTotal -
-expensesTotal -
-staffTotal;
+    data.staff.forEach(s=>{
+
+        if(isBetween(s.date,from,to)){
+
+            staffTotal += number(s.total);
+
+            staffDetails.push(s);
+
+        }
+
+    });
 
 
-return {
+    // WITHDRAWALS
 
-title,
-reportType,
+    data.withdrawals.forEach(w=>{
 
-from,
-to,
+        if(isBetween(w.date,from,to)){
 
-cash,
-card,
+            withdrawalTotal += number(w.amount);
 
-salesTotal,
+            withdrawalDetails.push(w);
 
-expensesTotal,
-staffTotal,
-withdrawalTotal,
+        }
 
-netSalesAmount,
+    });
 
-expenseDetails:sortNewest(expenseDetails),
 
-staffDetails:sortNewest(staffDetails),
+    const salesTotal =
+    cash + card;
 
-withdrawalDetails:sortNewest(withdrawalDetails)
 
-};
+    // Cash Withdrawal does not reduce Net Sales Amount
+
+    const netSalesAmount =
+
+    salesTotal
+    -
+    expensesTotal
+    -
+    staffTotal;
+
+
+    return {
+
+        title,
+
+        reportType,
+
+        from,
+
+        to,
+
+        cash,
+
+        card,
+
+        salesTotal,
+
+        expensesTotal,
+
+        staffTotal,
+
+        withdrawalTotal,
+
+        netSalesAmount,
+
+        expenseDetails:
+        sortNewest(expenseDetails),
+
+        staffDetails:
+        sortNewest(staffDetails),
+
+        withdrawalDetails:
+        sortNewest(withdrawalDetails)
+
+    };
 
 }
 
 
 // ========================================
-// SHOW REPORT ON WEBSITE
+// SHOW REPORT
 // ========================================
 
 function showReport(r){
 
-document.getElementById("reportPeriod").innerHTML =
-`<b>${escapeHTML(r.title)}</b><br>
-${escapeHTML(r.from)} → ${escapeHTML(r.to)}`;
+
+    document.getElementById("reportPeriod").innerHTML =
+
+    `<b>${escapeHTML(r.title)}</b><br>
+    ${escapeHTML(r.from)} → ${escapeHTML(r.to)}`;
 
 
-document.getElementById("reportCash").innerHTML =
-money(r.cash);
+    document.getElementById("reportCash").innerHTML =
+    money(r.cash);
 
 
-document.getElementById("reportCard").innerHTML =
-money(r.card);
+    document.getElementById("reportCard").innerHTML =
+    money(r.card);
 
 
-document.getElementById("reportSales").innerHTML =
-money(r.salesTotal);
+    document.getElementById("reportSales").innerHTML =
+    money(r.salesTotal);
 
 
-document.getElementById("reportExpenses").innerHTML =
-money(r.expensesTotal);
+    document.getElementById("reportExpenses").innerHTML =
+    money(r.expensesTotal);
 
 
-document.getElementById("reportStaff").innerHTML =
-money(r.staffTotal);
+    document.getElementById("reportStaff").innerHTML =
+    money(r.staffTotal);
 
 
-document.getElementById("reportWithdrawals").innerHTML =
-money(r.withdrawalTotal);
+    document.getElementById("reportWithdrawals").innerHTML =
+    money(r.withdrawalTotal);
 
 
-document.getElementById("reportProfit").innerHTML =
-money(r.netSalesAmount);
+    document.getElementById("reportProfit").innerHTML =
+    money(r.netSalesAmount);
 
 
-showExpenseDetails(r.expenseDetails);
-showStaffDetails(r.staffDetails);
-showWithdrawalDetails(r.withdrawalDetails);
+    showExpenseDetails(
+        r.expenseDetails
+    );
+
+
+    showStaffDetails(
+        r.staffDetails
+    );
+
+
+    showWithdrawalDetails(
+        r.withdrawalDetails
+    );
 
 }
 
@@ -340,53 +413,64 @@ showWithdrawalDetails(r.withdrawalDetails);
 
 function showExpenseDetails(list){
 
-const box =
-document.getElementById("expenseDetails");
 
-if(!box) return;
-
-
-if(list.length === 0){
-
-box.innerHTML =
-"No expenses in this period.";
-
-return;
-
-}
+    const box =
+    document.getElementById("expenseDetails");
 
 
-box.innerHTML = "";
+    if(!box) return;
 
 
-list.forEach(e=>{
+    if(list.length === 0){
 
-box.innerHTML += `
+        box.innerHTML =
+        "No expenses in this period.";
 
-<div class="detail-card">
+        return;
 
-<b>📅 ${escapeHTML(e.date || "-")}</b>
+    }
 
-<br><br>
 
-🏷 Category:
-<b>${escapeHTML(e.category || "-")}</b>
+    box.innerHTML = "";
 
-<br>
 
-💰 Amount:
-<b>${money(e.amount)}</b>
+    list.forEach(e=>{
 
-<br>
 
-📝 Note:
-<b>${escapeHTML(e.note || "-")}</b>
+        box.innerHTML += `
 
-</div>
+        <div class="detail-card">
 
-`;
+        <b>
+        📅 ${escapeHTML(e.date || "-")}
+        </b>
 
-});
+        <br><br>
+
+        🏷 Category:
+        <b>
+        ${escapeHTML(e.category || "-")}
+        </b>
+
+        <br>
+
+        💰 Amount:
+        <b>
+        ${money(e.amount)}
+        </b>
+
+        <br>
+
+        📝 Note:
+        <b>
+        ${escapeHTML(e.note || "-")}
+        </b>
+
+        </div>
+
+        `;
+
+    });
 
 }
 
@@ -397,125 +481,153 @@ box.innerHTML += `
 
 function showStaffDetails(list){
 
-const box =
-document.getElementById("staffDetails");
 
-if(!box) return;
-
-
-if(list.length === 0){
-
-box.innerHTML =
-"No staff payments in this period.";
-
-return;
-
-}
+    const box =
+    document.getElementById("staffDetails");
 
 
-box.innerHTML = "";
+    if(!box) return;
 
 
-list.forEach(s=>{
+    if(list.length === 0){
 
-box.innerHTML += `
+        box.innerHTML =
+        "No staff payments in this period.";
 
-<div class="detail-card">
+        return;
 
-<b>📅 ${escapeHTML(s.date || "-")}</b>
+    }
 
-<br><br>
 
-👤 Staff:
-<b>${escapeHTML(s.name || "-")}</b>
+    box.innerHTML = "";
 
-<br>
 
-💰 Salary:
-<b>${money(s.salary)}</b>
+    list.forEach(s=>{
 
-<br>
 
-📈 Commission:
-<b>${money(s.commission)}</b>
+        box.innerHTML += `
 
-<br>
+        <div class="detail-card">
 
-🚗 Car Lift:
-<b>${money(s.carLift)}</b>
+        <b>
+        📅 ${escapeHTML(s.date || "-")}
+        </b>
 
-<br>
+        <br><br>
 
-💵 Total:
-<b>${money(s.total)}</b>
+        👤 Staff:
+        <b>
+        ${escapeHTML(s.name || "-")}
+        </b>
 
-<br>
+        <br>
 
-Status:
-<b>${escapeHTML(s.status || "-")}</b>
+        💰 Salary:
+        <b>
+        ${money(s.salary)}
+        </b>
 
-</div>
+        <br>
 
-`;
+        📈 Commission:
+        <b>
+        ${money(s.commission)}
+        </b>
 
-});
+        <br>
+
+        🚗 Car Lift:
+        <b>
+        ${money(s.carLift)}
+        </b>
+
+        <br>
+
+        💵 Total:
+        <b>
+        ${money(s.total)}
+        </b>
+
+        <br>
+
+        Status:
+        <b>
+        ${escapeHTML(s.status || "-")}
+        </b>
+
+        </div>
+
+        `;
+
+    });
 
 }
 
 
 // ========================================
-// CASH WITHDRAWAL DETAILS
+// WITHDRAWAL DETAILS
 // ========================================
 
 function showWithdrawalDetails(list){
 
-const box =
-document.getElementById("withdrawalDetails");
 
-if(!box) return;
-
-
-if(list.length === 0){
-
-box.innerHTML =
-"No cash withdrawals in this period.";
-
-return;
-
-}
+    const box =
+    document.getElementById("withdrawalDetails");
 
 
-box.innerHTML = "";
+    if(!box) return;
 
 
-list.forEach(w=>{
+    if(list.length === 0){
 
-box.innerHTML += `
+        box.innerHTML =
+        "No cash withdrawals in this period.";
 
-<div class="detail-card">
+        return;
 
-<b>📅 ${escapeHTML(w.date || "-")}</b>
+    }
 
-<br><br>
 
-👤 Person:
-<b>${escapeHTML(w.person || "-")}</b>
+    box.innerHTML = "";
 
-<br>
 
-💰 Amount:
-<b>${money(w.amount)}</b>
+    list.forEach(w=>{
 
-<br>
 
-📝 Reason:
-<b>${escapeHTML(w.reason || "-")}</b>
+        box.innerHTML += `
 
-</div>
+        <div class="detail-card">
 
-`;
+        <b>
+        📅 ${escapeHTML(w.date || "-")}
+        </b>
 
-});
+        <br><br>
+
+        👤 Person:
+        <b>
+        ${escapeHTML(w.person || "-")}
+        </b>
+
+        <br>
+
+        💰 Amount:
+        <b>
+        ${money(w.amount)}
+        </b>
+
+        <br>
+
+        📝 Reason:
+        <b>
+        ${escapeHTML(w.reason || "-")}
+        </b>
+
+        </div>
+
+        `;
+
+    });
 
 }
 
@@ -525,194 +637,249 @@ box.innerHTML += `
 // ========================================
 
 async function generate(
-from,
-to,
-title,
-reportType
+    from,
+    to,
+    title,
+    reportType
 ){
 
-if(!from || !to){
 
-alert("Please select date");
-return;
+    if(!from || !to){
 
-}
+        alert("Please select date");
 
+        return;
 
-if(from > to){
-
-alert("From Date cannot be after To Date");
-return;
-
-}
+    }
 
 
-try{
+    if(from > to){
 
-const data = await getData();
+        alert(
+            "From Date cannot be after To Date"
+        );
 
-currentReport =
-calculateReport(
-data,
-from,
-to,
-title,
-reportType
-);
+        return;
 
-showReport(currentReport);
+    }
 
-}
-catch(error){
 
-console.error(error);
+    try{
 
-alert("Error loading report");
 
-}
+        const data =
+        await getData();
+
+
+        currentReport =
+        calculateReport(
+            data,
+            from,
+            to,
+            title,
+            reportType
+        );
+
+
+        showReport(
+            currentReport
+        );
+
+
+    }catch(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Error loading report"
+        );
+
+    }
 
 }
 
 
 // ========================================
-// DAILY REPORT
+// DAILY
 // ========================================
 
 document
 .getElementById("generateDaily")
 .onclick = async()=>{
 
-const date =
-document.getElementById("dailyDate").value;
 
-if(!date){
+    const date =
+    document
+    .getElementById("dailyDate")
+    .value;
 
-alert("Select a date");
-return;
 
-}
+    if(!date){
 
-await generate(
-date,
-date,
-"Daily Report",
-"daily"
-);
+        alert("Select a date");
+
+        return;
+
+    }
+
+
+    await generate(
+
+        date,
+
+        date,
+
+        "Daily Report",
+
+        "daily"
+
+    );
 
 };
 
 
 // ========================================
-// MONTHLY REPORT
+// MONTHLY
 // ========================================
 
 document
 .getElementById("generateMonthly")
 .onclick = async()=>{
 
-const value =
-document.getElementById("monthlyDate").value;
 
-if(!value){
-
-alert("Select a month");
-return;
-
-}
+    const value =
+    document
+    .getElementById("monthlyDate")
+    .value;
 
 
-const parts =
-value.split("-");
+    if(!value){
 
-const year =
-Number(parts[0]);
+        alert("Select a month");
 
-const month =
-Number(parts[1]);
+        return;
 
-const lastDay =
-new Date(year,month,0).getDate();
+    }
 
 
-const from =
-`${year}-${String(month).padStart(2,"0")}-01`;
+    const parts =
+    value.split("-");
 
 
-const to =
-`${year}-${String(month).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
+    const year =
+    Number(parts[0]);
 
 
-await generate(
-from,
-to,
-"Monthly Report",
-"monthly"
-);
+    const month =
+    Number(parts[1]);
+
+
+    const lastDay =
+    new Date(
+        year,
+        month,
+        0
+    ).getDate();
+
+
+    const from =
+
+    `${year}-${String(month).padStart(2,"0")}-01`;
+
+
+    const to =
+
+    `${year}-${String(month).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
+
+
+    await generate(
+
+        from,
+
+        to,
+
+        "Monthly Report",
+
+        "monthly"
+
+    );
 
 };
 
 
 // ========================================
-// YEARLY REPORT
+// YEARLY
 // ========================================
 
 document
 .getElementById("generateYearly")
 .onclick = async()=>{
 
-const year =
-document.getElementById("yearlyDate").value;
+
+    const year =
+    document
+    .getElementById("yearlyDate")
+    .value;
 
 
-if(!year){
+    if(!year){
 
-alert("Enter a year");
-return;
+        alert("Enter a year");
 
-}
+        return;
+
+    }
 
 
-await generate(
+    await generate(
 
-`${year}-01-01`,
+        `${year}-01-01`,
 
-`${year}-12-31`,
+        `${year}-12-31`,
 
-"Yearly Report",
+        "Yearly Report",
 
-"yearly"
+        "yearly"
 
-);
+    );
 
 };
 
 
 // ========================================
-// CUSTOM REPORT
+// CUSTOM RANGE
 // ========================================
 
 document
 .getElementById("generateRange")
 .onclick = async()=>{
 
-const from =
-document.getElementById("fromDate").value;
 
-const to =
-document.getElementById("toDate").value;
+    const from =
+    document
+    .getElementById("fromDate")
+    .value;
 
 
-await generate(
+    const to =
+    document
+    .getElementById("toDate")
+    .value;
 
-from,
 
-to,
+    await generate(
 
-"Custom Date Range Report",
+        from,
 
-"custom"
+        to,
 
-);
+        "Custom Date Range Report",
+
+        "custom"
+
+    );
 
 };
 
@@ -721,22 +888,32 @@ to,
 // PDF COLORS
 // ========================================
 
-const PDF_GOLD = [184,138,72];
+const PDF_GOLD =
+[184,138,72];
 
-const PDF_DARK = [45,42,38];
 
-const PDF_MUTED = [123,116,108];
+const PDF_DARK =
+[45,42,38];
 
-const PDF_CREAM = [247,243,236];
 
-const PDF_LINE = [230,222,210];
+const PDF_MUTED =
+[123,116,108];
+
+
+const PDF_CREAM =
+[247,243,236];
+
+
+const PDF_LINE =
+[230,222,210];
 
 
 // ========================================
-// AL HUDU LOGO
+// LOGO
 // ========================================
 
 const LOGO_PATH =
+
 "A635BB04-1710-494A-B351-7663741B1606.png";
 
 
@@ -746,1177 +923,1183 @@ const LOGO_PATH =
 
 function loadLogo(){
 
-return new Promise((resolve,reject)=>{
 
-const img = new Image();
-
-img.onload = ()=>{
-resolve(img);
-};
-
-img.onerror = ()=>{
-reject(
-new Error("Logo could not be loaded")
-);
-};
-
-img.src =
-LOGO_PATH + "?v=" + Date.now();
-
-});
-
-}
+    return new Promise(
+    (resolve,reject)=>{
 
 
-// ========================================
-// PDF PAGE CHECK
-// ========================================
+        const img =
+        new Image();
 
-function checkPage(
-pdf,
-y,
-needed=20
-){
 
-if(y + needed > 280){
+        img.onload = ()=>{
 
-pdf.addPage();
+            resolve(img);
 
-return 20;
+        };
 
-}
 
-return y;
+        img.onerror = ()=>{
+
+            reject(
+                new Error(
+                    "Logo could not be loaded"
+                )
+            );
+
+        };
+
+
+        img.src =
+        LOGO_PATH + "?v=" + Date.now();
+
+
+    });
 
 }
 
 
 // ========================================
-// PDF SECTION TITLE
-// ========================================
-
-function pdfSectionTitle(
-pdf,
-title,
-y
-){
-
-y =
-checkPage(pdf,y,18);
-
-
-pdf.setTextColor(
-...PDF_DARK
-);
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(11);
-
-
-pdf.text(
-title,
-18,
-y
-);
-
-
-pdf.setDrawColor(
-...PDF_GOLD
-);
-
-pdf.setLineWidth(0.5);
-
-pdf.line(
-18,
-y + 3,
-192,
-y + 3
-);
-
-
-return y + 10;
-
-}
-
-
-// ========================================
-// PDF DETAIL ROW
-// ========================================
-
-function pdfDetailRow(
-pdf,
-values,
-y,
-widths
-){
-
-y =
-checkPage(pdf,y,11);
-
-
-let x = 18;
-
-
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(8);
-
-pdf.setTextColor(
-...PDF_DARK
-);
-
-
-values.forEach((value,index)=>{
-
-const width =
-widths[index];
-
-let text =
-String(value ?? "-");
-
-const maxWidth =
-width - 4;
-
-
-while(
-pdf.getTextWidth(text) > maxWidth &&
-text.length > 3
-){
-
-text =
-text.slice(0,-1);
-
-}
-
-
-if(
-String(value ?? "-") !== text
-){
-
-text =
-text.slice(0,-3) + "...";
-
-}
-
-
-pdf.text(
-text,
-x + 2,
-y + 6
-);
-
-x += width;
-
-});
-
-
-pdf.setDrawColor(
-...PDF_LINE
-);
-
-pdf.line(
-18,
-y + 10,
-192,
-y + 10
-);
-
-
-return y + 11;
-
-}
-// ========================================
-// PDF TABLE HEADER
-// ========================================
-
-function pdfTableHeader(
-pdf,
-headers,
-y,
-widths
-){
-
-y = checkPage(pdf,y,12);
-
-let x = 18;
-
-pdf.setFillColor(
-...PDF_CREAM
-);
-
-pdf.rect(
-18,
-y,
-174,
-10,
-"F"
-);
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(8);
-
-pdf.setTextColor(
-...PDF_DARK
-);
-
-
-headers.forEach((header,index)=>{
-
-pdf.text(
-String(header),
-x + 2,
-y + 6
-);
-
-x += widths[index];
-
-});
-
-
-pdf.setDrawColor(
-...PDF_GOLD
-);
-
-pdf.line(
-18,
-y + 10,
-192,
-y + 10
-);
-
-
-return y + 11;
-
-}
-
-
-// ========================================
-// HEADER FOR NEW PDF PAGES
-// ========================================
-
-function addPageHeader(pdf){
-
-pdf.setTextColor(
-...PDF_GOLD
-);
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(13);
-
-pdf.text(
-"AL HUDU",
-18,
-15
-);
-
-
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(7);
-
-pdf.setTextColor(
-...PDF_MUTED
-);
-
-pdf.text(
-"Accounting & Management System",
-18,
-20
-);
-
-
-pdf.setDrawColor(
-...PDF_LINE
-);
-
-pdf.line(
-18,
-24,
-192,
-24
-);
-
-}
-
-
-// ========================================
-// SMART PAGE CHECK
-// ========================================
-
-function ensurePDFSpace(
-pdf,
-y,
-needed=20
-){
-
-if(y + needed > 280){
-
-pdf.addPage();
-
-addPageHeader(pdf);
-
-return 32;
-
-}
-
-return y;
-
-}
-
-
-// ========================================
-// SUMMARY CARD
-// ========================================
-
-function summaryCard(
-pdf,
-label,
-value,
-x,
-y,
-width,
-height
-){
-
-pdf.setFillColor(
-252,
-250,
-247
-);
-
-pdf.setDrawColor(
-...PDF_LINE
-);
-
-pdf.roundedRect(
-x,
-y,
-width,
-height,
-2,
-2,
-"FD"
-);
-
-
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(7);
-
-pdf.setTextColor(
-...PDF_MUTED
-);
-
-pdf.text(
-String(label).toUpperCase(),
-x + 5,
-y + 7
-);
-
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(11);
-
-pdf.setTextColor(
-...PDF_DARK
-);
-
-pdf.text(
-money(value),
-x + 5,
-y + 16
-);
-
-}
-
-
-// ========================================
-// CREATE PROFESSIONAL PDF
+// CREATE PDF
 // ========================================
 
 async function createProfessionalPDF(){
 
-if(!currentReport){
 
-alert("Generate a report first");
+    if(!currentReport){
 
-return;
+        alert(
+            "Generate a report first"
+        );
 
-}
+        return;
 
-
-if(
-!window.jspdf ||
-!window.jspdf.jsPDF
-){
-
-alert("PDF library not loaded");
-
-return;
-
-}
+    }
 
 
-const {jsPDF} =
-window.jspdf;
+    if(
+        !window.jspdf ||
+        !window.jspdf.jsPDF
+    ){
+
+        alert(
+            "PDF library not loaded"
+        );
+
+        return;
+
+    }
 
 
-const pdf =
-new jsPDF();
+    const {jsPDF} =
+    window.jspdf;
 
 
-let y = 15;
+    const pdf =
+    new jsPDF();
+
+
+    let y = 7;
 
 
 // ========================================
-// AL HUDU LOGO
+// LOGO
 // ========================================
 
-try{
-
-const logo =
-await loadLogo();
+    try{
 
 
-const logoWidth = 32;
-
-const ratio =
-logo.naturalHeight /
-logo.naturalWidth;
-
-const logoHeight =
-logoWidth * ratio;
+        const logo =
+        await loadLogo();
 
 
-pdf.addImage(
-logo,
-"PNG",
-(210 - logoWidth) / 2,
-8,
-logoWidth,
-logoHeight
-);
+        const logoWidth = 21;
 
 
-y =
-12 + logoHeight;
-
-}
-catch(error){
-
-console.warn(
-"Logo not loaded:",
-error
-);
+        const ratio =
+        logo.naturalHeight /
+        logo.naturalWidth;
 
 
-pdf.setTextColor(
-...PDF_GOLD
-);
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(18);
-
-pdf.text(
-"AL HUDU",
-105,
-20,
-{
-align:"center"
-}
-);
+        const logoHeight =
+        logoWidth * ratio;
 
 
-y = 25;
+        pdf.addImage(
 
-}
+            logo,
+
+            "PNG",
+
+            (210 - logoWidth) / 2,
+
+            y,
+
+            logoWidth,
+
+            logoHeight
+
+        );
+
+
+        y +=
+        logoHeight + 2;
+
+
+    }catch(error){
+
+
+        console.warn(
+            "Logo not loaded",
+            error
+        );
+
+
+        y = 12;
+
+    }
 
 
 // ========================================
 // BRAND
 // ========================================
 
-pdf.setTextColor(
-...PDF_DARK
-);
-
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(20);
-
-pdf.text(
-"AL HUDU",
-105,
-y + 8,
-{
-align:"center"
-}
-);
+    pdf.setTextColor(
+        ...PDF_DARK
+    );
 
 
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(8);
-
-pdf.setTextColor(
-...PDF_MUTED
-);
-
-pdf.text(
-"Accounting & Management System",
-105,
-y + 14,
-{
-align:"center"
-}
-);
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
 
 
-y += 24;
+    pdf.setFontSize(15);
+
+
+    pdf.text(
+
+        "AL HUDU",
+
+        105,
+
+        y,
+
+        {
+            align:"center"
+        }
+
+    );
+
+
+    y += 5;
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+
+    pdf.setFontSize(6);
+
+
+    pdf.setTextColor(
+        ...PDF_MUTED
+    );
+
+
+    pdf.text(
+
+        "Accounting & Management System",
+
+        105,
+
+        y,
+
+        {
+            align:"center"
+        }
+
+    );
+
+
+    y += 7;
+
+
+// ========================================
+// GOLD LINE
+// ========================================
+
+    pdf.setDrawColor(
+        ...PDF_GOLD
+    );
+
+
+    pdf.setLineWidth(0.5);
+
+
+    pdf.line(
+        10,
+        y,
+        200,
+        y
+    );
+
+
+    y += 7;
 
 
 // ========================================
 // REPORT TITLE
 // ========================================
 
-pdf.setDrawColor(
-...PDF_GOLD
-);
-
-pdf.setLineWidth(0.7);
-
-pdf.line(
-18,
-y,
-192,
-y
-);
+    pdf.setTextColor(
+        ...PDF_DARK
+    );
 
 
-y += 9;
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
 
 
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(15);
-
-pdf.setTextColor(
-...PDF_DARK
-);
+    pdf.setFontSize(12);
 
 
-pdf.text(
-currentReport.title.toUpperCase(),
-18,
-y
-);
+    pdf.text(
+
+        currentReport.title.toUpperCase(),
+
+        10,
+
+        y
+
+    );
 
 
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(8);
-
-pdf.setTextColor(
-...PDF_MUTED
-);
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
 
 
-pdf.text(
-`${currentReport.from} - ${currentReport.to}`,
-192,
-y,
-{
-align:"right"
-}
-);
+    pdf.setFontSize(6.5);
 
 
-y += 12;
+    pdf.setTextColor(
+        ...PDF_MUTED
+    );
+
+
+    pdf.text(
+
+        `${currentReport.from} - ${currentReport.to}`,
+
+        200,
+
+        y,
+
+        {
+            align:"right"
+        }
+
+    );
+
+
+    y += 8;
 
 
 // ========================================
-// SUMMARY
+// SUMMARY TITLE
 // ========================================
 
-pdf.setFont(
-"helvetica",
-"bold"
-);
-
-pdf.setFontSize(10);
-
-pdf.setTextColor(
-...PDF_DARK
-);
-
-pdf.text(
-"SUMMARY",
-18,
-y
-);
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
 
 
-y += 6;
+    pdf.setFontSize(8);
 
 
-const cardWidth = 56;
-
-const cardHeight = 22;
-
-const gap = 3;
+    pdf.setTextColor(
+        ...PDF_DARK
+    );
 
 
-// FIRST ROW
-
-summaryCard(
-pdf,
-"Cash Sales",
-currentReport.cash,
-18,
-y,
-cardWidth,
-cardHeight
-);
+    pdf.text(
+        "SUMMARY",
+        10,
+        y
+    );
 
 
-summaryCard(
-pdf,
-"Card Sales",
-currentReport.card,
-18 + cardWidth + gap,
-y,
-cardWidth,
-cardHeight
-);
+    y += 4;
 
 
-summaryCard(
-pdf,
-"Total Sales",
-currentReport.salesTotal,
-18 + ((cardWidth + gap) * 2),
-y,
-cardWidth,
-cardHeight
-);
+// ========================================
+// SMALL SUMMARY CARDS
+// ========================================
+
+    const cardWidth = 61;
+
+    const cardHeight = 18;
+
+    const gap = 3;
 
 
-y += cardHeight + 4;
+    function smallCard(
+        label,
+        value,
+        x,
+        cardY
+    ){
 
 
-// SECOND ROW
-
-summaryCard(
-pdf,
-"Expenses (Cost)",
-currentReport.expensesTotal,
-18,
-y,
-cardWidth,
-cardHeight
-);
+        pdf.setFillColor(
+            252,
+            250,
+            247
+        );
 
 
-summaryCard(
-pdf,
-"Staff Payment",
-currentReport.staffTotal,
-18 + cardWidth + gap,
-y,
-cardWidth,
-cardHeight
-);
+        pdf.setDrawColor(
+            ...PDF_LINE
+        );
 
 
-summaryCard(
-pdf,
-"Cash Withdrawal",
-currentReport.withdrawalTotal,
-18 + ((cardWidth + gap) * 2),
-y,
-cardWidth,
-cardHeight
-);
+        pdf.roundedRect(
+
+            x,
+
+            cardY,
+
+            cardWidth,
+
+            cardHeight,
+
+            2,
+
+            2,
+
+            "FD"
+
+        );
 
 
-y += cardHeight + 5;
+        pdf.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
+        pdf.setFontSize(6);
+
+
+        pdf.setTextColor(
+            ...PDF_MUTED
+        );
+
+
+        pdf.text(
+
+            label.toUpperCase(),
+
+            x + 5,
+
+            cardY + 6
+
+        );
+
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+
+        pdf.setFontSize(9);
+
+
+        pdf.setTextColor(
+            ...PDF_DARK
+        );
+
+
+        pdf.text(
+
+            money(value),
+
+            x + 5,
+
+            cardY + 13
+
+        );
+
+    }
+
+
+// ROW 1
+
+    smallCard(
+
+        "Cash Sales",
+
+        currentReport.cash,
+
+        10,
+
+        y
+
+    );
+
+
+    smallCard(
+
+        "Card Sales",
+
+        currentReport.card,
+
+        74,
+
+        y
+
+    );
+
+
+    smallCard(
+
+        "Total Sales",
+
+        currentReport.salesTotal,
+
+        138,
+
+        y
+
+    );
+
+
+    y +=
+    cardHeight + 3;
+
+
+// ROW 2
+
+    smallCard(
+
+        "Expenses (Cost)",
+
+        currentReport.expensesTotal,
+
+        10,
+
+        y
+
+    );
+
+
+    smallCard(
+
+        "Staff Payment",
+
+        currentReport.staffTotal,
+
+        74,
+
+        y
+
+    );
+
+
+    smallCard(
+
+        "Cash Withdrawal",
+
+        currentReport.withdrawalTotal,
+
+        138,
+
+        y
+
+    );
+
+
+    y +=
+    cardHeight + 4;
 
 
 // ========================================
 // NET SALES AMOUNT
 // ========================================
 
-pdf.setFillColor(
-...PDF_GOLD
-);
-
-pdf.roundedRect(
-18,
-y,
-174,
-18,
-2,
-2,
-"F"
-);
+    pdf.setFillColor(
+        ...PDF_GOLD
+    );
 
 
-pdf.setTextColor(
-255,
-255,
-255
-);
+    pdf.roundedRect(
 
-pdf.setFont(
-"helvetica",
-"bold"
-);
+        10,
 
-pdf.setFontSize(9);
+        y,
 
-pdf.text(
-"NET SALES AMOUNT",
-24,
-y + 11
-);
+        190,
 
+        13,
 
-pdf.setFontSize(16);
+        2,
 
-pdf.text(
-money(currentReport.netSalesAmount),
-186,
-y + 12,
-{
-align:"right"
-}
-);
+        2,
+
+        "F"
+
+    );
 
 
-y += 27;
+    pdf.setTextColor(
+        255,
+        255,
+        255
+    );
+
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+
+    pdf.setFontSize(7.5);
+
+
+    pdf.text(
+
+        "NET SALES AMOUNT",
+
+        16,
+
+        y + 8.5
+
+    );
+
+
+    pdf.setFontSize(12);
+
+
+    pdf.text(
+
+        money(
+            currentReport.netSalesAmount
+        ),
+
+        194,
+
+        y + 9,
+
+        {
+            align:"right"
+        }
+
+    );
+
+
+    y += 18;
 
 
 // ========================================
-// EXPENSE DETAILS (COST)
-// ONLY DAILY REPORT
+// TABLE HELPERS
 // ========================================
 
-if(
-currentReport.reportType === "daily"
-){
-
-y =
-ensurePDFSpace(
-pdf,
-y,
-25
-);
+    function sectionTitle(title){
 
 
-y =
-pdfSectionTitle(
-pdf,
-"EXPENSE DETAILS (COST)",
-y
-);
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
 
 
-const expenseWidths = [
-30,
-42,
-70,
-32
-];
+        pdf.setFontSize(8.5);
 
 
-y =
-pdfTableHeader(
-pdf,
-[
-"Date",
-"Category",
-"Note",
-"Amount"
-],
-y,
-expenseWidths
-);
+        pdf.setTextColor(
+            ...PDF_DARK
+        );
 
 
-if(
-currentReport.expenseDetails.length === 0
-){
-
-y =
-pdfDetailRow(
-pdf,
-[
-"-",
-"No expenses",
-"-",
-"0 AED"
-],
-y,
-expenseWidths
-);
-
-}
-else{
-
-currentReport.expenseDetails.forEach(e=>{
-
-y =
-ensurePDFSpace(
-pdf,
-y,
-13
-);
+        pdf.text(
+            title,
+            10,
+            y
+        );
 
 
-y =
-pdfDetailRow(
-pdf,
-[
-e.date || "-",
-e.category || "-",
-e.note || "-",
-money(e.amount)
-],
-y,
-expenseWidths
-);
-
-});
-
-}
+        y += 3;
 
 
-y += 8;
+        pdf.setDrawColor(
+            ...PDF_GOLD
+        );
 
-}
+
+        pdf.setLineWidth(0.35);
+
+
+        pdf.line(
+            10,
+            y,
+            200,
+            y
+        );
+
+
+        y += 4;
+
+    }
+
+
+    function tableHeader(
+        headers,
+        widths
+    ){
+
+
+        let x = 10;
+
+
+        pdf.setFillColor(
+            ...PDF_CREAM
+        );
+
+
+        pdf.rect(
+            10,
+            y,
+            190,
+            7,
+            "F"
+        );
+
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+
+        pdf.setFontSize(6.5);
+
+
+        pdf.setTextColor(
+            ...PDF_DARK
+        );
+
+
+        headers.forEach(
+        (header,index)=>{
+
+
+            pdf.text(
+
+                String(header),
+
+                x + 2,
+
+                y + 4.7
+
+            );
+
+
+            x +=
+            widths[index];
+
+
+        });
+
+
+        y += 7;
+
+    }
+
+
+    function tableRow(
+        values,
+        widths
+    ){
+
+
+        let x = 10;
+
+
+        pdf.setFont(
+            "helvetica",
+            "normal"
+        );
+
+
+        // FINAL FONT SIZE
+        pdf.setFontSize(7);
+
+
+        pdf.setTextColor(
+            ...PDF_DARK
+        );
+
+
+        values.forEach(
+        (value,index)=>{
+
+
+            const width =
+            widths[index];
+
+
+            let text =
+            String(
+                value ?? "-"
+            );
+
+
+            const maxWidth =
+            width - 4;
+
+
+            while(
+                pdf.getTextWidth(text) >
+                maxWidth
+                &&
+                text.length > 4
+            ){
+
+                text =
+                text.slice(0,-1);
+
+            }
+
+
+            pdf.text(
+
+                text,
+
+                x + 2,
+
+                y + 5.5
+
+            );
+
+
+            x += width;
+
+        });
+
+
+        pdf.setDrawColor(
+            ...PDF_LINE
+        );
+
+
+        pdf.line(
+
+            10,
+
+            y + 7,
+
+            200,
+
+            y + 7
+
+        );
+
+
+        y += 8;
+
+    }
+
+
+// ========================================
+// EXPENSE DETAILS
+// DAILY ONLY
+// ========================================
+
+    if(
+        currentReport.reportType ===
+        "daily"
+    ){
+
+
+        sectionTitle(
+            "EXPENSE DETAILS (COST)"
+        );
+
+
+        const expenseWidths = [
+
+            35,
+
+            45,
+
+            75,
+
+            35
+
+        ];
+
+
+        tableHeader(
+
+            [
+                "Date",
+                "Category",
+                "Note",
+                "Amount"
+            ],
+
+            expenseWidths
+
+        );
+
+
+        if(
+            currentReport
+            .expenseDetails
+            .length === 0
+        ){
+
+
+            tableRow(
+
+                [
+                    "-",
+                    "No expenses",
+                    "-",
+                    "0 AED"
+                ],
+
+                expenseWidths
+
+            );
+
+
+        }else{
+
+
+            currentReport
+            .expenseDetails
+            .forEach(e=>{
+
+
+                tableRow(
+
+                    [
+                        e.date || "-",
+
+                        e.category || "-",
+
+                        e.note || "-",
+
+                        money(e.amount)
+                    ],
+
+                    expenseWidths
+
+                );
+
+            });
+
+        }
+
+
+        y += 5;
+
+    }
 
 
 // ========================================
 // STAFF PAYMENT DETAILS
 // ========================================
 
-y =
-ensurePDFSpace(
-pdf,
-y,
-30
-);
+    sectionTitle(
+        "STAFF PAYMENT DETAILS"
+    );
 
 
-y =
-pdfSectionTitle(
-pdf,
-"STAFF PAYMENT DETAILS",
-y
-);
+    const staffWidths = [
+
+        34,
+
+        44,
+
+        38,
+
+        36,
+
+        38
+
+    ];
 
 
-const staffWidths = [
-28,
-42,
-30,
-35,
-39
-];
+    tableHeader(
+
+        [
+            "Date",
+            "Staff",
+            "Status",
+            "Salary",
+            "Total"
+        ],
+
+        staffWidths
+
+    );
 
 
-y =
-pdfTableHeader(
-pdf,
-[
-"Date",
-"Staff",
-"Status",
-"Salary",
-"Total"
-],
-y,
-staffWidths
-);
+    if(
+        currentReport
+        .staffDetails
+        .length === 0
+    ){
 
 
-if(
-currentReport.staffDetails.length === 0
-){
+        tableRow(
 
-y =
-pdfDetailRow(
-pdf,
-[
-"-",
-"No staff payments",
-"-",
-"-",
-"0 AED"
-],
-y,
-staffWidths
-);
+            [
+                "-",
+                "No staff payments",
+                "-",
+                "-",
+                "0 AED"
+            ],
 
-}
-else{
+            staffWidths
 
-currentReport.staffDetails.forEach(s=>{
-
-y =
-ensurePDFSpace(
-pdf,
-y,
-13
-);
+        );
 
 
-y =
-pdfDetailRow(
-pdf,
-[
-s.date || "-",
-s.name || "-",
-s.status || "-",
-money(s.salary),
-money(s.total)
-],
-y,
-staffWidths
-);
-
-});
-
-}
+    }else{
 
 
-y += 8;
+        currentReport
+        .staffDetails
+        .forEach(s=>{
+
+
+            tableRow(
+
+                [
+                    s.date || "-",
+
+                    s.name || "-",
+
+                    s.status || "-",
+
+                    money(s.salary),
+
+                    money(s.total)
+                ],
+
+                staffWidths
+
+            );
+
+        });
+
+    }
+
+
+    y += 5;
 
 
 // ========================================
 // CASH WITHDRAWAL DETAILS
 // ========================================
 
-y =
-ensurePDFSpace(
-pdf,
-y,
-30
-);
+    sectionTitle(
+        "CASH WITHDRAWAL DETAILS"
+    );
 
 
-y =
-pdfSectionTitle(
-pdf,
-"CASH WITHDRAWAL DETAILS",
-y
-);
+    const withdrawalWidths = [
+
+        42,
+
+        48,
+
+        60,
+
+        40
+
+    ];
 
 
-const withdrawalWidths = [
-30,
-42,
-70,
-32
-];
+    tableHeader(
+
+        [
+            "Date",
+            "Person",
+            "Reason",
+            "Amount"
+        ],
+
+        withdrawalWidths
+
+    );
 
 
-y =
-pdfTableHeader(
-pdf,
-[
-"Date",
-"Person",
-"Reason",
-"Amount"
-],
-y,
-withdrawalWidths
-);
+    if(
+        currentReport
+        .withdrawalDetails
+        .length === 0
+    ){
 
 
-if(
-currentReport.withdrawalDetails.length === 0
-){
+        tableRow(
 
-y =
-pdfDetailRow(
-pdf,
-[
-"-",
-"No withdrawals",
-"-",
-"0 AED"
-],
-y,
-withdrawalWidths
-);
+            [
+                "-",
+                "No withdrawals",
+                "-",
+                "0 AED"
+            ],
 
-}
-else{
+            withdrawalWidths
 
-currentReport.withdrawalDetails.forEach(w=>{
-
-y =
-ensurePDFSpace(
-pdf,
-y,
-13
-);
+        );
 
 
-y =
-pdfDetailRow(
-pdf,
-[
-w.date || "-",
-w.person || "-",
-w.reason || "-",
-money(w.amount)
-],
-y,
-withdrawalWidths
-);
+    }else{
 
-});
 
-}
+        currentReport
+        .withdrawalDetails
+        .forEach(w=>{
+
+
+            tableRow(
+
+                [
+                    w.date || "-",
+
+                    w.person || "-",
+
+                    w.reason || "-",
+
+                    money(w.amount)
+                ],
+
+                withdrawalWidths
+
+            );
+
+        });
+
+    }
 
 
 // ========================================
 // FOOTER
 // ========================================
 
-const totalPages =
-pdf.getNumberOfPages();
+    pdf.setDrawColor(
+        ...PDF_LINE
+    );
 
 
-for(
-let page = 1;
-page <= totalPages;
-page++
-){
-
-pdf.setPage(page);
+    pdf.setLineWidth(0.3);
 
 
-pdf.setDrawColor(
-...PDF_LINE
-);
-
-pdf.line(
-18,
-286,
-192,
-286
-);
+    pdf.line(
+        10,
+        284,
+        200,
+        284
+    );
 
 
-pdf.setFont(
-"helvetica",
-"normal"
-);
-
-pdf.setFontSize(7);
-
-pdf.setTextColor(
-...PDF_MUTED
-);
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
 
 
-pdf.text(
-"AL HUDU - Financial Report",
-18,
-291
-);
+    pdf.setFontSize(6);
 
 
-pdf.text(
-`Page ${page} of ${totalPages}`,
-192,
-291,
-{
-align:"right"
-}
-);
+    pdf.setTextColor(
+        ...PDF_MUTED
+    );
+
+
+    pdf.text(
+
+        "AL HUDU - Financial Report",
+
+        10,
+
+        290
+
+    );
+
+
+    pdf.text(
+
+        "Page 1 of 1",
+
+        200,
+
+        290,
+
+        {
+            align:"right"
+        }
+
+    );
+
+
+// ========================================
+// SAVE
+// ========================================
+
+    const filename =
+
+    `AL_HUDU_${currentReport.title.replaceAll(" ","_")}_${currentReport.from}_${currentReport.to}.pdf`;
+
+
+    pdf.save(
+        filename
+    );
 
 }
 
 
 // ========================================
-// SAVE PDF
-// ========================================
-
-const filename =
-
-`AL_HUDU_${currentReport.title.replaceAll(" ","_")}_${currentReport.from}_${currentReport.to}.pdf`;
-
-
-pdf.save(filename);
-
-}
-
-
-// ========================================
-// EXPORT PDF BUTTON
+// EXPORT PDF
 // ========================================
 
 document
 .getElementById("exportPDF")
 .onclick = async()=>{
 
-try{
 
-await createProfessionalPDF();
+    try{
 
-}
-catch(error){
 
-console.error(error);
+        await createProfessionalPDF();
 
-alert("Error creating PDF");
 
-}
+    }catch(error){
+
+
+        console.error(error);
+
+
+        alert(
+            "Error creating PDF"
+        );
+
+    }
 
 };
