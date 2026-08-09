@@ -14,9 +14,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 // ========================================
 
 if(localStorage.getItem("alhuduLogin") !== "true"){
-
 window.location.href = "login.html";
-
 }
 
 
@@ -27,24 +25,17 @@ window.location.href = "login.html";
 const firebaseConfig = {
 
 apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
-
 authDomain: "al-hudu-management.firebaseapp.com",
-
 projectId: "al-hudu-management",
-
 storageBucket: "al-hudu-management.firebasestorage.app",
-
 messagingSenderId: "1045649803744",
-
 appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 
 };
 
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
-
 
 let currentReport = null;
 
@@ -54,23 +45,17 @@ let currentReport = null;
 // ========================================
 
 function number(value){
-
 return Number(value || 0);
-
 }
 
 
 function money(value){
-
 return number(value).toLocaleString() + " AED";
-
 }
 
 
 function validDate(date){
-
 return typeof date === "string" && date.length >= 10;
-
 }
 
 
@@ -86,9 +71,7 @@ return date >= from && date <= to;
 function sortNewest(list){
 
 return [...list].sort((a,b)=>{
-
 return (b.date || "").localeCompare(a.date || "");
-
 });
 
 }
@@ -112,34 +95,22 @@ return String(value ?? "")
 
 async function getData(){
 
-
 let sales = [];
-
 let expenses = [];
-
 let staff = [];
-
 let withdrawals = [];
 
 
 const [
-
 salesSnap,
-
 expenseSnap,
-
 staffSnap,
-
 withdrawalSnap
-
 ] = await Promise.all([
 
 getDocs(collection(db,"sales")),
-
 getDocs(collection(db,"expenses")),
-
 getDocs(collection(db,"staff")),
-
 getDocs(collection(db,"withdrawals"))
 
 ]);
@@ -148,11 +119,8 @@ getDocs(collection(db,"withdrawals"))
 salesSnap.forEach(item=>{
 
 sales.push({
-
 id:item.id,
-
 ...item.data()
-
 });
 
 });
@@ -161,11 +129,8 @@ id:item.id,
 expenseSnap.forEach(item=>{
 
 expenses.push({
-
 id:item.id,
-
 ...item.data()
-
 });
 
 });
@@ -174,11 +139,8 @@ id:item.id,
 staffSnap.forEach(item=>{
 
 staff.push({
-
 id:item.id,
-
 ...item.data()
-
 });
 
 });
@@ -187,28 +149,19 @@ id:item.id,
 withdrawalSnap.forEach(item=>{
 
 withdrawals.push({
-
 id:item.id,
-
 ...item.data()
-
 });
 
 });
 
 
 return {
-
 sales,
-
 expenses,
-
 staff,
-
 withdrawals
-
 };
-
 
 }
 
@@ -225,22 +178,15 @@ title,
 reportType
 ){
 
-
 let cash = 0;
-
 let card = 0;
 
 let expensesTotal = 0;
-
 let staffTotal = 0;
-
 let withdrawalTotal = 0;
 
-
 let expenseDetails = [];
-
 let staffDetails = [];
-
 let withdrawalDetails = [];
 
 
@@ -248,17 +194,12 @@ let withdrawalDetails = [];
 
 data.sales.forEach(s=>{
 
-
 if(isBetween(s.date,from,to)){
 
-
 cash += number(s.cash);
-
 card += number(s.card);
 
-
 }
-
 
 });
 
@@ -267,17 +208,12 @@ card += number(s.card);
 
 data.expenses.forEach(e=>{
 
-
 if(isBetween(e.date,from,to)){
 
-
 expensesTotal += number(e.amount);
-
 expenseDetails.push(e);
 
-
 }
-
 
 });
 
@@ -286,36 +222,26 @@ expenseDetails.push(e);
 
 data.staff.forEach(s=>{
 
-
 if(isBetween(s.date,from,to)){
 
-
 staffTotal += number(s.total);
-
 staffDetails.push(s);
 
-
 }
-
 
 });
 
 
-// CASH WITHDRAWALS
+// CASH WITHDRAWAL
 
 data.withdrawals.forEach(w=>{
 
-
 if(isBetween(w.date,from,to)){
 
-
 withdrawalTotal += number(w.amount);
-
 withdrawalDetails.push(w);
 
-
 }
-
 
 });
 
@@ -324,65 +250,40 @@ const salesTotal =
 cash + card;
 
 
-/*
-NET SALES AMOUNT
-
-Cash Withdrawal is NOT deducted.
-
-Formula:
-
-Total Sales
--
-Expenses (Cost)
--
-Staff Payment
-*/
-
+// Cash Withdrawal does NOT reduce Net Sales Amount
 
 const netSalesAmount =
-
-salesTotal
--
-expensesTotal
--
+salesTotal -
+expensesTotal -
 staffTotal;
 
 
 return {
 
 title,
-
 reportType,
 
 from,
-
 to,
 
 cash,
-
 card,
 
 salesTotal,
 
 expensesTotal,
-
 staffTotal,
-
 withdrawalTotal,
 
 netSalesAmount,
 
-expenseDetails:
-sortNewest(expenseDetails),
+expenseDetails:sortNewest(expenseDetails),
 
-staffDetails:
-sortNewest(staffDetails),
+staffDetails:sortNewest(staffDetails),
 
-withdrawalDetails:
-sortNewest(withdrawalDetails)
+withdrawalDetails:sortNewest(withdrawalDetails)
 
 };
-
 
 }
 
@@ -393,9 +294,7 @@ sortNewest(withdrawalDetails)
 
 function showReport(r){
 
-
 document.getElementById("reportPeriod").innerHTML =
-
 `<b>${escapeHTML(r.title)}</b><br>
 ${escapeHTML(r.from)} → ${escapeHTML(r.to)}`;
 
@@ -424,27 +323,13 @@ document.getElementById("reportWithdrawals").innerHTML =
 money(r.withdrawalTotal);
 
 
-// HTML may still use the old ID.
-// We keep the ID so reports.html does not need changing.
-
 document.getElementById("reportProfit").innerHTML =
 money(r.netSalesAmount);
 
 
-showExpenseDetails(
-r.expenseDetails
-);
-
-
-showWithdrawalDetails(
-r.withdrawalDetails
-);
-
-
-showStaffDetails(
-r.staffDetails
-);
-
+showExpenseDetails(r.expenseDetails);
+showStaffDetails(r.staffDetails);
+showWithdrawalDetails(r.withdrawalDetails);
 
 }
 
@@ -455,27 +340,18 @@ r.staffDetails
 
 function showExpenseDetails(list){
 
-
 const box =
 document.getElementById("expenseDetails");
 
-
-if(!box){
-
-return;
-
-}
+if(!box) return;
 
 
 if(list.length === 0){
 
-
 box.innerHTML =
 "No expenses in this period.";
 
-
 return;
-
 
 }
 
@@ -485,43 +361,104 @@ box.innerHTML = "";
 
 list.forEach(e=>{
 
-
 box.innerHTML += `
 
 <div class="detail-card">
 
-<b>
-📅 ${escapeHTML(e.date || "-")}
-</b>
+<b>📅 ${escapeHTML(e.date || "-")}</b>
 
 <br><br>
 
 🏷 Category:
-<b>
-${escapeHTML(e.category || "-")}
-</b>
+<b>${escapeHTML(e.category || "-")}</b>
 
 <br>
 
 💰 Amount:
-<b>
-${money(e.amount)}
-</b>
+<b>${money(e.amount)}</b>
 
 <br>
 
 📝 Note:
-<b>
-${escapeHTML(e.note || "-")}
-</b>
+<b>${escapeHTML(e.note || "-")}</b>
 
 </div>
 
 `;
 
-
 });
 
+}
+
+
+// ========================================
+// STAFF DETAILS
+// ========================================
+
+function showStaffDetails(list){
+
+const box =
+document.getElementById("staffDetails");
+
+if(!box) return;
+
+
+if(list.length === 0){
+
+box.innerHTML =
+"No staff payments in this period.";
+
+return;
+
+}
+
+
+box.innerHTML = "";
+
+
+list.forEach(s=>{
+
+box.innerHTML += `
+
+<div class="detail-card">
+
+<b>📅 ${escapeHTML(s.date || "-")}</b>
+
+<br><br>
+
+👤 Staff:
+<b>${escapeHTML(s.name || "-")}</b>
+
+<br>
+
+💰 Salary:
+<b>${money(s.salary)}</b>
+
+<br>
+
+📈 Commission:
+<b>${money(s.commission)}</b>
+
+<br>
+
+🚗 Car Lift:
+<b>${money(s.carLift)}</b>
+
+<br>
+
+💵 Total:
+<b>${money(s.total)}</b>
+
+<br>
+
+Status:
+<b>${escapeHTML(s.status || "-")}</b>
+
+</div>
+
+`;
+
+});
 
 }
 
@@ -532,27 +469,18 @@ ${escapeHTML(e.note || "-")}
 
 function showWithdrawalDetails(list){
 
-
 const box =
 document.getElementById("withdrawalDetails");
 
-
-if(!box){
-
-return;
-
-}
+if(!box) return;
 
 
 if(list.length === 0){
 
-
 box.innerHTML =
 "No cash withdrawals in this period.";
 
-
 return;
-
 
 }
 
@@ -562,141 +490,32 @@ box.innerHTML = "";
 
 list.forEach(w=>{
 
-
 box.innerHTML += `
 
 <div class="detail-card">
 
-<b>
-📅 ${escapeHTML(w.date || "-")}
-</b>
+<b>📅 ${escapeHTML(w.date || "-")}</b>
 
 <br><br>
 
 👤 Person:
-<b>
-${escapeHTML(w.person || "-")}
-</b>
+<b>${escapeHTML(w.person || "-")}</b>
 
 <br>
 
 💰 Amount:
-<b>
-${money(w.amount)}
-</b>
+<b>${money(w.amount)}</b>
 
 <br>
 
 📝 Reason:
-<b>
-${escapeHTML(w.reason || "-")}
-</b>
+<b>${escapeHTML(w.reason || "-")}</b>
 
 </div>
 
 `;
 
-
 });
-
-
-}
-
-
-// ========================================
-// STAFF PAYMENT DETAILS
-// ========================================
-
-function showStaffDetails(list){
-
-
-const box =
-document.getElementById("staffDetails");
-
-
-if(!box){
-
-return;
-
-}
-
-
-if(list.length === 0){
-
-
-box.innerHTML =
-"No staff payments in this period.";
-
-
-return;
-
-
-}
-
-
-box.innerHTML = "";
-
-
-list.forEach(s=>{
-
-
-box.innerHTML += `
-
-<div class="detail-card">
-
-<b>
-📅 ${escapeHTML(s.date || "-")}
-</b>
-
-<br><br>
-
-👤 Staff:
-<b>
-${escapeHTML(s.name || "-")}
-</b>
-
-<br>
-
-💰 Salary:
-<b>
-${money(s.salary)}
-</b>
-
-<br>
-
-📈 Commission:
-<b>
-${money(s.commission)}
-</b>
-
-<br>
-
-🚗 Car Lift:
-<b>
-${money(s.carLift)}
-</b>
-
-<br>
-
-💵 Total:
-<b>
-${money(s.total)}
-</b>
-
-<br>
-
-Status:
-<b>
-${escapeHTML(s.status || "-")}
-</b>
-
-</div>
-
-`;
-
-
-});
-
 
 }
 
@@ -712,37 +531,25 @@ title,
 reportType
 ){
 
-
 if(!from || !to){
 
-
 alert("Please select date");
-
 return;
-
 
 }
 
 
 if(from > to){
 
-
-alert(
-"From Date cannot be after To Date"
-);
-
+alert("From Date cannot be after To Date");
 return;
-
 
 }
 
 
 try{
 
-
-const data =
-await getData();
-
+const data = await getData();
 
 currentReport =
 calculateReport(
@@ -753,25 +560,16 @@ title,
 reportType
 );
 
+showReport(currentReport);
 
-showReport(
-currentReport
-);
-
-
-}catch(error){
-
+}
+catch(error){
 
 console.error(error);
 
-
-alert(
-"Error loading report"
-);
-
+alert("Error loading report");
 
 }
-
 
 }
 
@@ -784,36 +582,22 @@ document
 .getElementById("generateDaily")
 .onclick = async()=>{
 
-
 const date =
-document
-.getElementById("dailyDate")
-.value;
-
+document.getElementById("dailyDate").value;
 
 if(!date){
 
-
 alert("Select a date");
-
 return;
-
 
 }
 
-
 await generate(
-
 date,
-
 date,
-
 "Daily Report",
-
 "daily"
-
 );
-
 
 };
 
@@ -826,20 +610,13 @@ document
 .getElementById("generateMonthly")
 .onclick = async()=>{
 
-
 const value =
-document
-.getElementById("monthlyDate")
-.value;
-
+document.getElementById("monthlyDate").value;
 
 if(!value){
 
-
 alert("Select a month");
-
 return;
-
 
 }
 
@@ -847,45 +624,30 @@ return;
 const parts =
 value.split("-");
 
-
 const year =
 Number(parts[0]);
-
 
 const month =
 Number(parts[1]);
 
-
 const lastDay =
-new Date(
-year,
-month,
-0
-).getDate();
+new Date(year,month,0).getDate();
 
 
 const from =
-
 `${year}-${String(month).padStart(2,"0")}-01`;
 
 
 const to =
-
 `${year}-${String(month).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
 
 
 await generate(
-
 from,
-
 to,
-
 "Monthly Report",
-
 "monthly"
-
 );
-
 
 };
 
@@ -898,37 +660,23 @@ document
 .getElementById("generateYearly")
 .onclick = async()=>{
 
-
 const year =
-document
-.getElementById("yearlyDate")
-.value;
+document.getElementById("yearlyDate").value;
 
 
 if(!year){
 
-
 alert("Enter a year");
-
 return;
-
 
 }
 
 
-const from =
-`${year}-01-01`;
-
-
-const to =
-`${year}-12-31`;
-
-
 await generate(
 
-from,
+`${year}-01-01`,
 
-to,
+`${year}-12-31`,
 
 "Yearly Report",
 
@@ -936,29 +684,22 @@ to,
 
 );
 
-
 };
 
 
 // ========================================
-// CUSTOM RANGE REPORT
+// CUSTOM REPORT
 // ========================================
 
 document
 .getElementById("generateRange")
 .onclick = async()=>{
 
-
 const from =
-document
-.getElementById("fromDate")
-.value;
-
+document.getElementById("fromDate").value;
 
 const to =
-document
-.getElementById("toDate")
-.value;
+document.getElementById("toDate").value;
 
 
 await generate(
@@ -973,12 +714,11 @@ to,
 
 );
 
-
 };
 
 
 // ========================================
-// PDF SETTINGS
+// PDF COLORS
 // ========================================
 
 const PDF_GOLD = [184,138,72];
@@ -992,54 +732,44 @@ const PDF_CREAM = [247,243,236];
 const PDF_LINE = [230,222,210];
 
 
-// IMPORTANT:
-// This must match the exact logo filename
-// uploaded to GitHub.
+// ========================================
+// AL HUDU LOGO
+// ========================================
 
 const LOGO_PATH =
-"logo.png";
+"A635BB04-1710-494A-B351-7663741B1606.png";
 
 
 // ========================================
-// LOAD LOGO FOR PDF
+// LOAD LOGO
 // ========================================
 
 function loadLogo(){
 
 return new Promise((resolve,reject)=>{
 
-
-const img =
-new Image();
-
+const img = new Image();
 
 img.onload = ()=>{
-
 resolve(img);
-
 };
 
-
 img.onerror = ()=>{
-
 reject(
 new Error("Logo could not be loaded")
 );
-
 };
 
-
-img.src = LOGO_PATH;
-
+img.src =
+LOGO_PATH + "?v=" + Date.now();
 
 });
-
 
 }
 
 
 // ========================================
-// PDF PAGE HELPER
+// PDF PAGE CHECK
 // ========================================
 
 function checkPage(
@@ -1048,21 +778,15 @@ y,
 needed=20
 ){
 
-
 if(y + needed > 280){
-
 
 pdf.addPage();
 
-
 return 20;
-
 
 }
 
-
 return y;
-
 
 }
 
@@ -1077,25 +801,18 @@ title,
 y
 ){
 
-
 y =
-checkPage(
-pdf,
-y,
-18
-);
+checkPage(pdf,y,18);
 
 
 pdf.setTextColor(
 ...PDF_DARK
 );
 
-
 pdf.setFont(
 "helvetica",
 "bold"
 );
-
 
 pdf.setFontSize(11);
 
@@ -1111,9 +828,7 @@ pdf.setDrawColor(
 ...PDF_GOLD
 );
 
-
 pdf.setLineWidth(0.5);
-
 
 pdf.line(
 18,
@@ -1124,7 +839,6 @@ y + 3
 
 
 return y + 10;
-
 
 }
 
@@ -1140,13 +854,8 @@ y,
 widths
 ){
 
-
 y =
-checkPage(
-pdf,
-y,
-11
-);
+checkPage(pdf,y,11);
 
 
 let x = 18;
@@ -1157,26 +866,20 @@ pdf.setFont(
 "normal"
 );
 
-
 pdf.setFontSize(8);
-
 
 pdf.setTextColor(
 ...PDF_DARK
 );
 
 
-values.forEach(
-(value,index)=>{
-
+values.forEach((value,index)=>{
 
 const width =
 widths[index];
 
-
 let text =
 String(value ?? "-");
-
 
 const maxWidth =
 width - 4;
@@ -1187,10 +890,8 @@ pdf.getTextWidth(text) > maxWidth &&
 text.length > 3
 ){
 
-
 text =
 text.slice(0,-1);
-
 
 }
 
@@ -1199,10 +900,8 @@ if(
 String(value ?? "-") !== text
 ){
 
-
 text =
 text.slice(0,-3) + "...";
-
 
 }
 
@@ -1213,9 +912,7 @@ x + 2,
 y + 6
 );
 
-
 x += width;
-
 
 });
 
@@ -1223,7 +920,6 @@ x += width;
 pdf.setDrawColor(
 ...PDF_LINE
 );
-
 
 pdf.line(
 18,
@@ -1234,7 +930,6 @@ y + 10
 
 
 return y + 11;
-
 
 }
 // ========================================
@@ -1275,8 +970,8 @@ pdf.setTextColor(
 ...PDF_DARK
 );
 
-headers.forEach(
-(header,index)=>{
+
+headers.forEach((header,index)=>{
 
 pdf.text(
 String(header),
@@ -1287,6 +982,7 @@ y + 6
 x += widths[index];
 
 });
+
 
 pdf.setDrawColor(
 ...PDF_GOLD
@@ -1299,13 +995,14 @@ y + 10,
 y + 10
 );
 
+
 return y + 11;
 
 }
 
 
 // ========================================
-// ADD HEADER TO NEW PDF PAGE
+// HEADER FOR NEW PDF PAGES
 // ========================================
 
 function addPageHeader(pdf){
@@ -1327,6 +1024,7 @@ pdf.text(
 15
 );
 
+
 pdf.setFont(
 "helvetica",
 "normal"
@@ -1343,6 +1041,7 @@ pdf.text(
 18,
 20
 );
+
 
 pdf.setDrawColor(
 ...PDF_LINE
@@ -1457,16 +1156,14 @@ y + 16
 
 
 // ========================================
-// DRAW MAIN PDF
+// CREATE PROFESSIONAL PDF
 // ========================================
 
 async function createProfessionalPDF(){
 
 if(!currentReport){
 
-alert(
-"Generate a report first"
-);
+alert("Generate a report first");
 
 return;
 
@@ -1478,9 +1175,7 @@ if(
 !window.jspdf.jsPDF
 ){
 
-alert(
-"PDF library not loaded"
-);
+alert("PDF library not loaded");
 
 return;
 
@@ -1499,7 +1194,7 @@ let y = 15;
 
 
 // ========================================
-// LOGO
+// AL HUDU LOGO
 // ========================================
 
 try{
@@ -1508,7 +1203,7 @@ const logo =
 await loadLogo();
 
 
-const logoWidth = 28;
+const logoWidth = 32;
 
 const ratio =
 logo.naturalHeight /
@@ -1522,17 +1217,17 @@ pdf.addImage(
 logo,
 "PNG",
 (210 - logoWidth) / 2,
-10,
+8,
 logoWidth,
 logoHeight
 );
 
 
 y =
-15 + logoHeight;
+12 + logoHeight;
 
-
-}catch(error){
+}
+catch(error){
 
 console.warn(
 "Logo not loaded:",
@@ -1567,7 +1262,7 @@ y = 25;
 
 
 // ========================================
-// BRAND NAME
+// BRAND
 // ========================================
 
 pdf.setTextColor(
@@ -1648,12 +1343,8 @@ pdf.setTextColor(
 );
 
 
-let reportHeading =
-currentReport.title.toUpperCase();
-
-
 pdf.text(
-reportHeading,
+currentReport.title.toUpperCase(),
 18,
 y
 );
@@ -1685,7 +1376,7 @@ y += 12;
 
 
 // ========================================
-// SUMMARY TITLE
+// SUMMARY
 // ========================================
 
 pdf.setFont(
@@ -1709,19 +1400,14 @@ y
 y += 6;
 
 
-// ========================================
-// SUMMARY CARDS
-// ========================================
+const cardWidth = 56;
 
-const cardWidth =
-56;
+const cardHeight = 22;
 
-const cardHeight =
-22;
+const gap = 3;
 
-const gap =
-3;
 
+// FIRST ROW
 
 summaryCard(
 pdf,
@@ -1758,6 +1444,8 @@ cardHeight
 
 y += cardHeight + 4;
 
+
+// SECOND ROW
 
 summaryCard(
 pdf,
@@ -1837,9 +1525,7 @@ y + 11
 pdf.setFontSize(16);
 
 pdf.text(
-money(
-currentReport.netSalesAmount
-),
+money(currentReport.netSalesAmount),
 186,
 y + 12,
 {
@@ -1852,7 +1538,7 @@ y += 27;
 
 
 // ========================================
-// EXPENSE DETAILS
+// EXPENSE DETAILS (COST)
 // ONLY DAILY REPORT
 // ========================================
 
@@ -1876,8 +1562,7 @@ y
 );
 
 
-const expenseWidths =
-[
+const expenseWidths = [
 30,
 42,
 70,
@@ -1916,12 +1601,10 @@ y,
 expenseWidths
 );
 
-}else{
+}
+else{
 
-
-currentReport.expenseDetails
-.forEach(e=>{
-
+currentReport.expenseDetails.forEach(e=>{
 
 y =
 ensurePDFSpace(
@@ -1944,9 +1627,7 @@ y,
 expenseWidths
 );
 
-
 });
-
 
 }
 
@@ -1958,7 +1639,6 @@ y += 8;
 
 // ========================================
 // STAFF PAYMENT DETAILS
-// DAILY / MONTHLY / YEARLY / CUSTOM
 // ========================================
 
 y =
@@ -1977,8 +1657,7 @@ y
 );
 
 
-const staffWidths =
-[
+const staffWidths = [
 28,
 42,
 30,
@@ -2020,12 +1699,10 @@ y,
 staffWidths
 );
 
-}else{
+}
+else{
 
-
-currentReport.staffDetails
-.forEach(s=>{
-
+currentReport.staffDetails.forEach(s=>{
 
 y =
 ensurePDFSpace(
@@ -2040,22 +1717,16 @@ pdfDetailRow(
 pdf,
 [
 s.date || "-",
-
 s.name || "-",
-
 s.status || "-",
-
 money(s.salary),
-
 money(s.total)
 ],
 y,
 staffWidths
 );
 
-
 });
-
 
 }
 
@@ -2065,7 +1736,6 @@ y += 8;
 
 // ========================================
 // CASH WITHDRAWAL DETAILS
-// DAILY / MONTHLY / YEARLY / CUSTOM
 // ========================================
 
 y =
@@ -2084,8 +1754,7 @@ y
 );
 
 
-const withdrawalWidths =
-[
+const withdrawalWidths = [
 30,
 42,
 70,
@@ -2124,12 +1793,10 @@ y,
 withdrawalWidths
 );
 
-}else{
+}
+else{
 
-
-currentReport.withdrawalDetails
-.forEach(w=>{
-
+currentReport.withdrawalDetails.forEach(w=>{
 
 y =
 ensurePDFSpace(
@@ -2144,20 +1811,15 @@ pdfDetailRow(
 pdf,
 [
 w.date || "-",
-
 w.person || "-",
-
 w.reason || "-",
-
 money(w.amount)
 ],
 y,
 withdrawalWidths
 );
 
-
 });
-
 
 }
 
@@ -2219,12 +1881,11 @@ align:"right"
 }
 );
 
-
 }
 
 
 // ========================================
-// FILE NAME
+// SAVE PDF
 // ========================================
 
 const filename =
@@ -2232,10 +1893,7 @@ const filename =
 `AL_HUDU_${currentReport.title.replaceAll(" ","_")}_${currentReport.from}_${currentReport.to}.pdf`;
 
 
-pdf.save(
-filename
-);
-
+pdf.save(filename);
 
 }
 
@@ -2248,25 +1906,17 @@ document
 .getElementById("exportPDF")
 .onclick = async()=>{
 
-
 try{
-
 
 await createProfessionalPDF();
 
-
-}catch(error){
-
+}
+catch(error){
 
 console.error(error);
 
-
-alert(
-"Error creating PDF"
-);
-
+alert("Error creating PDF");
 
 }
-
 
 };
