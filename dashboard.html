@@ -9,91 +9,179 @@
 
 <style>
 
+/* ================================
+   DASHBOARD
+================================ */
+
+.dashboard-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:20px;
+margin-bottom:22px;
+}
+
+.dashboard-head h1{
+margin:0;
+font-size:30px;
+}
+
+
+/* ================================
+   TOP CARDS
+================================ */
+
 .dashboard-top{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:1fr 1fr;
 gap:16px;
-margin-top:20px;
+margin-bottom:28px;
 }
 
 .hero-card{
-background:linear-gradient(135deg,#8b6b39,#b48a48);
-color:white;
-padding:22px;
-border-radius:20px;
-box-shadow:0 8px 25px rgba(139,107,57,.20);
+background:#fff;
+padding:22px 24px;
+border-radius:18px;
+border:1px solid #eee8df;
+box-shadow:0 5px 18px rgba(0,0,0,.05);
 }
 
 .hero-label{
 font-size:13px;
-opacity:.85;
+color:#777;
+margin-bottom:8px;
 }
 
 .hero-value{
-font-size:27px;
+font-size:28px;
 font-weight:700;
-margin-top:8px;
+color:#211f1c;
 }
+
+.hero-card.net{
+background:linear-gradient(
+135deg,
+#fffaf1,
+#ffffff
+);
+border-color:#dfc79e;
+}
+
+
+/* ================================
+   SECTION
+================================ */
+
+.section{
+margin-top:25px;
+}
+
+.section-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:15px;
+margin-bottom:12px;
+}
+
+.section-header h2{
+font-size:19px;
+margin:0;
+}
+
+.month-select{
+padding:10px 14px;
+border-radius:10px;
+border:1px solid #ddd4c7;
+background:white;
+font-size:13px;
+outline:none;
+}
+
+
+/* ================================
+   CURRENT MONTH CARDS
+================================ */
 
 .dashboard-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:14px;
-margin-top:15px;
+grid-template-columns:repeat(8,1fr);
+gap:10px;
 }
 
 .dash-card{
-background:white;
-padding:17px;
-border-radius:16px;
-box-shadow:0 4px 14px rgba(0,0,0,.06);
-border:1px solid #f0ece5;
+background:#fff;
+padding:15px;
+border-radius:14px;
+border:1px solid #eee8df;
+box-shadow:0 3px 12px rgba(0,0,0,.045);
+min-width:0;
 }
 
 .dash-title{
-font-size:13px;
+font-size:11px;
 color:#777;
+min-height:28px;
 }
 
 .dash-value{
-font-size:21px;
-font-weight:700;
-margin-top:8px;
-color:#2d2a26;
-}
-
-.section{
-margin-top:28px;
-}
-
-.section h2{
 font-size:18px;
-margin-bottom:10px;
+font-weight:700;
+margin-top:7px;
+color:#25221e;
+word-break:break-word;
 }
 
-.analytics-grid{
+.dash-small{
+font-size:10px;
+color:#8a8176;
+margin-top:6px;
+}
+
+.net-card{
+background:#fff7e8;
+border-color:#e1c38e;
+}
+
+
+/* ================================
+   MAIN ANALYTICS
+================================ */
+
+.analytics-layout{
 display:grid;
-grid-template-columns:2fr 1fr;
-gap:16px;
-margin-top:15px;
+grid-template-columns:minmax(0,2.2fr) minmax(220px,.8fr);
+gap:14px;
+margin-top:14px;
 }
 
 .chart-card,
-.insight-card{
+.panel-card{
 background:white;
-padding:18px;
-border-radius:18px;
-box-shadow:0 4px 14px rgba(0,0,0,.06);
-border:1px solid #f0ece5;
+border:1px solid #eee8df;
+border-radius:16px;
+box-shadow:0 4px 14px rgba(0,0,0,.05);
+padding:17px;
+}
+
+.card-heading{
+font-size:18px;
+font-weight:700;
+margin-bottom:15px;
 }
 
 .chart-wrap{
-height:260px;
+height:320px;
 position:relative;
 }
 
+
+/* ================================
+   MONTHLY OVERVIEW
+================================ */
+
 .insight-item{
-padding:14px 0;
+padding:10px 0;
 border-bottom:1px solid #eee8df;
 }
 
@@ -102,14 +190,20 @@ border-bottom:none;
 }
 
 .insight-label{
-font-size:12px;
+font-size:11px;
 color:#888;
 }
 
 .insight-value{
-font-size:19px;
+font-size:16px;
 font-weight:700;
-margin-top:5px;
+margin-top:4px;
+}
+
+.insight-sub{
+font-size:10px;
+margin-top:3px;
+color:#888;
 }
 
 .positive{
@@ -120,39 +214,174 @@ color:#218838;
 color:#c0392b;
 }
 
+
+/* ================================
+   SECOND ROW
+================================ */
+
+.bottom-layout{
+display:grid;
+grid-template-columns:1.5fr 1fr 1fr;
+gap:14px;
+margin-top:14px;
+}
+
+
+/* ================================
+   TARGET
+================================ */
+
+.target-value{
+font-size:24px;
+font-weight:700;
+margin:8px 0 12px;
+}
+
+.progress{
+width:100%;
+height:12px;
+background:#eee9e1;
+border-radius:20px;
+overflow:hidden;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:linear-gradient(
+90deg,
+#8b6b39,
+#c59a52
+);
+border-radius:20px;
+transition:.4s;
+}
+
+.target-row{
+display:flex;
+justify-content:space-between;
+font-size:11px;
+margin-top:8px;
+color:#777;
+}
+
+
+/* ================================
+   SALES RATIO
+================================ */
+
+.ratio-wrap{
+height:190px;
+position:relative;
+}
+
+
+/* ================================
+   YEAR CHART
+================================ */
+
+.year-chart-wrap{
+height:220px;
+position:relative;
+}
+
+
+/* ================================
+   RECORDS
+================================ */
+
+.record{
+padding:12px 0;
+border-bottom:1px solid #eee8df;
+}
+
+.record:last-child{
+border-bottom:none;
+}
+
+.record-label{
+font-size:11px;
+color:#888;
+}
+
+.record-value{
+font-size:15px;
+font-weight:700;
+margin-top:4px;
+}
+
+
+/* ================================
+   QUICK ACTIONS
+================================ */
+
 .quick-grid{
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
+grid-template-columns:1fr 1fr;
+gap:10px;
 }
 
 .quick-button{
-width:100%;
-padding:14px;
 border:none;
-border-radius:12px;
-background:#8b6b39;
-color:white;
-font-size:14px;
+background:#f6f1e9;
+padding:13px 8px;
+border-radius:10px;
+font-size:12px;
+font-weight:600;
 cursor:pointer;
+color:#332c23;
 }
 
 .quick-button:hover{
-opacity:.9;
+background:#8b6b39;
+color:white;
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media(max-width:1100px){
+
+.dashboard-grid{
+grid-template-columns:repeat(4,1fr);
+}
+
+.bottom-layout{
+grid-template-columns:1fr 1fr;
+}
+
 }
 
 @media(max-width:800px){
 
 .dashboard-top{
-grid-template-columns:1fr;
+grid-template-columns:1fr 1fr;
 }
 
-.analytics-grid{
-grid-template-columns:1fr;
-}
-
-.quick-grid{
+.dashboard-grid{
 grid-template-columns:repeat(2,1fr);
+}
+
+.analytics-layout{
+grid-template-columns:1fr;
+}
+
+.bottom-layout{
+grid-template-columns:1fr;
+}
+
+.chart-wrap{
+height:260px;
+}
+
+.dashboard-head h1{
+font-size:25px;
+}
+
+.hero-value{
+font-size:22px;
 }
 
 }
@@ -165,21 +394,52 @@ grid-template-columns:repeat(2,1fr);
 <body>
 
 
+<!-- ================================
+     SIDEBAR
+================================ -->
+
 <div class="sidebar">
 
 <h2>AL HUDU</h2>
 
-<a href="dashboard.html">🏠 Dashboard</a>
-<a href="sales.html">💰 Sales</a>
-<a href="expenses.html">💸 Expenses (Cost)</a>
-<a href="staff.html">👨‍💼 Staff Payment</a>
-<a href="cashflow.html">💵 Cash Flow</a>
-<a href="reports.html">📊 Reports</a>
-<a href="withdrawals.html">💸 Cash Withdrawal</a>
-<a href="settings.html">⚙️ Settings</a>
+<a href="dashboard.html">
+🏠 Dashboard
+</a>
+
+<a href="sales.html">
+💰 Sales
+</a>
+
+<a href="expenses.html">
+💸 Expenses (Cost)
+</a>
+
+<a href="staff.html">
+👨‍💼 Staff Payment
+</a>
+
+<a href="cashflow.html">
+💵 Cash Flow
+</a>
+
+<a href="withdrawals.html">
+💸 Cash Withdrawal
+</a>
+
+<a href="reports.html">
+📊 Reports
+</a>
+
+<a href="settings.html">
+⚙️ Settings
+</a>
 
 </div>
 
+
+<!-- ================================
+     MAIN
+================================ -->
 
 <div class="main">
 
@@ -195,37 +455,49 @@ Accounting & Management System
 </div>
 
 
+<div class="dashboard-head">
+
 <h1>Dashboard</h1>
 
+</div>
 
-<!-- ========================= -->
-<!-- MAIN CARDS -->
-<!-- ========================= -->
+
+<!-- ================================
+     TOP
+================================ -->
 
 <div class="dashboard-top">
 
 
+<div class="hero-card net">
+
+<div class="hero-label">
+💎 NET SALES AMOUNT
+</div>
+
+<div
+class="hero-value"
+id="netSalesTop">
+
+0 AED
+
+</div>
+
+</div>
+
+
 <div class="hero-card">
 
 <div class="hero-label">
-TODAY'S SALES
+👛 CURRENT CASH BALANCE
 </div>
 
-<div class="hero-value" id="todaySales">
+<div
+class="hero-value"
+id="cashBalance">
+
 0 AED
-</div>
 
-</div>
-
-
-<div class="hero-card">
-
-<div class="hero-label">
-CURRENT CASH BALANCE
-</div>
-
-<div class="hero-value" id="cashBalance">
-0 AED
 </div>
 
 </div>
@@ -234,13 +506,25 @@ CURRENT CASH BALANCE
 </div>
 
 
-<!-- ========================= -->
-<!-- CURRENT MONTH -->
-<!-- ========================= -->
+<!-- ================================
+     CURRENT MONTH
+================================ -->
 
 <div class="section">
 
-<h2>Current Month</h2>
+
+<div class="section-header">
+
+<h2>
+Current Month
+</h2>
+
+<select
+class="month-select"
+id="analyticsMonth">
+</select>
+
+</div>
 
 
 <div class="dashboard-grid">
@@ -249,11 +533,15 @@ CURRENT CASH BALANCE
 <div class="dash-card">
 
 <div class="dash-title">
-Total Sales
+📊 Total Sales
 </div>
 
-<div class="dash-value" id="totalSales">
+<div
+class="dash-value"
+id="totalSales">
+
 0 AED
+
 </div>
 
 </div>
@@ -262,11 +550,23 @@ Total Sales
 <div class="dash-card">
 
 <div class="dash-title">
-Cash Sales
+💵 Cash Sales
 </div>
 
-<div class="dash-value" id="totalCash">
+<div
+class="dash-value"
+id="totalCash">
+
 0 AED
+
+</div>
+
+<div
+class="dash-small"
+id="cashPercent">
+
+0%
+
 </div>
 
 </div>
@@ -275,11 +575,23 @@ Cash Sales
 <div class="dash-card">
 
 <div class="dash-title">
-Card Sales
+💳 Card Sales
 </div>
 
-<div class="dash-value" id="totalCard">
+<div
+class="dash-value"
+id="totalCard">
+
 0 AED
+
+</div>
+
+<div
+class="dash-small"
+id="cardPercent">
+
+0%
+
 </div>
 
 </div>
@@ -288,11 +600,23 @@ Card Sales
 <div class="dash-card">
 
 <div class="dash-title">
-Expenses (Cost)
+🧾 Expenses (Cost)
 </div>
 
-<div class="dash-value" id="totalCost">
+<div
+class="dash-value"
+id="totalCost">
+
 0 AED
+
+</div>
+
+<div
+class="dash-small"
+id="costPercent">
+
+0% of sales
+
 </div>
 
 </div>
@@ -301,11 +625,15 @@ Expenses (Cost)
 <div class="dash-card">
 
 <div class="dash-title">
-Staff Payment
+👥 Staff Payment
 </div>
 
-<div class="dash-value" id="totalStaff">
+<div
+class="dash-value"
+id="totalStaff">
+
 0 AED
+
 </div>
 
 </div>
@@ -314,11 +642,40 @@ Staff Payment
 <div class="dash-card">
 
 <div class="dash-title">
-Cash Withdrawal
+🏧 Cash Withdrawal
 </div>
 
-<div class="dash-value" id="totalWithdraw">
+<div
+class="dash-value"
+id="totalWithdraw">
+
 0 AED
+
+</div>
+
+</div>
+
+
+<div class="dash-card net-card">
+
+<div class="dash-title">
+💎 Net Sales Amount
+</div>
+
+<div
+class="dash-value"
+id="netSalesAmount">
+
+0 AED
+
+</div>
+
+<div
+class="dash-small"
+id="netPercent">
+
+0% of sales
+
 </div>
 
 </div>
@@ -327,24 +684,19 @@ Cash Withdrawal
 <div class="dash-card">
 
 <div class="dash-title">
-Net Sales Amount
+⏱ Transactions
 </div>
 
-<div class="dash-value" id="netSalesAmount">
-0 AED
-</div>
+<div
+class="dash-value"
+id="totalTransactions">
 
-</div>
-
-
-<div class="dash-card">
-
-<div class="dash-title">
-Transactions
-</div>
-
-<div class="dash-value" id="totalTransactions">
 0
+
+</div>
+
+<div class="dash-small">
+Total
 </div>
 
 </div>
@@ -355,92 +707,26 @@ Transactions
 </div>
 
 
-<!-- ========================= -->
-<!-- TODAY -->
-<!-- ========================= -->
+<!-- ================================
+     MONTHLY ANALYTICS
+================================ -->
 
 <div class="section">
 
-<h2>Today's Summary</h2>
 
-
-<div class="dashboard-grid">
-
-
-<div class="dash-card">
-
-<div class="dash-title">
-Today's Expenses (Cost)
-</div>
-
-<div class="dash-value" id="todayCost">
-0 AED
-</div>
-
-</div>
-
-
-<div class="dash-card">
-
-<div class="dash-title">
-Today's Staff Payment
-</div>
-
-<div class="dash-value" id="todayStaff">
-0 AED
-</div>
-
-</div>
-
-
-<div class="dash-card">
-
-<div class="dash-title">
-Today's Cash Withdrawal
-</div>
-
-<div class="dash-value" id="todayWithdraw">
-0 AED
-</div>
-
-</div>
-
-
-<div class="dash-card">
-
-<div class="dash-title">
-Today's Net Sales Amount
-</div>
-
-<div class="dash-value" id="todayNetSales">
-0 AED
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-
-
-<!-- ========================= -->
-<!-- ANALYTICS -->
-<!-- ========================= -->
-
-<div class="section">
-
-<h2>Sales Analytics</h2>
-
-
-<div class="analytics-grid">
+<div class="analytics-layout">
 
 
 <div class="chart-card">
 
-<div style="font-weight:700;margin-bottom:15px;">
-Sales - Last 7 Days
+<div class="section-header">
+
+<div class="card-heading">
+Monthly Sales Analysis
 </div>
+
+</div>
+
 
 <div class="chart-wrap">
 
@@ -451,30 +737,44 @@ Sales - Last 7 Days
 </div>
 
 
-<div class="insight-card">
+<!-- MONTH OVERVIEW -->
 
+<div class="panel-card">
 
-<div class="insight-item">
-
-<div class="insight-label">
-THIS MONTH
-</div>
-
-<div class="insight-value" id="thisMonthSales">
-0 AED
-</div>
-
+<div class="card-heading">
+Monthly Overview
 </div>
 
 
 <div class="insight-item">
 
 <div class="insight-label">
-LAST MONTH
+THIS MONTH SALES
 </div>
 
-<div class="insight-value" id="lastMonthSales">
+<div
+class="insight-value"
+id="thisMonthSales">
+
 0 AED
+
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+LAST MONTH SALES
+</div>
+
+<div
+class="insight-value"
+id="lastMonthSales">
+
+0 AED
+
 </div>
 
 </div>
@@ -486,8 +786,34 @@ LAST MONTH
 MONTHLY CHANGE
 </div>
 
-<div class="insight-value" id="monthlyChange">
+<div
+class="insight-value"
+id="monthlyChange">
+
 --
+
+</div>
+
+<div
+class="insight-sub"
+id="monthlyDifference">
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+AVERAGE DAILY SALES
+</div>
+
+<div
+class="insight-value"
+id="averageDailySales">
+
+0 AED
+
 </div>
 
 </div>
@@ -499,8 +825,12 @@ MONTHLY CHANGE
 BEST SALES DAY
 </div>
 
-<div class="insight-value" id="bestSalesDay">
+<div
+class="insight-value"
+id="bestSalesDay">
+
 --
+
 </div>
 
 </div>
@@ -512,8 +842,33 @@ BEST SALES DAY
 BEST DAY SALES
 </div>
 
-<div class="insight-value" id="bestDayAmount">
+<div
+class="insight-value"
+id="bestDayAmount">
+
 0 AED
+
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+PROJECTED MONTH SALES
+</div>
+
+<div
+class="insight-value"
+id="projectedSales">
+
+0 AED
+
+</div>
+
+<div class="insight-sub">
+* if current trend continues
 </div>
 
 </div>
@@ -521,18 +876,153 @@ BEST DAY SALES
 
 </div>
 
+
+</div>
+
+</div>
+
+
+<!-- ================================
+     BOTTOM
+================================ -->
+
+<div class="bottom-layout">
+
+
+<!-- YEAR -->
+
+<div class="panel-card">
+
+<div class="card-heading">
+Year Overview
+</div>
+
+<div class="year-chart-wrap">
+
+<canvas id="yearChart"></canvas>
+
 </div>
 
 </div>
 
 
-<!-- ========================= -->
+<!-- TARGET -->
+
+<div class="panel-card">
+
+<div class="card-heading">
+🎯 Target Progress
+</div>
+
+<div style="font-size:12px;color:#777;">
+Monthly Sales Target
+</div>
+
+<div
+class="target-value"
+id="targetValue">
+
+200,000 AED
+
+</div>
+
+
+<div class="progress">
+
+<div
+class="progress-bar"
+id="targetProgress">
+
+</div>
+
+</div>
+
+
+<div class="target-row">
+
+<span id="targetCurrent">
+Current Sales: 0 AED
+</span>
+
+<span id="targetPercent">
+0%
+</span>
+
+</div>
+
+</div>
+
+
+<!-- SALES RATIO -->
+
+<div class="panel-card">
+
+<div class="card-heading">
+Sales Ratio
+</div>
+
+<div class="ratio-wrap">
+
+<canvas id="ratioChart"></canvas>
+
+</div>
+
+</div>
+
+
+<!-- RECORDS -->
+
+<div class="panel-card">
+
+<div class="card-heading">
+🏆 Records
+</div>
+
+
+<div class="record">
+
+<div class="record-label">
+Highest Monthly Sales
+</div>
+
+<div
+class="record-value"
+id="highestMonth">
+
+--
+
+</div>
+
+</div>
+
+
+<div class="record">
+
+<div class="record-label">
+Highest Daily Sales
+</div>
+
+<div
+class="record-value"
+id="highestDay">
+
+--
+
+</div>
+
+</div>
+
+
+</div>
+
+
 <!-- QUICK ACTIONS -->
-<!-- ========================= -->
 
-<div class="section">
+<div class="panel-card">
 
-<h2>Quick Actions</h2>
+<div class="card-heading">
+⚡ Quick Actions
+</div>
 
 
 <div class="quick-grid">
@@ -560,7 +1050,7 @@ onclick="location.href='expenses.html'">
 class="quick-button"
 onclick="location.href='withdrawals.html'">
 
-🏦 Cash Withdrawal
+🏧 Cash Withdrawal
 
 </button>
 
@@ -575,6 +1065,9 @@ onclick="location.href='reports.html'">
 
 
 </div>
+
+</div>
+
 
 </div>
 
