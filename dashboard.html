@@ -9,74 +9,33 @@
 
 <style>
 
-/* ================================
-   DASHBOARD
-================================ */
-
-.dashboard-head{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:20px;
-margin-bottom:22px;
-}
-
-.dashboard-head h1{
-margin:0;
-font-size:30px;
-}
-
-
-/* ================================
-   TOP CARDS
-================================ */
-
 .dashboard-top{
 display:grid;
-grid-template-columns:1fr 1fr;
+grid-template-columns:1fr;
 gap:16px;
-margin-bottom:28px;
+margin-top:20px;
 }
 
 .hero-card{
-background:#fff;
-padding:22px 24px;
-border-radius:18px;
-border:1px solid #eee8df;
-box-shadow:0 5px 18px rgba(0,0,0,.05);
+background:linear-gradient(135deg,#8b6b39,#b48a48);
+color:white;
+padding:22px;
+border-radius:20px;
+box-shadow:0 8px 25px rgba(139,107,57,.20);
 }
 
 .hero-label{
 font-size:13px;
-color:#777;
-margin-bottom:8px;
+opacity:.85;
 }
 
 .hero-value{
-font-size:28px;
+font-size:27px;
 font-weight:700;
-color:#211f1c;
+margin-top:8px;
 }
 
-.hero-card.net{
-background:linear-gradient(
-135deg,
-#fffaf1,
-#ffffff
-);
-border-color:#dfc79e;
-}
-
-
-/* ================================
-   SECTION
-================================ */
-
-.section{
-margin-top:25px;
-}
-
-.section-header{
+.month-header{
 display:flex;
 align-items:center;
 justify-content:space-between;
@@ -84,104 +43,82 @@ gap:15px;
 margin-bottom:12px;
 }
 
-.section-header h2{
-font-size:19px;
-margin:0;
-}
-
 .month-select{
 padding:10px 14px;
-border-radius:10px;
 border:1px solid #ddd4c7;
+border-radius:10px;
 background:white;
-font-size:13px;
-outline:none;
+font-size:14px;
+min-width:170px;
 }
-
-
-/* ================================
-   CURRENT MONTH CARDS
-================================ */
 
 .dashboard-grid{
 display:grid;
-grid-template-columns:repeat(8,1fr);
-gap:10px;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:14px;
+margin-top:15px;
 }
 
 .dash-card{
-background:#fff;
-padding:15px;
-border-radius:14px;
-border:1px solid #eee8df;
-box-shadow:0 3px 12px rgba(0,0,0,.045);
-min-width:0;
-}
-
-.dash-title{
-font-size:11px;
-color:#777;
-min-height:28px;
-}
-
-.dash-value{
-font-size:18px;
-font-weight:700;
-margin-top:7px;
-color:#25221e;
-word-break:break-word;
-}
-
-.dash-small{
-font-size:10px;
-color:#8a8176;
-margin-top:6px;
+background:white;
+padding:17px;
+border-radius:16px;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+border:1px solid #f0ece5;
 }
 
 .net-card{
-background:#fff7e8;
-border-color:#e1c38e;
+background:#fffaf0;
+border:1px solid #d9b46b;
 }
 
+.dash-title{
+font-size:13px;
+color:#777;
+}
 
-/* ================================
-   MAIN ANALYTICS
-================================ */
+.dash-value{
+font-size:21px;
+font-weight:700;
+margin-top:8px;
+color:#2d2a26;
+}
 
-.analytics-layout{
+.section{
+margin-top:28px;
+}
+
+.section h2{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.analytics-grid{
 display:grid;
-grid-template-columns:minmax(0,2.2fr) minmax(220px,.8fr);
-gap:14px;
-margin-top:14px;
+grid-template-columns:2fr 1fr;
+gap:16px;
+margin-top:15px;
 }
 
 .chart-card,
-.panel-card{
+.insight-card,
+.target-card,
+.records-card,
+.ratio-card{
 background:white;
-border:1px solid #eee8df;
-border-radius:16px;
-box-shadow:0 4px 14px rgba(0,0,0,.05);
-padding:17px;
-}
-
-.card-heading{
-font-size:18px;
-font-weight:700;
-margin-bottom:15px;
+padding:18px;
+border-radius:18px;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+border:1px solid #f0ece5;
 }
 
 .chart-wrap{
-height:320px;
+height:300px;
 position:relative;
 }
 
-
-/* ================================
-   MONTHLY OVERVIEW
-================================ */
-
 .insight-item{
-padding:10px 0;
+padding:13px 0;
 border-bottom:1px solid #eee8df;
 }
 
@@ -190,20 +127,14 @@ border-bottom:none;
 }
 
 .insight-label{
-font-size:11px;
+font-size:12px;
 color:#888;
 }
 
 .insight-value{
-font-size:16px;
+font-size:19px;
 font-weight:700;
-margin-top:4px;
-}
-
-.insight-sub{
-font-size:10px;
-margin-top:3px;
-color:#888;
+margin-top:5px;
 }
 
 .positive{
@@ -215,173 +146,227 @@ color:#c0392b;
 }
 
 
-/* ================================
-   SECOND ROW
-================================ */
+/* TARGET */
 
-.bottom-layout{
-display:grid;
-grid-template-columns:1.5fr 1fr 1fr;
-gap:14px;
-margin-top:14px;
+.target-head{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+margin-bottom:18px;
 }
 
+.target-title{
+font-size:18px;
+font-weight:700;
+}
 
-/* ================================
-   TARGET
-================================ */
+.edit-target{
+border:1px solid #d8c7aa;
+background:white;
+padding:7px 11px;
+border-radius:9px;
+cursor:pointer;
+font-size:12px;
+}
+
+.target-label{
+font-size:13px;
+color:#777;
+}
 
 .target-value{
-font-size:24px;
+font-size:25px;
 font-weight:700;
-margin:8px 0 12px;
+margin-top:7px;
 }
 
-.progress{
+.target-progress-bg{
 width:100%;
-height:12px;
-background:#eee9e1;
+height:13px;
+background:#eee9df;
 border-radius:20px;
 overflow:hidden;
+margin-top:18px;
 }
 
-.progress-bar{
+.target-progress-bar{
 height:100%;
 width:0%;
-background:linear-gradient(
-90deg,
-#8b6b39,
-#c59a52
-);
+background:linear-gradient(90deg,#8b6b39,#c79b4b);
 border-radius:20px;
 transition:.4s;
 }
 
-.target-row{
+.target-info{
 display:flex;
 justify-content:space-between;
-font-size:11px;
-margin-top:8px;
+gap:10px;
+font-size:12px;
 color:#777;
+margin-top:8px;
 }
 
 
-/* ================================
-   SALES RATIO
-================================ */
+/* TARGET MODAL */
+
+.target-modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+z-index:9999;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.target-modal.show{
+display:flex;
+}
+
+.target-modal-box{
+width:100%;
+max-width:390px;
+background:white;
+padding:24px;
+border-radius:20px;
+box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.target-modal-box h2{
+margin-top:0;
+}
+
+.target-month-name{
+font-size:13px;
+color:#777;
+margin-bottom:15px;
+}
+
+.target-input{
+width:100%;
+box-sizing:border-box;
+padding:13px;
+border:1px solid #ddd4c7;
+border-radius:10px;
+font-size:17px;
+outline:none;
+}
+
+.modal-actions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:18px;
+}
+
+.save-target{
+border:none;
+background:#8b6b39;
+color:white;
+padding:12px;
+border-radius:10px;
+font-weight:700;
+cursor:pointer;
+}
+
+.cancel-target{
+border:1px solid #ddd;
+background:white;
+padding:12px;
+border-radius:10px;
+font-weight:700;
+cursor:pointer;
+}
+
+
+/* LOWER ANALYTICS */
+
+.lower-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:16px;
+}
 
 .ratio-wrap{
-height:190px;
+height:250px;
 position:relative;
 }
 
-
-/* ================================
-   YEAR CHART
-================================ */
-
-.year-chart-wrap{
-height:220px;
-position:relative;
-}
-
-
-/* ================================
-   RECORDS
-================================ */
-
-.record{
-padding:12px 0;
+.record-item{
+padding:14px 0;
 border-bottom:1px solid #eee8df;
 }
 
-.record:last-child{
+.record-item:last-child{
 border-bottom:none;
 }
 
 .record-label{
-font-size:11px;
+font-size:12px;
 color:#888;
 }
 
 .record-value{
-font-size:15px;
+font-size:16px;
 font-weight:700;
-margin-top:4px;
+margin-top:5px;
 }
 
 
-/* ================================
-   QUICK ACTIONS
-================================ */
+/* QUICK */
 
 .quick-grid{
 display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
 }
 
 .quick-button{
+width:100%;
+padding:14px;
 border:none;
-background:#f6f1e9;
-padding:13px 8px;
-border-radius:10px;
-font-size:12px;
-font-weight:600;
+border-radius:12px;
+background:#8b6b39;
+color:white;
+font-size:14px;
 cursor:pointer;
-color:#332c23;
 }
 
 .quick-button:hover{
-background:#8b6b39;
-color:white;
+opacity:.9;
 }
 
 
-/* ================================
-   MOBILE
-================================ */
-
-@media(max-width:1100px){
-
-.dashboard-grid{
-grid-template-columns:repeat(4,1fr);
-}
-
-.bottom-layout{
-grid-template-columns:1fr 1fr;
-}
-
-}
+/* MOBILE */
 
 @media(max-width:800px){
 
-.dashboard-top{
-grid-template-columns:1fr 1fr;
+.month-header{
+align-items:flex-start;
+flex-direction:column;
 }
 
-.dashboard-grid{
+.month-select{
+width:100%;
+}
+
+.analytics-grid{
+grid-template-columns:1fr;
+}
+
+.lower-grid{
+grid-template-columns:1fr;
+}
+
+.quick-grid{
 grid-template-columns:repeat(2,1fr);
-}
-
-.analytics-layout{
-grid-template-columns:1fr;
-}
-
-.bottom-layout{
-grid-template-columns:1fr;
 }
 
 .chart-wrap{
 height:260px;
-}
-
-.dashboard-head h1{
-font-size:25px;
-}
-
-.hero-value{
-font-size:22px;
 }
 
 }
@@ -394,52 +379,21 @@ font-size:22px;
 <body>
 
 
-<!-- ================================
-     SIDEBAR
-================================ -->
-
 <div class="sidebar">
 
 <h2>AL HUDU</h2>
 
-<a href="dashboard.html">
-🏠 Dashboard
-</a>
-
-<a href="sales.html">
-💰 Sales
-</a>
-
-<a href="expenses.html">
-💸 Expenses (Cost)
-</a>
-
-<a href="staff.html">
-👨‍💼 Staff Payment
-</a>
-
-<a href="cashflow.html">
-💵 Cash Flow
-</a>
-
-<a href="withdrawals.html">
-💸 Cash Withdrawal
-</a>
-
-<a href="reports.html">
-📊 Reports
-</a>
-
-<a href="settings.html">
-⚙️ Settings
-</a>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="sales.html">💰 Sales</a>
+<a href="expenses.html">💸 Expenses (Cost)</a>
+<a href="staff.html">👨‍💼 Staff Payment</a>
+<a href="cashflow.html">💵 Cash Flow</a>
+<a href="reports.html">📊 Reports</a>
+<a href="withdrawals.html">💸 Cash Withdrawal</a>
+<a href="settings.html">⚙️ Settings</a>
 
 </div>
 
-
-<!-- ================================
-     MAIN
-================================ -->
 
 <div class="main">
 
@@ -455,73 +409,41 @@ Accounting & Management System
 </div>
 
 
-<div class="dashboard-head">
-
 <h1>Dashboard</h1>
 
-</div>
 
-
-<!-- ================================
-     TOP
-================================ -->
+<!-- CURRENT CASH -->
 
 <div class="dashboard-top">
-
-
-<div class="hero-card net">
-
-<div class="hero-label">
-💎 NET SALES AMOUNT
-</div>
-
-<div
-class="hero-value"
-id="netSalesTop">
-
-0 AED
-
-</div>
-
-</div>
-
 
 <div class="hero-card">
 
 <div class="hero-label">
-👛 CURRENT CASH BALANCE
+NET SALES AMOUNT
 </div>
 
-<div
-class="hero-value"
-id="cashBalance">
-
+<div class="hero-value" id="topNetSalesAmount">
 0 AED
-
 </div>
 
 </div>
 
-
 </div>
 
 
-<!-- ================================
-     CURRENT MONTH
-================================ -->
+<!-- CURRENT MONTH -->
 
 <div class="section">
 
+<div class="month-header">
 
-<div class="section-header">
-
-<h2>
+<h2 id="currentMonthTitle">
 Current Month
 </h2>
 
 <select
-class="month-select"
-id="analyticsMonth">
+id="dashboardMonth"
+class="month-select">
 </select>
 
 </div>
@@ -536,12 +458,8 @@ id="analyticsMonth">
 📊 Total Sales
 </div>
 
-<div
-class="dash-value"
-id="totalSales">
-
+<div class="dash-value" id="totalSales">
 0 AED
-
 </div>
 
 </div>
@@ -553,20 +471,8 @@ id="totalSales">
 💵 Cash Sales
 </div>
 
-<div
-class="dash-value"
-id="totalCash">
-
+<div class="dash-value" id="totalCash">
 0 AED
-
-</div>
-
-<div
-class="dash-small"
-id="cashPercent">
-
-0%
-
 </div>
 
 </div>
@@ -578,20 +484,8 @@ id="cashPercent">
 💳 Card Sales
 </div>
 
-<div
-class="dash-value"
-id="totalCard">
-
+<div class="dash-value" id="totalCard">
 0 AED
-
-</div>
-
-<div
-class="dash-small"
-id="cardPercent">
-
-0%
-
 </div>
 
 </div>
@@ -603,20 +497,8 @@ id="cardPercent">
 🧾 Expenses (Cost)
 </div>
 
-<div
-class="dash-value"
-id="totalCost">
-
+<div class="dash-value" id="totalCost">
 0 AED
-
-</div>
-
-<div
-class="dash-small"
-id="costPercent">
-
-0% of sales
-
 </div>
 
 </div>
@@ -628,12 +510,8 @@ id="costPercent">
 👥 Staff Payment
 </div>
 
-<div
-class="dash-value"
-id="totalStaff">
-
+<div class="dash-value" id="totalStaff">
 0 AED
-
 </div>
 
 </div>
@@ -645,12 +523,8 @@ id="totalStaff">
 🏧 Cash Withdrawal
 </div>
 
-<div
-class="dash-value"
-id="totalWithdraw">
-
+<div class="dash-value" id="totalWithdraw">
 0 AED
-
 </div>
 
 </div>
@@ -662,20 +536,8 @@ id="totalWithdraw">
 💎 Net Sales Amount
 </div>
 
-<div
-class="dash-value"
-id="netSalesAmount">
-
+<div class="dash-value" id="netSalesAmount">
 0 AED
-
-</div>
-
-<div
-class="dash-small"
-id="netPercent">
-
-0% of sales
-
 </div>
 
 </div>
@@ -687,46 +549,29 @@ id="netPercent">
 ⏱ Transactions
 </div>
 
-<div
-class="dash-value"
-id="totalTransactions">
-
+<div class="dash-value" id="totalTransactions">
 0
-
-</div>
-
-<div class="dash-small">
-Total
 </div>
 
 </div>
-
 
 </div>
 
 </div>
 
 
-<!-- ================================
-     MONTHLY ANALYTICS
-================================ -->
+<!-- SALES ANALYSIS -->
 
 <div class="section">
 
-
-<div class="analytics-layout">
+<div class="analytics-grid">
 
 
 <div class="chart-card">
 
-<div class="section-header">
-
-<div class="card-heading">
+<div style="font-size:18px;font-weight:700;margin-bottom:15px;">
 Monthly Sales Analysis
 </div>
-
-</div>
-
 
 <div class="chart-wrap">
 
@@ -737,13 +582,13 @@ Monthly Sales Analysis
 </div>
 
 
-<!-- MONTH OVERVIEW -->
+<!-- MONTHLY OVERVIEW -->
 
-<div class="panel-card">
+<div class="insight-card">
 
-<div class="card-heading">
+<h2>
 Monthly Overview
-</div>
+</h2>
 
 
 <div class="insight-item">
@@ -752,12 +597,8 @@ Monthly Overview
 THIS MONTH SALES
 </div>
 
-<div
-class="insight-value"
-id="thisMonthSales">
-
+<div class="insight-value" id="thisMonthSales">
 0 AED
-
 </div>
 
 </div>
@@ -769,12 +610,8 @@ id="thisMonthSales">
 LAST MONTH SALES
 </div>
 
-<div
-class="insight-value"
-id="lastMonthSales">
-
+<div class="insight-value" id="lastMonthSales">
 0 AED
-
 </div>
 
 </div>
@@ -786,17 +623,8 @@ id="lastMonthSales">
 MONTHLY CHANGE
 </div>
 
-<div
-class="insight-value"
-id="monthlyChange">
-
+<div class="insight-value" id="monthlyChange">
 --
-
-</div>
-
-<div
-class="insight-sub"
-id="monthlyDifference">
 </div>
 
 </div>
@@ -808,12 +636,8 @@ id="monthlyDifference">
 AVERAGE DAILY SALES
 </div>
 
-<div
-class="insight-value"
-id="averageDailySales">
-
+<div class="insight-value" id="averageDailySales">
 0 AED
-
 </div>
 
 </div>
@@ -825,12 +649,8 @@ id="averageDailySales">
 BEST SALES DAY
 </div>
 
-<div
-class="insight-value"
-id="bestSalesDay">
-
+<div class="insight-value" id="bestSalesDay">
 --
-
 </div>
 
 </div>
@@ -842,37 +662,9 @@ id="bestSalesDay">
 BEST DAY SALES
 </div>
 
-<div
-class="insight-value"
-id="bestDayAmount">
-
+<div class="insight-value" id="bestDayAmount">
 0 AED
-
 </div>
-
-</div>
-
-
-<div class="insight-item">
-
-<div class="insight-label">
-PROJECTED MONTH SALES
-</div>
-
-<div
-class="insight-value"
-id="projectedSales">
-
-0 AED
-
-</div>
-
-<div class="insight-sub">
-* if current trend continues
-</div>
-
-</div>
-
 
 </div>
 
@@ -881,23 +673,23 @@ id="projectedSales">
 
 </div>
 
-
-<!-- ================================
-     BOTTOM
-================================ -->
-
-<div class="bottom-layout">
+</div>
 
 
-<!-- YEAR -->
+<!-- YEAR + TARGET -->
 
-<div class="panel-card">
+<div class="section">
 
-<div class="card-heading">
+<div class="lower-grid">
+
+
+<div class="chart-card">
+
+<h2 id="yearOverviewTitle">
 Year Overview
-</div>
+</h2>
 
-<div class="year-chart-wrap">
+<div class="chart-wrap">
 
 <canvas id="yearChart"></canvas>
 
@@ -908,39 +700,47 @@ Year Overview
 
 <!-- TARGET -->
 
-<div class="panel-card">
+<div class="target-card">
 
-<div class="card-heading">
+<div class="target-head">
+
+<div class="target-title">
 🎯 Target Progress
 </div>
 
-<div style="font-size:12px;color:#777;">
+<button
+class="edit-target"
+id="editTarget">
+
+✏️ Edit Target
+
+</button>
+
+</div>
+
+
+<div class="target-label">
 Monthly Sales Target
 </div>
 
-<div
-class="target-value"
-id="targetValue">
-
-200,000 AED
-
+<div class="target-value" id="targetAmount">
+0 AED
 </div>
 
 
-<div class="progress">
+<div class="target-progress-bg">
 
 <div
-class="progress-bar"
-id="targetProgress">
-
+class="target-progress-bar"
+id="targetProgressBar">
 </div>
 
 </div>
 
 
-<div class="target-row">
+<div class="target-info">
 
-<span id="targetCurrent">
+<span id="targetCurrentSales">
 Current Sales: 0 AED
 </span>
 
@@ -950,36 +750,44 @@ Current Sales: 0 AED
 
 </div>
 
+
+</div>
+
+</div>
+
 </div>
 
 
-<!-- SALES RATIO -->
+<!-- SALES RATIO + RECORDS -->
 
-<div class="panel-card">
+<div class="section">
 
-<div class="card-heading">
+<div class="lower-grid">
+
+
+<div class="ratio-card">
+
+<h2>
 Sales Ratio
-</div>
+</h2>
 
 <div class="ratio-wrap">
 
-<canvas id="ratioChart"></canvas>
+<canvas id="salesRatioChart"></canvas>
 
 </div>
 
 </div>
 
 
-<!-- RECORDS -->
+<div class="records-card">
 
-<div class="panel-card">
-
-<div class="card-heading">
+<h2>
 🏆 Records
-</div>
+</h2>
 
 
-<div class="record">
+<div class="record-item">
 
 <div class="record-label">
 Highest Monthly Sales
@@ -987,7 +795,7 @@ Highest Monthly Sales
 
 <div
 class="record-value"
-id="highestMonth">
+id="highestMonthlySales">
 
 --
 
@@ -996,7 +804,7 @@ id="highestMonth">
 </div>
 
 
-<div class="record">
+<div class="record-item">
 
 <div class="record-label">
 Highest Daily Sales
@@ -1004,7 +812,7 @@ Highest Daily Sales
 
 <div
 class="record-value"
-id="highestDay">
+id="highestDailySales">
 
 --
 
@@ -1015,14 +823,18 @@ id="highestDay">
 
 </div>
 
+</div>
+
+</div>
+
 
 <!-- QUICK ACTIONS -->
 
-<div class="panel-card">
+<div class="section">
 
-<div class="card-heading">
-⚡ Quick Actions
-</div>
+<h2>
+Quick Actions
+</h2>
 
 
 <div class="quick-grid">
@@ -1050,7 +862,7 @@ onclick="location.href='expenses.html'">
 class="quick-button"
 onclick="location.href='withdrawals.html'">
 
-🏧 Cash Withdrawal
+🏦 Cash Withdrawal
 
 </button>
 
@@ -1072,12 +884,68 @@ onclick="location.href='reports.html'">
 </div>
 
 
+<!-- EDIT TARGET WINDOW -->
+
+<div
+class="target-modal"
+id="targetModal">
+
+<div class="target-modal-box">
+
+<h2>
+🎯 Monthly Sales Target
+</h2>
+
+<div
+class="target-month-name"
+id="targetMonthName">
+
+--
+
+</div>
+
+
+<input
+type="number"
+id="targetInput"
+class="target-input"
+placeholder="Example: 200000"
+min="0"
+step="1">
+
+
+<div class="modal-actions">
+
+
+<button
+class="cancel-target"
+id="cancelTarget">
+
+Cancel
+
+</button>
+
+
+<button
+class="save-target"
+id="saveTarget">
+
+Save Target
+
+</button>
+
+
+</div>
+
+</div>
+
 </div>
 
 
 <script
 src="https://cdn.jsdelivr.net/npm/chart.js">
 </script>
+
 
 <script
 type="module"
