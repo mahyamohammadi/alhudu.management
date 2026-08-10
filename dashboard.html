@@ -9,42 +9,151 @@
 
 <style>
 
-.dashboard-grid{
-
+.dashboard-top{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
+grid-template-columns:repeat(2,1fr);
+gap:16px;
 margin-top:20px;
+}
 
+.hero-card{
+background:linear-gradient(135deg,#8b6b39,#b48a48);
+color:white;
+padding:22px;
+border-radius:20px;
+box-shadow:0 8px 25px rgba(139,107,57,.20);
+}
+
+.hero-label{
+font-size:13px;
+opacity:.85;
+}
+
+.hero-value{
+font-size:27px;
+font-weight:700;
+margin-top:8px;
+}
+
+.dashboard-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:14px;
+margin-top:15px;
 }
 
 .dash-card{
-
 background:white;
-padding:20px;
-border-radius:18px;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
-
+padding:17px;
+border-radius:16px;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+border:1px solid #f0ece5;
 }
 
 .dash-title{
-
-font-size:15px;
+font-size:13px;
 color:#777;
-
 }
 
 .dash-value{
-
-font-size:24px;
-font-weight:bold;
-margin-top:10px;
-
+font-size:21px;
+font-weight:700;
+margin-top:8px;
+color:#2d2a26;
 }
 
 .section{
+margin-top:28px;
+}
 
-margin-top:30px;
+.section h2{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.analytics-grid{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:16px;
+margin-top:15px;
+}
+
+.chart-card,
+.insight-card{
+background:white;
+padding:18px;
+border-radius:18px;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+border:1px solid #f0ece5;
+}
+
+.chart-wrap{
+height:260px;
+position:relative;
+}
+
+.insight-item{
+padding:14px 0;
+border-bottom:1px solid #eee8df;
+}
+
+.insight-item:last-child{
+border-bottom:none;
+}
+
+.insight-label{
+font-size:12px;
+color:#888;
+}
+
+.insight-value{
+font-size:19px;
+font-weight:700;
+margin-top:5px;
+}
+
+.positive{
+color:#218838;
+}
+
+.negative{
+color:#c0392b;
+}
+
+.quick-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+}
+
+.quick-button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#8b6b39;
+color:white;
+font-size:14px;
+cursor:pointer;
+}
+
+.quick-button:hover{
+opacity:.9;
+}
+
+@media(max-width:800px){
+
+.dashboard-top{
+grid-template-columns:1fr;
+}
+
+.analytics-grid{
+grid-template-columns:1fr;
+}
+
+.quick-grid{
+grid-template-columns:repeat(2,1fr);
+}
 
 }
 
@@ -52,446 +161,436 @@ margin-top:30px;
 
 </head>
 
+
 <body>
+
 
 <div class="sidebar">
 
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
-
 <a href="sales.html">💰 Sales</a>
-
 <a href="expenses.html">💸 Expenses (Cost)</a>
-
 <a href="staff.html">👨‍💼 Staff Payment</a>
-
 <a href="cashflow.html">💵 Cash Flow</a>
-
 <a href="reports.html">📊 Reports</a>
-
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
-
 <a href="settings.html">⚙️ Settings</a>
 
 </div>
 
+
 <div class="main">
+
 
 <div class="brand-header">
 
 AL HUDU
 
 <span>
-
 Accounting & Management System
-
 </span>
 
 </div>
 
-<h1>🏠 Dashboard</h1>
+
+<h1>Dashboard</h1>
+
+
+<!-- ========================= -->
+<!-- MAIN CARDS -->
+<!-- ========================= -->
+
+<div class="dashboard-top">
+
+
+<div class="hero-card">
+
+<div class="hero-label">
+TODAY'S SALES
+</div>
+
+<div class="hero-value" id="todaySales">
+0 AED
+</div>
+
+</div>
+
+
+<div class="hero-card">
+
+<div class="hero-label">
+CURRENT CASH BALANCE
+</div>
+
+<div class="hero-value" id="cashBalance">
+0 AED
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CURRENT MONTH -->
+<!-- ========================= -->
 
 <div class="section">
 
-<h2>📊 Overall Summary (Current Month)</h2>
+<h2>Current Month</h2>
+
 
 <div class="dashboard-grid">
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
 Total Sales
-
 </div>
 
 <div class="dash-value" id="totalSales">
-
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
 Cash Sales
-
 </div>
 
 <div class="dash-value" id="totalCash">
-
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
 Card Sales
-
 </div>
 
 <div class="dash-value" id="totalCard">
-
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
-Expenses
-
+Expenses (Cost)
 </div>
 
 <div class="dash-value" id="totalCost">
-
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
 Staff Payment
-
 </div>
 
 <div class="dash-value" id="totalStaff">
-
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
-Net Profit
-
-</div>
-
-<div class="dash-value" id="netProfit">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Cash Balance
-
-</div>
-
-<div class="dash-value" id="cashBalance">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
 Cash Withdrawal
-
 </div>
 
 <div class="dash-value" id="totalWithdraw">
-
 0 AED
-
 </div>
 
 </div>
 
-</div>
-
-</div>
-<div class="section">
-
-<h2>📅 Today's Summary</h2>
-
-<div class="dashboard-grid">
 
 <div class="dash-card">
 
 <div class="dash-title">
-
-Today's Sales
-
+Net Sales Amount
 </div>
 
-<div class="dash-value" id="todaySales">
-
+<div class="dash-value" id="netSalesAmount">
 0 AED
-
 </div>
 
 </div>
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
-Today's Cost
-
-</div>
-
-<div class="dash-value" id="todayCost">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Today's Staff
-
-</div>
-
-<div class="dash-value" id="todayStaff">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Today's Profit
-
-</div>
-
-<div class="dash-value" id="todayProfit">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Today's Withdrawal
-
-</div>
-
-<div class="dash-value" id="todayWithdraw">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Opening Cash
-
-</div>
-
-<div class="dash-value" id="openingCashBalance">
-
-0 AED
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-<div class="section">
-
-<h2>📈 Business Overview</h2>
-
-<div class="dashboard-grid">
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Opening Balance
-
-</div>
-
-<div class="dash-value" id="openingBalance">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Cash In
-
-</div>
-
-<div class="dash-value" id="cashIn">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Cash Out
-
-</div>
-
-<div class="dash-value" id="cashOut">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
-Current Cash
-
-</div>
-
-<div class="dash-value" id="currentCash">
-
-0 AED
-
-</div>
-
-</div>
-
-<div class="dash-card">
-
-<div class="dash-title">
-
 Transactions
-
 </div>
 
 <div class="dash-value" id="totalTransactions">
-
 0
+</div>
+
+</div>
+
 
 </div>
 
 </div>
+
+
+<!-- ========================= -->
+<!-- TODAY -->
+<!-- ========================= -->
+
+<div class="section">
+
+<h2>Today's Summary</h2>
+
+
+<div class="dashboard-grid">
+
 
 <div class="dash-card">
 
 <div class="dash-title">
-
-Last Update
-
+Today's Expenses (Cost)
 </div>
 
-<div class="dash-value" id="lastUpdate">
-
---
-
+<div class="dash-value" id="todayCost">
+0 AED
 </div>
 
 </div>
 
-</div>
-
-</div>
-<div class="section">
-
-<h2>📌 Quick Actions</h2>
-
-<div class="dashboard-grid">
 
 <div class="dash-card">
 
-<button onclick="location.href='sales.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+<div class="dash-title">
+Today's Staff Payment
+</div>
+
+<div class="dash-value" id="todayStaff">
+0 AED
+</div>
+
+</div>
+
+
+<div class="dash-card">
+
+<div class="dash-title">
+Today's Cash Withdrawal
+</div>
+
+<div class="dash-value" id="todayWithdraw">
+0 AED
+</div>
+
+</div>
+
+
+<div class="dash-card">
+
+<div class="dash-title">
+Today's Net Sales Amount
+</div>
+
+<div class="dash-value" id="todayNetSales">
+0 AED
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- ANALYTICS -->
+<!-- ========================= -->
+
+<div class="section">
+
+<h2>Sales Analytics</h2>
+
+
+<div class="analytics-grid">
+
+
+<div class="chart-card">
+
+<div style="font-weight:700;margin-bottom:15px;">
+Sales - Last 7 Days
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="insight-card">
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+THIS MONTH
+</div>
+
+<div class="insight-value" id="thisMonthSales">
+0 AED
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+LAST MONTH
+</div>
+
+<div class="insight-value" id="lastMonthSales">
+0 AED
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+MONTHLY CHANGE
+</div>
+
+<div class="insight-value" id="monthlyChange">
+--
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+BEST SALES DAY
+</div>
+
+<div class="insight-value" id="bestSalesDay">
+--
+</div>
+
+</div>
+
+
+<div class="insight-item">
+
+<div class="insight-label">
+BEST DAY SALES
+</div>
+
+<div class="insight-value" id="bestDayAmount">
+0 AED
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- QUICK ACTIONS -->
+<!-- ========================= -->
+
+<div class="section">
+
+<h2>Quick Actions</h2>
+
+
+<div class="quick-grid">
+
+
+<button
+class="quick-button"
+onclick="location.href='sales.html'">
 
 💰 New Sale
 
 </button>
 
-</div>
 
-<div class="dash-card">
-
-<button onclick="location.href='expenses.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+<button
+class="quick-button"
+onclick="location.href='expenses.html'">
 
 💸 New Expense
 
 </button>
 
-</div>
 
-<div class="dash-card">
-
-<button onclick="location.href='withdrawals.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
+<button
+class="quick-button"
+onclick="location.href='withdrawals.html'">
 
 🏦 Cash Withdrawal
 
 </button>
 
-</div>
 
-<div class="dash-card">
+<button
+class="quick-button"
+onclick="location.href='reports.html'">
 
-<button onclick="location.href='reports.html'" style="width:100%;padding:15px;border:none;border-radius:10px;background:#8b6b39;color:white;font-size:16px;cursor:pointer;">
-
-📊 View Reports
+📊 Reports
 
 </button>
 
-</div>
 
 </div>
 
 </div>
 
+
 </div>
 
-<script type="module" src="dashboard.js"></script>
+
+<script
+src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+
+<script
+type="module"
+src="dashboard.js">
+</script>
+
 
 </body>
 
