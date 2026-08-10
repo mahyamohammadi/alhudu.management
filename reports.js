@@ -65,18 +65,68 @@ function money(value){
 }
 
 
+// ========================================
+// DISPLAY DATE
+// 2026-08-10 -> 10-08-2026
+// ========================================
+
+function displayDate(date){
+
+    if(
+        typeof date !== "string" ||
+        date.length < 10
+    ){
+
+        return date || "-";
+
+    }
+
+
+    const parts =
+    date.split("-");
+
+
+    if(parts.length !== 3){
+
+        return date;
+
+    }
+
+
+    return (
+        parts[2] +
+        "-" +
+        parts[1] +
+        "-" +
+        parts[0]
+    );
+
+}
+
+
 function validDate(date){
 
-    return typeof date === "string" && date.length >= 10;
+    return (
+        typeof date === "string" &&
+        date.length >= 10
+    );
 
 }
 
 
 function isBetween(date,from,to){
 
-    if(!validDate(date)) return false;
+    if(!validDate(date)){
 
-    return date >= from && date <= to;
+        return false;
+
+    }
+
+
+    return (
+        date >= from &&
+        date <= to
+    );
 
 }
 
@@ -85,7 +135,10 @@ function sortNewest(list){
 
     return [...list].sort((a,b)=>{
 
-        return (b.date || "").localeCompare(a.date || "");
+        return (b.date || "")
+        .localeCompare(
+            a.date || ""
+        );
 
     });
 
@@ -95,10 +148,15 @@ function sortNewest(list){
 function escapeHTML(value){
 
     return String(value ?? "")
+
     .replaceAll("&","&amp;")
+
     .replaceAll("<","&lt;")
+
     .replaceAll(">","&gt;")
+
     .replaceAll('"',"&quot;")
+
     .replaceAll("'","&#039;");
 
 }
@@ -121,19 +179,49 @@ async function getData(){
 
 
     const [
+
         salesSnap,
+
         expenseSnap,
+
         staffSnap,
+
         withdrawalSnap
+
     ] = await Promise.all([
 
-        getDocs(collection(db,"sales")),
 
-        getDocs(collection(db,"expenses")),
+        getDocs(
+            collection(
+                db,
+                "sales"
+            )
+        ),
 
-        getDocs(collection(db,"staff")),
 
-        getDocs(collection(db,"withdrawals"))
+        getDocs(
+            collection(
+                db,
+                "expenses"
+            )
+        ),
+
+
+        getDocs(
+            collection(
+                db,
+                "staff"
+            )
+        ),
+
+
+        getDocs(
+            collection(
+                db,
+                "withdrawals"
+            )
+        )
+
 
     ]);
 
@@ -236,28 +324,53 @@ function calculateReport(
     let withdrawalDetails = [];
 
 
-    // SALES
+// ========================================
+// SALES
+// ========================================
 
     data.sales.forEach(s=>{
 
-        if(isBetween(s.date,from,to)){
 
-            cash += number(s.cash);
+        if(
+            isBetween(
+                s.date,
+                from,
+                to
+            )
+        ){
 
-            card += number(s.card);
+
+            cash +=
+            number(s.cash);
+
+
+            card +=
+            number(s.card);
 
         }
 
     });
 
 
-    // EXPENSES
+// ========================================
+// EXPENSES (COST)
+// ========================================
 
     data.expenses.forEach(e=>{
 
-        if(isBetween(e.date,from,to)){
 
-            expensesTotal += number(e.amount);
+        if(
+            isBetween(
+                e.date,
+                from,
+                to
+            )
+        ){
+
+
+            expensesTotal +=
+            number(e.amount);
+
 
             expenseDetails.push(e);
 
@@ -266,13 +379,25 @@ function calculateReport(
     });
 
 
-    // STAFF
+// ========================================
+// STAFF PAYMENT
+// ========================================
 
     data.staff.forEach(s=>{
 
-        if(isBetween(s.date,from,to)){
 
-            staffTotal += number(s.total);
+        if(
+            isBetween(
+                s.date,
+                from,
+                to
+            )
+        ){
+
+
+            staffTotal +=
+            number(s.total);
+
 
             staffDetails.push(s);
 
@@ -281,13 +406,25 @@ function calculateReport(
     });
 
 
-    // WITHDRAWALS
+// ========================================
+// CASH WITHDRAWAL
+// ========================================
 
     data.withdrawals.forEach(w=>{
 
-        if(isBetween(w.date,from,to)){
 
-            withdrawalTotal += number(w.amount);
+        if(
+            isBetween(
+                w.date,
+                from,
+                to
+            )
+        ){
+
+
+            withdrawalTotal +=
+            number(w.amount);
+
 
             withdrawalDetails.push(w);
 
@@ -296,20 +433,33 @@ function calculateReport(
     });
 
 
+// ========================================
+// TOTAL SALES
+// ========================================
+
     const salesTotal =
     cash + card;
 
 
-    // Cash Withdrawal does not reduce Net Sales Amount
+// ========================================
+// NET SALES AMOUNT
+//
+// Total Sales - Expenses (Cost)
+//
+// Staff Payment NOT deducted
+// Cash Withdrawal NOT deducted
+// ========================================
 
     const netSalesAmount =
 
     salesTotal
     -
-    expensesTotal
-    -
-    staffTotal;
+    expensesTotal;
 
+
+// ========================================
+// RETURN
+// ========================================
 
     return {
 
@@ -336,13 +486,19 @@ function calculateReport(
         netSalesAmount,
 
         expenseDetails:
-        sortNewest(expenseDetails),
+        sortNewest(
+            expenseDetails
+        ),
 
         staffDetails:
-        sortNewest(staffDetails),
+        sortNewest(
+            staffDetails
+        ),
 
         withdrawalDetails:
-        sortNewest(withdrawalDetails)
+        sortNewest(
+            withdrawalDetails
+        )
 
     };
 
@@ -350,44 +506,130 @@ function calculateReport(
 
 
 // ========================================
-// SHOW REPORT
+// SHOW REPORT ON WEBSITE
 // ========================================
 
 function showReport(r){
 
 
-    document.getElementById("reportPeriod").innerHTML =
-
-    `<b>${escapeHTML(r.title)}</b><br>
-    ${escapeHTML(r.from)} → ${escapeHTML(r.to)}`;
-
-
-    document.getElementById("reportCash").innerHTML =
-    money(r.cash);
+    const periodBox =
+    document.getElementById(
+        "reportPeriod"
+    );
 
 
-    document.getElementById("reportCard").innerHTML =
-    money(r.card);
+    if(periodBox){
+
+        periodBox.innerHTML =
+
+        `<b>${escapeHTML(r.title)}</b><br>
+        <span dir="ltr">
+        ${escapeHTML(displayDate(r.from))}
+        →
+        ${escapeHTML(displayDate(r.to))}
+        </span>`;
+
+    }
 
 
-    document.getElementById("reportSales").innerHTML =
-    money(r.salesTotal);
+    const cashBox =
+    document.getElementById(
+        "reportCash"
+    );
 
 
-    document.getElementById("reportExpenses").innerHTML =
-    money(r.expensesTotal);
+    if(cashBox){
+
+        cashBox.innerHTML =
+        money(r.cash);
+
+    }
 
 
-    document.getElementById("reportStaff").innerHTML =
-    money(r.staffTotal);
+    const cardBox =
+    document.getElementById(
+        "reportCard"
+    );
 
 
-    document.getElementById("reportWithdrawals").innerHTML =
-    money(r.withdrawalTotal);
+    if(cardBox){
+
+        cardBox.innerHTML =
+        money(r.card);
+
+    }
 
 
-    document.getElementById("reportProfit").innerHTML =
-    money(r.netSalesAmount);
+    const salesBox =
+    document.getElementById(
+        "reportSales"
+    );
+
+
+    if(salesBox){
+
+        salesBox.innerHTML =
+        money(r.salesTotal);
+
+    }
+
+
+    const expenseBox =
+    document.getElementById(
+        "reportExpenses"
+    );
+
+
+    if(expenseBox){
+
+        expenseBox.innerHTML =
+        money(r.expensesTotal);
+
+    }
+
+
+    const staffBox =
+    document.getElementById(
+        "reportStaff"
+    );
+
+
+    if(staffBox){
+
+        staffBox.innerHTML =
+        money(r.staffTotal);
+
+    }
+
+
+    const withdrawalBox =
+    document.getElementById(
+        "reportWithdrawals"
+    );
+
+
+    if(withdrawalBox){
+
+        withdrawalBox.innerHTML =
+        money(r.withdrawalTotal);
+
+    }
+
+
+    const profitBox =
+    document.getElementById(
+        "reportProfit"
+    );
+
+
+    if(profitBox){
+
+        profitBox.innerHTML =
+        money(
+            r.netSalesAmount
+        );
+
+    }
 
 
     showExpenseDetails(
@@ -415,16 +657,24 @@ function showExpenseDetails(list){
 
 
     const box =
-    document.getElementById("expenseDetails");
+    document.getElementById(
+        "expenseDetails"
+    );
 
 
-    if(!box) return;
+    if(!box){
+
+        return;
+
+    }
 
 
     if(list.length === 0){
 
+
         box.innerHTML =
         "No expenses in this period.";
+
 
         return;
 
@@ -441,15 +691,21 @@ function showExpenseDetails(list){
 
         <div class="detail-card">
 
-        <b>
-        📅 ${escapeHTML(e.date || "-")}
+        <b dir="ltr">
+        📅 ${escapeHTML(
+            displayDate(
+                e.date
+            )
+        )}
         </b>
 
         <br><br>
 
         🏷 Category:
         <b>
-        ${escapeHTML(e.category || "-")}
+        ${escapeHTML(
+            e.category || "-"
+        )}
         </b>
 
         <br>
@@ -463,7 +719,9 @@ function showExpenseDetails(list){
 
         📝 Note:
         <b>
-        ${escapeHTML(e.note || "-")}
+        ${escapeHTML(
+            e.note || "-"
+        )}
         </b>
 
         </div>
@@ -483,16 +741,24 @@ function showStaffDetails(list){
 
 
     const box =
-    document.getElementById("staffDetails");
+    document.getElementById(
+        "staffDetails"
+    );
 
 
-    if(!box) return;
+    if(!box){
+
+        return;
+
+    }
 
 
     if(list.length === 0){
 
+
         box.innerHTML =
         "No staff payments in this period.";
+
 
         return;
 
@@ -509,15 +775,21 @@ function showStaffDetails(list){
 
         <div class="detail-card">
 
-        <b>
-        📅 ${escapeHTML(s.date || "-")}
+        <b dir="ltr">
+        📅 ${escapeHTML(
+            displayDate(
+                s.date
+            )
+        )}
         </b>
 
         <br><br>
 
         👤 Staff:
         <b>
-        ${escapeHTML(s.name || "-")}
+        ${escapeHTML(
+            s.name || "-"
+        )}
         </b>
 
         <br>
@@ -552,7 +824,9 @@ function showStaffDetails(list){
 
         Status:
         <b>
-        ${escapeHTML(s.status || "-")}
+        ${escapeHTML(
+            s.status || "-"
+        )}
         </b>
 
         </div>
@@ -565,23 +839,31 @@ function showStaffDetails(list){
 
 
 // ========================================
-// WITHDRAWAL DETAILS
+// CASH WITHDRAWAL DETAILS
 // ========================================
 
 function showWithdrawalDetails(list){
 
 
     const box =
-    document.getElementById("withdrawalDetails");
+    document.getElementById(
+        "withdrawalDetails"
+    );
 
 
-    if(!box) return;
+    if(!box){
+
+        return;
+
+    }
 
 
     if(list.length === 0){
 
+
         box.innerHTML =
         "No cash withdrawals in this period.";
+
 
         return;
 
@@ -598,15 +880,21 @@ function showWithdrawalDetails(list){
 
         <div class="detail-card">
 
-        <b>
-        📅 ${escapeHTML(w.date || "-")}
+        <b dir="ltr">
+        📅 ${escapeHTML(
+            displayDate(
+                w.date
+            )
+        )}
         </b>
 
         <br><br>
 
         👤 Person:
         <b>
-        ${escapeHTML(w.person || "-")}
+        ${escapeHTML(
+            w.person || "-"
+        )}
         </b>
 
         <br>
@@ -620,7 +908,9 @@ function showWithdrawalDetails(list){
 
         📝 Reason:
         <b>
-        ${escapeHTML(w.reason || "-")}
+        ${escapeHTML(
+            w.reason || "-"
+        )}
         </b>
 
         </div>
@@ -646,7 +936,11 @@ async function generate(
 
     if(!from || !to){
 
-        alert("Please select date");
+
+        alert(
+            "Please select date"
+        );
+
 
         return;
 
@@ -655,9 +949,11 @@ async function generate(
 
     if(from > to){
 
+
         alert(
             "From Date cannot be after To Date"
         );
+
 
         return;
 
@@ -673,11 +969,17 @@ async function generate(
 
         currentReport =
         calculateReport(
+
             data,
+
             from,
+
             to,
+
             title,
+
             reportType
+
         );
 
 
@@ -702,7 +1004,7 @@ async function generate(
 
 
 // ========================================
-// DAILY
+// DAILY REPORT
 // ========================================
 
 document
@@ -718,7 +1020,11 @@ document
 
     if(!date){
 
-        alert("Select a date");
+
+        alert(
+            "Select a date"
+        );
+
 
         return;
 
@@ -741,7 +1047,7 @@ document
 
 
 // ========================================
-// MONTHLY
+// MONTHLY REPORT
 // ========================================
 
 document
@@ -757,7 +1063,11 @@ document
 
     if(!value){
 
-        alert("Select a month");
+
+        alert(
+            "Select a month"
+        );
+
 
         return;
 
@@ -810,7 +1120,7 @@ document
 
 
 // ========================================
-// YEARLY
+// YEARLY REPORT
 // ========================================
 
 document
@@ -826,7 +1136,11 @@ document
 
     if(!year){
 
-        alert("Enter a year");
+
+        alert(
+            "Enter a year"
+        );
+
 
         return;
 
@@ -951,8 +1265,9 @@ function loadLogo(){
 
 
         img.src =
-        LOGO_PATH + "?v=" + Date.now();
-
+        LOGO_PATH +
+        "?v=" +
+        Date.now();
 
     });
 
@@ -960,7 +1275,7 @@ function loadLogo(){
 
 
 // ========================================
-// CREATE PDF
+// CREATE PROFESSIONAL PDF
 // ========================================
 
 async function createProfessionalPDF(){
@@ -968,9 +1283,11 @@ async function createProfessionalPDF(){
 
     if(!currentReport){
 
+
         alert(
             "Generate a report first"
         );
+
 
         return;
 
@@ -982,9 +1299,11 @@ async function createProfessionalPDF(){
         !window.jspdf.jsPDF
     ){
 
+
         alert(
             "PDF library not loaded"
         );
+
 
         return;
 
@@ -1013,16 +1332,20 @@ async function createProfessionalPDF(){
         await loadLogo();
 
 
-        const logoWidth = 21;
+        const logoWidth =
+        21;
 
 
         const ratio =
+
         logo.naturalHeight /
         logo.naturalWidth;
 
 
         const logoHeight =
-        logoWidth * ratio;
+
+        logoWidth *
+        ratio;
 
 
         pdf.addImage(
@@ -1031,7 +1354,7 @@ async function createProfessionalPDF(){
 
             "PNG",
 
-            (210 - logoWidth) / 2,
+            (210-logoWidth)/2,
 
             y,
 
@@ -1137,7 +1460,9 @@ async function createProfessionalPDF(){
     );
 
 
-    pdf.setLineWidth(0.5);
+    pdf.setLineWidth(
+        0.5
+    );
 
 
     pdf.line(
@@ -1171,7 +1496,9 @@ async function createProfessionalPDF(){
 
     pdf.text(
 
-        currentReport.title.toUpperCase(),
+        currentReport
+        .title
+        .toUpperCase(),
 
         10,
 
@@ -1196,7 +1523,7 @@ async function createProfessionalPDF(){
 
     pdf.text(
 
-        `${currentReport.from} - ${currentReport.to}`,
+        `${displayDate(currentReport.from)} - ${displayDate(currentReport.to)}`,
 
         200,
 
@@ -1213,7 +1540,7 @@ async function createProfessionalPDF(){
 
 
 // ========================================
-// SUMMARY TITLE
+// SUMMARY
 // ========================================
 
     pdf.setFont(
@@ -1241,14 +1568,15 @@ async function createProfessionalPDF(){
 
 
 // ========================================
-// SMALL SUMMARY CARDS
+// SUMMARY CARDS
 // ========================================
 
-    const cardWidth = 61;
+    const cardWidth =
+    61;
 
-    const cardHeight = 18;
 
-    const gap = 3;
+    const cardHeight =
+    18;
 
 
     function smallCard(
@@ -1345,41 +1673,26 @@ async function createProfessionalPDF(){
 // ROW 1
 
     smallCard(
-
         "Cash Sales",
-
         currentReport.cash,
-
         10,
-
         y
-
     );
 
 
     smallCard(
-
         "Card Sales",
-
         currentReport.card,
-
         74,
-
         y
-
     );
 
 
     smallCard(
-
         "Total Sales",
-
         currentReport.salesTotal,
-
         138,
-
         y
-
     );
 
 
@@ -1390,41 +1703,26 @@ async function createProfessionalPDF(){
 // ROW 2
 
     smallCard(
-
         "Expenses (Cost)",
-
         currentReport.expensesTotal,
-
         10,
-
         y
-
     );
 
 
     smallCard(
-
         "Staff Payment",
-
         currentReport.staffTotal,
-
         74,
-
         y
-
     );
 
 
     smallCard(
-
         "Cash Withdrawal",
-
         currentReport.withdrawalTotal,
-
         138,
-
         y
-
     );
 
 
@@ -1493,7 +1791,8 @@ async function createProfessionalPDF(){
     pdf.text(
 
         money(
-            currentReport.netSalesAmount
+            currentReport
+            .netSalesAmount
         ),
 
         194,
@@ -1546,7 +1845,9 @@ async function createProfessionalPDF(){
         );
 
 
-        pdf.setLineWidth(0.35);
+        pdf.setLineWidth(
+            0.35
+        );
 
 
         pdf.line(
@@ -1617,7 +1918,6 @@ async function createProfessionalPDF(){
             x +=
             widths[index];
 
-
         });
 
 
@@ -1641,7 +1941,6 @@ async function createProfessionalPDF(){
         );
 
 
-        // FINAL FONT SIZE
         pdf.setFontSize(7);
 
 
@@ -1669,14 +1968,23 @@ async function createProfessionalPDF(){
 
 
             while(
-                pdf.getTextWidth(text) >
+
+                pdf.getTextWidth(text)
+                >
                 maxWidth
+
                 &&
+
                 text.length > 4
+
             ){
 
+
                 text =
-                text.slice(0,-1);
+                text.slice(
+                    0,
+                    -1
+                );
 
             }
 
@@ -1692,7 +2000,8 @@ async function createProfessionalPDF(){
             );
 
 
-            x += width;
+            x +=
+            width;
 
         });
 
@@ -1722,11 +2031,12 @@ async function createProfessionalPDF(){
 
 // ========================================
 // EXPENSE DETAILS
-// DAILY ONLY
+// ONLY DAILY
 // ========================================
 
     if(
-        currentReport.reportType ===
+        currentReport
+        .reportType ===
         "daily"
     ){
 
@@ -1795,13 +2105,17 @@ async function createProfessionalPDF(){
                 tableRow(
 
                     [
-                        e.date || "-",
+                        displayDate(
+                            e.date
+                        ),
 
                         e.category || "-",
 
                         e.note || "-",
 
-                        money(e.amount)
+                        money(
+                            e.amount
+                        )
                     ],
 
                     expenseWidths
@@ -1890,15 +2204,21 @@ async function createProfessionalPDF(){
             tableRow(
 
                 [
-                    s.date || "-",
+                    displayDate(
+                        s.date
+                    ),
 
                     s.name || "-",
 
                     s.status || "-",
 
-                    money(s.salary),
+                    money(
+                        s.salary
+                    ),
 
-                    money(s.total)
+                    money(
+                        s.total
+                    )
                 ],
 
                 staffWidths
@@ -1981,13 +2301,17 @@ async function createProfessionalPDF(){
             tableRow(
 
                 [
-                    w.date || "-",
+                    displayDate(
+                        w.date
+                    ),
 
                     w.person || "-",
 
                     w.reason || "-",
 
-                    money(w.amount)
+                    money(
+                        w.amount
+                    )
                 ],
 
                 withdrawalWidths
@@ -2008,7 +2332,9 @@ async function createProfessionalPDF(){
     );
 
 
-    pdf.setLineWidth(0.3);
+    pdf.setLineWidth(
+        0.3
+    );
 
 
     pdf.line(
@@ -2060,7 +2386,7 @@ async function createProfessionalPDF(){
 
 
 // ========================================
-// SAVE
+// SAVE PDF
 // ========================================
 
     const filename =
