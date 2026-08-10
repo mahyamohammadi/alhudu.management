@@ -11,7 +11,7 @@
 
 .dashboard-top{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:1fr;
 gap:16px;
 margin-top:20px;
 }
@@ -49,7 +49,7 @@ border:1px solid #ddd4c7;
 border-radius:10px;
 background:white;
 font-size:14px;
-min-width:180px;
+min-width:170px;
 }
 
 .dashboard-grid{
@@ -281,7 +281,7 @@ cursor:pointer;
 }
 
 
-/* LOWER */
+/* LOWER ANALYTICS */
 
 .lower-grid{
 display:grid;
@@ -344,10 +344,6 @@ opacity:.9;
 
 @media(max-width:800px){
 
-.dashboard-top{
-grid-template-columns:1fr;
-}
-
 .month-header{
 align-items:flex-start;
 flex-direction:column;
@@ -379,6 +375,7 @@ height:260px;
 
 </head>
 
+
 <body>
 
 
@@ -400,6 +397,7 @@ height:260px;
 
 <div class="main">
 
+
 <div class="brand-header">
 
 AL HUDU
@@ -414,12 +412,9 @@ Accounting & Management System
 <h1>Dashboard</h1>
 
 
-<!-- ========================= -->
-<!-- TOP -->
-<!-- ========================= -->
+<!-- CURRENT CASH -->
 
 <div class="dashboard-top">
-
 
 <div class="hero-card">
 
@@ -433,26 +428,10 @@ NET SALES AMOUNT
 
 </div>
 
-
-<div class="hero-card">
-
-<div class="hero-label">
-CURRENT CASH BALANCE
-</div>
-
-<div class="hero-value" id="cashBalance">
-0 AED
-</div>
-
 </div>
 
 
-</div>
-
-
-<!-- ========================= -->
-<!-- SELECTED MONTH -->
-<!-- ========================= -->
+<!-- CURRENT MONTH -->
 
 <div class="section">
 
@@ -576,15 +555,12 @@ class="month-select">
 
 </div>
 
-
 </div>
 
 </div>
 
 
-<!-- ========================= -->
-<!-- MONTH ANALYSIS -->
-<!-- ========================= -->
+<!-- SALES ANALYSIS -->
 
 <div class="section">
 
@@ -598,21 +574,27 @@ Monthly Sales Analysis
 </div>
 
 <div class="chart-wrap">
+
 <canvas id="salesChart"></canvas>
-</div>
 
 </div>
 
+</div>
+
+
+<!-- MONTHLY OVERVIEW -->
 
 <div class="insight-card">
 
-<h2>Monthly Overview</h2>
+<h2>
+Monthly Overview
+</h2>
 
 
 <div class="insight-item">
 
 <div class="insight-label">
-SELECTED MONTH SALES
+THIS MONTH SALES
 </div>
 
 <div class="insight-value" id="thisMonthSales">
@@ -625,7 +607,7 @@ SELECTED MONTH SALES
 <div class="insight-item">
 
 <div class="insight-label">
-PREVIOUS MONTH SALES
+LAST MONTH SALES
 </div>
 
 <div class="insight-value" id="lastMonthSales">
@@ -694,9 +676,7 @@ BEST DAY SALES
 </div>
 
 
-<!-- ========================= -->
 <!-- YEAR + TARGET -->
-<!-- ========================= -->
 
 <div class="section">
 
@@ -710,11 +690,15 @@ Year Overview
 </h2>
 
 <div class="chart-wrap">
+
 <canvas id="yearChart"></canvas>
-</div>
 
 </div>
 
+</div>
+
+
+<!-- TARGET -->
 
 <div class="target-card">
 
@@ -727,7 +711,9 @@ Year Overview
 <button
 class="edit-target"
 id="editTarget">
+
 ✏️ Edit Target
+
 </button>
 
 </div>
@@ -772,9 +758,7 @@ Current Sales: 0 AED
 </div>
 
 
-<!-- ========================= -->
-<!-- RATIO + RECORDS -->
-<!-- ========================= -->
+<!-- SALES RATIO + RECORDS -->
 
 <div class="section">
 
@@ -783,10 +767,14 @@ Current Sales: 0 AED
 
 <div class="ratio-card">
 
-<h2>Sales Ratio</h2>
+<h2>
+Sales Ratio
+</h2>
 
 <div class="ratio-wrap">
+
 <canvas id="salesRatioChart"></canvas>
+
 </div>
 
 </div>
@@ -794,7 +782,9 @@ Current Sales: 0 AED
 
 <div class="records-card">
 
-<h2>🏆 Records</h2>
+<h2>
+🏆 Records
+</h2>
 
 
 <div class="record-item">
@@ -806,7 +796,9 @@ Highest Monthly Sales
 <div
 class="record-value"
 id="highestMonthlySales">
+
 --
+
 </div>
 
 </div>
@@ -821,26 +813,29 @@ Highest Daily Sales
 <div
 class="record-value"
 id="highestDailySales">
+
 --
-</div>
-
-</div>
-
-
-</div>
 
 </div>
 
 </div>
 
 
-<!-- ========================= -->
+</div>
+
+</div>
+
+</div>
+
+
 <!-- QUICK ACTIONS -->
-<!-- ========================= -->
 
 <div class="section">
 
-<h2>Quick Actions</h2>
+<h2>
+Quick Actions
+</h2>
+
 
 <div class="quick-grid">
 
@@ -848,28 +843,36 @@ id="highestDailySales">
 <button
 class="quick-button"
 onclick="location.href='sales.html'">
+
 💰 New Sale
+
 </button>
 
 
 <button
 class="quick-button"
 onclick="location.href='expenses.html'">
+
 💸 New Expense
+
 </button>
 
 
 <button
 class="quick-button"
 onclick="location.href='withdrawals.html'">
+
 🏦 Cash Withdrawal
+
 </button>
 
 
 <button
 class="quick-button"
 onclick="location.href='reports.html'">
+
 📊 Reports
+
 </button>
 
 
@@ -881,9 +884,7 @@ onclick="location.href='reports.html'">
 </div>
 
 
-<!-- ========================= -->
-<!-- TARGET MODAL -->
-<!-- ========================= -->
+<!-- EDIT TARGET WINDOW -->
 
 <div
 class="target-modal"
@@ -891,12 +892,16 @@ id="targetModal">
 
 <div class="target-modal-box">
 
-<h2>🎯 Monthly Sales Target</h2>
+<h2>
+🎯 Monthly Sales Target
+</h2>
 
 <div
 class="target-month-name"
 id="targetMonthName">
+
 --
+
 </div>
 
 
@@ -911,26 +916,36 @@ step="1">
 
 <div class="modal-actions">
 
+
 <button
 class="cancel-target"
 id="cancelTarget">
+
 Cancel
+
 </button>
+
 
 <button
 class="save-target"
 id="saveTarget">
+
 Save Target
+
 </button>
 
-</div>
 
 </div>
 
 </div>
 
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script
+src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+
 
 <script
 type="module"
@@ -939,4 +954,5 @@ src="dashboard.js">
 
 
 </body>
+
 </html>
