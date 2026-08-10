@@ -9,7 +9,6 @@
 
 </head>
 
-
 <body>
 
 
@@ -18,23 +17,15 @@
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
-
 <a href="sales.html">💰 Sales</a>
-
 <a href="expenses.html">💸 Expenses</a>
-
 <a href="staff.html">👨‍💼 Staff Payment</a>
-
 <a href="cashflow.html">💵 Cash Flow</a>
-
 <a href="reports.html">📊 Reports</a>
-
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
-
 <a href="settings.html">⚙️ Settings</a>
 
 </div>
-
 
 
 <div class="main">
@@ -86,7 +77,7 @@ Cash Sales
 <div class="dash-card">
 
 <div class="dash-title">
-Expenses
+Expenses (Cost)
 </div>
 
 <div class="dash-value" id="totalExpenses">
@@ -138,10 +129,28 @@ Current Cash Balance
 </div>
 
 
+<div class="card" style="margin-top:20px;">
+
+<h2>Cash Flow Report</h2>
+
+<p>
+Export the current cash flow summary as PDF.
+</p>
+
+<button id="exportCashFlowPDF">
+Export PDF
+</button>
+
 </div>
 
 
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script type="module" src="cashflow.js"></script>
+
 
 </body>
 
