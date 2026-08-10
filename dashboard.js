@@ -2,12 +2,12 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-    getFirestore,
-    collection,
-    getDocs,
-    doc,
-    getDoc,
-    setDoc
+getFirestore,
+collection,
+getDocs,
+doc,
+getDoc,
+setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -18,7 +18,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 if(localStorage.getItem("alhuduLogin") !== "true"){
 
-    window.location.href = "login.html";
+window.location.href = "login.html";
 
 }
 
@@ -29,17 +29,17 @@ if(localStorage.getItem("alhuduLogin") !== "true"){
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
 
-    authDomain: "al-hudu-management.firebaseapp.com",
+authDomain: "al-hudu-management.firebaseapp.com",
 
-    projectId: "al-hudu-management",
+projectId: "al-hudu-management",
 
-    storageBucket: "al-hudu-management.firebasestorage.app",
+storageBucket: "al-hudu-management.firebasestorage.app",
 
-    messagingSenderId: "1045649803744",
+messagingSenderId: "1045649803744",
 
-    appId: "1:1045649803744:web:bc6ead0755d196c020c385"
+appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 
 };
 
@@ -57,15 +57,23 @@ getFirestore(app);
 // ========================================
 
 let allSales = [];
+
 let allExpenses = [];
+
 let allStaff = [];
+
 let allWithdrawals = [];
 
-let salesChart = null;
-let yearChart = null;
-let ratioChart = null;
+let openingCash = 0;
 
 let selectedMonth = "";
+
+
+let salesChart = null;
+
+let yearChart = null;
+
+let ratioChart = null;
 
 
 // ========================================
@@ -74,606 +82,839 @@ let selectedMonth = "";
 
 function number(value){
 
-    return Number(value || 0);
+return Number(value || 0);
 
 }
 
 
 function money(value){
 
-    return number(value)
-    .toLocaleString(undefined,{
-        maximumFractionDigits:0
-    })
-    + " AED";
-
+return number(value)
+.toLocaleString(
+undefined,
+{
+maximumFractionDigits:0
 }
-
-
-function monthName(monthKey){
-
-    if(!monthKey){
-
-        return "--";
-
-    }
-
-
-    const parts =
-    monthKey.split("-");
-
-
-    const year =
-    Number(parts[0]);
-
-
-    const month =
-    Number(parts[1]);
-
-
-    const date =
-    new Date(
-        year,
-        month - 1,
-        1
-    );
-
-
-    return date.toLocaleDateString(
-        "en-US",
-        {
-            month:"long",
-            year:"numeric"
-        }
-    );
-
-}
-
-
-function displayDate(value){
-
-    if(!value){
-
-        return "--";
-
-    }
-
-
-    const parts =
-    value.split("-");
-
-
-    if(parts.length !== 3){
-
-        return value;
-
-    }
-
-
-    return (
-        parts[2]
-        + "-"
-        + parts[1]
-        + "-"
-        + parts[0]
-    );
+)
++
+" AED";
 
 }
 
 
 function currentMonthKey(){
 
-    const now =
-    new Date();
+const now =
+new Date();
 
 
-    const year =
-    now.getFullYear();
+return (
 
+now.getFullYear()
 
-    const month =
-    String(
-        now.getMonth() + 1
-    ).padStart(2,"0");
++
 
+"-"
 
-    return `${year}-${month}`;
++
+
+String(
+now.getMonth() + 1
+)
+.padStart(
+2,
+"0"
+)
+
+);
 
 }
 
 
 function previousMonthKey(value){
 
-    const parts =
-    value.split("-");
+const parts =
+value.split("-");
 
 
-    const year =
-    Number(parts[0]);
+const year =
+Number(parts[0]);
 
 
-    const month =
-    Number(parts[1]);
+const month =
+Number(parts[1]);
 
 
-    const date =
-    new Date(
-        year,
-        month - 2,
-        1
-    );
+const date =
+new Date(
+year,
+month - 2,
+1
+);
 
 
-    return (
-        date.getFullYear()
-        +
-        "-"
-        +
-        String(
-            date.getMonth() + 1
-        ).padStart(2,"0")
-    );
+return (
+
+date.getFullYear()
+
++
+
+"-"
+
++
+
+String(
+date.getMonth() + 1
+)
+.padStart(
+2,
+"0"
+)
+
+);
 
 }
 
 
-function daysInMonth(value){
+function monthName(value){
 
-    const parts =
-    value.split("-");
+if(!value){
 
+return "--";
 
-    const year =
-    Number(parts[0]);
-
-
-    const month =
-    Number(parts[1]);
+}
 
 
-    return new Date(
-        year,
-        month,
-        0
-    ).getDate();
+const parts =
+value.split("-");
+
+
+const date =
+new Date(
+Number(parts[0]),
+Number(parts[1]) - 1,
+1
+);
+
+
+return date.toLocaleDateString(
+"en-US",
+{
+month:"long",
+year:"numeric"
+}
+);
+
+}
+
+
+function displayDate(value){
+
+if(!value){
+
+return "--";
+
+}
+
+
+const parts =
+value.split("-");
+
+
+if(parts.length !== 3){
+
+return value;
+
+}
+
+
+return (
+
+parts[2]
+
++
+
+"-"
+
++
+
+parts[1]
+
++
+
+"-"
+
++
+
+parts[0]
+
+);
 
 }
 
 
 // ========================================
-// LOAD FIREBASE DATA
+// DAYS IN MONTH
+// ========================================
+
+function daysInMonth(value){
+
+const parts =
+value.split("-");
+
+
+const year =
+Number(parts[0]);
+
+
+const month =
+Number(parts[1]);
+
+
+return new Date(
+year,
+month,
+0
+)
+.getDate();
+
+}
+
+
+// ========================================
+// LOAD ALL DATA
 // ========================================
 
 async function loadData(){
 
 
-    const [
+const [
 
-        salesSnap,
-        expensesSnap,
-        staffSnap,
-        withdrawalsSnap
+openingSnap,
 
-    ] = await Promise.all([
+salesSnap,
 
-        getDocs(
-            collection(db,"sales")
-        ),
+expensesSnap,
 
-        getDocs(
-            collection(db,"expenses")
-        ),
+staffSnap,
 
-        getDocs(
-            collection(db,"staff")
-        ),
+withdrawalsSnap
 
-        getDocs(
-            collection(db,"withdrawals")
-        )
-
-    ]);
+] = await Promise.all([
 
 
-    allSales = [];
-
-    allExpenses = [];
-
-    allStaff = [];
-
-    allWithdrawals = [];
-
-
-    salesSnap.forEach(item=>{
-
-        allSales.push({
-
-            id:item.id,
-
-            ...item.data()
-
-        });
-
-    });
+getDoc(
+doc(
+db,
+"settings",
+"openingBalance"
+)
+),
 
 
-    expensesSnap.forEach(item=>{
-
-        allExpenses.push({
-
-            id:item.id,
-
-            ...item.data()
-
-        });
-
-    });
+getDocs(
+collection(
+db,
+"sales"
+)
+),
 
 
-    staffSnap.forEach(item=>{
-
-        allStaff.push({
-
-            id:item.id,
-
-            ...item.data()
-
-        });
-
-    });
+getDocs(
+collection(
+db,
+"expenses"
+)
+),
 
 
-    withdrawalsSnap.forEach(item=>{
+getDocs(
+collection(
+db,
+"staff"
+)
+),
 
-        allWithdrawals.push({
 
-            id:item.id,
+getDocs(
+collection(
+db,
+"withdrawals"
+)
+)
 
-            ...item.data()
 
-        });
+]);
 
-    });
+
+// OPENING CASH
+
+if(openingSnap.exists()){
+
+openingCash =
+number(
+openingSnap
+.data()
+.amount
+);
+
+}
+
+
+// SALES
+
+allSales = [];
+
+
+salesSnap.forEach(item=>{
+
+allSales.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+});
+
+
+// EXPENSES
+
+allExpenses = [];
+
+
+expensesSnap.forEach(item=>{
+
+allExpenses.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+});
+
+
+// STAFF
+
+allStaff = [];
+
+
+staffSnap.forEach(item=>{
+
+allStaff.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+});
+
+
+// WITHDRAWALS
+
+allWithdrawals = [];
+
+
+withdrawalsSnap.forEach(item=>{
+
+allWithdrawals.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+});
 
 }
 
 
 // ========================================
-// MONTH SELECT
+// CURRENT CASH BALANCE
+//
+// Opening Cash
+// + ALL Cash Sales
+// - ALL Expenses
+// - ALL Staff Payments
+// - ALL Cash Withdrawals
+//
+// Card Sales are NOT added.
+// ========================================
+
+function calculateCurrentCashBalance(){
+
+
+let cashSales = 0;
+
+let expenses = 0;
+
+let staff = 0;
+
+let withdrawals = 0;
+
+
+// ALL CASH SALES
+
+allSales.forEach(s=>{
+
+cashSales +=
+number(
+s.cash
+);
+
+});
+
+
+// ALL EXPENSES
+
+allExpenses.forEach(e=>{
+
+expenses +=
+number(
+e.amount
+);
+
+});
+
+
+// ALL STAFF PAYMENTS
+
+allStaff.forEach(s=>{
+
+staff +=
+number(
+s.total
+);
+
+});
+
+
+// ALL WITHDRAWALS
+
+allWithdrawals.forEach(w=>{
+
+withdrawals +=
+number(
+w.amount
+);
+
+});
+
+
+return (
+
+openingCash
+
++
+
+cashSales
+
+-
+
+expenses
+
+-
+
+staff
+
+-
+
+withdrawals
+
+);
+
+}
+
+
+// ========================================
+// MONTH SELECTOR
 // ========================================
 
 function createMonthSelector(){
 
 
-    const select =
-    document.getElementById(
-        "dashboardMonth"
-    );
+const select =
+document.getElementById(
+"dashboardMonth"
+);
 
 
-    if(!select){
+if(!select){
 
-        return;
+return;
 
-    }
-
-
-    select.innerHTML = "";
+}
 
 
-    const now =
-    new Date();
+select.innerHTML = "";
 
 
-    /*
-    Last 36 months
-    */
-
-    for(let i = 0; i < 36; i++){
+const now =
+new Date();
 
 
-        const date =
-        new Date(
-            now.getFullYear(),
-            now.getMonth() - i,
-            1
-        );
+for(
+let i = 0;
+i < 36;
+i++
+){
 
 
-        const key =
-
-        date.getFullYear()
-        +
-        "-"
-        +
-        String(
-            date.getMonth() + 1
-        ).padStart(2,"0");
+const date =
+new Date(
+now.getFullYear(),
+now.getMonth() - i,
+1
+);
 
 
-        const option =
-        document.createElement(
-            "option"
-        );
+const key =
+
+date.getFullYear()
+
++
+
+"-"
+
++
+
+String(
+date.getMonth() + 1
+)
+.padStart(
+2,
+"0"
+);
 
 
-        option.value =
-        key;
+const option =
+document.createElement(
+"option"
+);
 
 
-        option.textContent =
-        monthName(key);
+option.value =
+key;
 
 
-        select.appendChild(
-            option
-        );
-
-    }
+option.textContent =
+monthName(key);
 
 
-    selectedMonth =
-    currentMonthKey();
+select.appendChild(
+option
+);
+
+}
 
 
-    select.value =
-    selectedMonth;
+selectedMonth =
+currentMonthKey();
 
 
-    select.onchange =
-    async function(){
+select.value =
+selectedMonth;
 
 
-        selectedMonth =
-        this.value;
+select.onchange =
+async function(){
 
 
-        await renderDashboard(
-            selectedMonth
-        );
+selectedMonth =
+this.value;
 
-    };
+
+await renderDashboard(
+selectedMonth
+);
+
+};
 
 }
 
 
 // ========================================
-// CALCULATE MONTH
+// CALCULATE SELECTED MONTH
 // ========================================
 
 function calculateMonth(month){
 
 
-    const previousMonth =
-    previousMonthKey(month);
+const previousMonth =
+previousMonthKey(month);
 
 
-    let totalSales = 0;
+let totalSales = 0;
 
-    let totalCash = 0;
+let totalCash = 0;
 
-    let totalCard = 0;
+let totalCard = 0;
 
-    let totalCost = 0;
+let totalCost = 0;
 
-    let totalStaff = 0;
+let totalStaff = 0;
 
-    let totalWithdraw = 0;
+let totalWithdraw = 0;
 
-    let transactions = 0;
+let transactions = 0;
 
-    let lastMonthSales = 0;
+let previousSales = 0;
 
 
-    const salesByDay = {};
+const salesByDay = {};
 
 
-    allSales.forEach(s=>{
+// SALES
 
+allSales.forEach(s=>{
 
-        if(!s.date){
 
-            return;
+if(!s.date){
 
-        }
+return;
 
+}
 
-        const cash =
-        number(s.cash);
 
+const cash =
+number(s.cash);
 
-        const card =
-        number(s.card);
 
+const card =
+number(s.card);
 
-        const total =
-        cash + card;
 
+const saleTotal =
+cash + card;
 
-        if(
-            s.date.startsWith(
-                month
-            )
-        ){
 
+if(
+s.date.startsWith(
+month
+)
+){
 
-            totalCash +=
-            cash;
 
+totalCash +=
+cash;
 
-            totalCard +=
-            card;
 
+totalCard +=
+card;
 
-            totalSales +=
-            total;
 
+totalSales +=
+saleTotal;
 
-            transactions++;
 
+transactions++;
 
-            if(!salesByDay[s.date]){
 
-                salesByDay[s.date] = 0;
+if(
+!salesByDay[
+s.date
+]
+){
 
-            }
+salesByDay[
+s.date
+] = 0;
 
+}
 
-            salesByDay[s.date] +=
-            total;
 
-        }
+salesByDay[
+s.date
+] +=
+saleTotal;
 
+}
 
-        if(
-            s.date.startsWith(
-                previousMonth
-            )
-        ){
 
-            lastMonthSales +=
-            total;
+if(
+s.date.startsWith(
+previousMonth
+)
+){
 
-        }
+previousSales +=
+saleTotal;
 
-    });
+}
 
+});
 
-    allExpenses.forEach(e=>{
 
+// EXPENSES
 
-        if(
-            e.date &&
-            e.date.startsWith(month)
-        ){
+allExpenses.forEach(e=>{
 
-            totalCost +=
-            number(e.amount);
 
-        }
+if(
+e.date
+&&
+e.date.startsWith(
+month
+)
+){
 
-    });
+totalCost +=
+number(
+e.amount
+);
 
+}
 
-    allStaff.forEach(s=>{
+});
 
 
-        if(
-            s.date &&
-            s.date.startsWith(month)
-        ){
+// STAFF
 
-            totalStaff +=
-            number(s.total);
+allStaff.forEach(s=>{
 
-        }
 
-    });
+if(
+s.date
+&&
+s.date.startsWith(
+month
+)
+){
 
+totalStaff +=
+number(
+s.total
+);
 
-    allWithdrawals.forEach(w=>{
+}
 
+});
 
-        if(
-            w.date &&
-            w.date.startsWith(month)
-        ){
 
-            totalWithdraw +=
-            number(w.amount);
+// WITHDRAWALS
 
-        }
+allWithdrawals.forEach(w=>{
 
-    });
 
+if(
+w.date
+&&
+w.date.startsWith(
+month
+)
+){
 
-    // IMPORTANT:
-    // Staff Payment is NOT deducted.
-    // Cash Withdrawal is NOT deducted.
+totalWithdraw +=
+number(
+w.amount
+);
 
-    const netSalesAmount =
+}
 
-    totalSales
-    -
-    totalCost;
+});
 
 
-    return {
+// ========================================
+// NET SALES AMOUNT
+//
+// Staff Payment is NOT deducted.
+// Cash Withdrawal is NOT deducted.
+//
+// Total Sales - Expenses
+// ========================================
 
-        totalSales,
+const netSalesAmount =
 
-        totalCash,
+totalSales
 
-        totalCard,
+-
 
-        totalCost,
+totalCost;
 
-        totalStaff,
 
-        totalWithdraw,
+return {
 
-        transactions,
+totalSales,
 
-        lastMonthSales,
+totalCash,
 
-        netSalesAmount,
+totalCard,
 
-        salesByDay
+totalCost,
 
-    };
+totalStaff,
+
+totalWithdraw,
+
+transactions,
+
+previousSales,
+
+netSalesAmount,
+
+salesByDay
+
+};
 
 }
 
 
 // ========================================
-// TARGET FIREBASE
-//
-// Document example:
-// monthlyTargets / 2026-08
+// TARGET
 // ========================================
 
 async function getTarget(month){
 
 
-    try{
+try{
 
 
-        const snap =
-        await getDoc(
+const snap =
+await getDoc(
 
-            doc(
-                db,
-                "monthlyTargets",
-                month
-            )
+doc(
+db,
+"monthlyTargets",
+month
+)
 
-        );
-
-
-        if(snap.exists()){
-
-            return number(
-                snap.data().amount
-            );
-
-        }
+);
 
 
-        return 0;
+if(
+snap.exists()
+){
+
+return number(
+snap
+.data()
+.amount
+);
+
+}
 
 
-    }catch(error){
+return 0;
 
 
-        console.error(
-            "Target Load Error:",
-            error
-        );
+}catch(error){
 
 
-        return 0;
+console.error(
+"Target Load Error:",
+error
+);
 
-    }
+
+return 0;
+
+}
 
 }
 
@@ -682,504 +923,537 @@ async function getTarget(month){
 // SAVE TARGET
 // ========================================
 
-async function saveTarget(month,amount){
-
-
-    await setDoc(
-
-        doc(
-            db,
-            "monthlyTargets",
-            month
-        ),
-
-        {
-
-            month:month,
-
-            amount:number(amount),
-
-            updatedAt:
-            new Date().toISOString()
-
-        },
-
-        {
-            merge:true
-        }
-
-    );
-
-}
-
-
-// ========================================
-// TARGET UI
-// ========================================
-
-async function renderTarget(
-    month,
-    sales
+async function saveTarget(
+month,
+amount
 ){
 
 
-    const target =
-    await getTarget(month);
+await setDoc(
 
+doc(
+db,
+"monthlyTargets",
+month
+),
 
-    const amountBox =
-    document.getElementById(
-        "targetAmount"
-    );
+{
 
+month:month,
 
-    const currentBox =
-    document.getElementById(
-        "targetCurrentSales"
-    );
+amount:
+number(amount),
 
+updatedAt:
+new Date()
+.toISOString()
 
-    const percentBox =
-    document.getElementById(
-        "targetPercent"
-    );
+},
 
+{
+merge:true
+}
 
-    const progressBar =
-    document.getElementById(
-        "targetProgressBar"
-    );
-
-
-    if(amountBox){
-
-        amountBox.textContent =
-        money(target);
-
-    }
-
-
-    if(currentBox){
-
-        currentBox.textContent =
-        "Current Sales: "
-        +
-        money(sales);
-
-    }
-
-
-    let percent = 0;
-
-
-    if(target > 0){
-
-        percent =
-        (
-            sales
-            /
-            target
-        )
-        *
-        100;
-
-    }
-
-
-    if(percentBox){
-
-        percentBox.textContent =
-        percent.toFixed(1)
-        +
-        "%";
-
-    }
-
-
-    if(progressBar){
-
-
-        /*
-        Don't allow the visual bar
-        to go outside the card.
-        */
-
-        const visualPercent =
-        Math.min(
-            percent,
-            100
-        );
-
-
-        progressBar.style.width =
-        visualPercent
-        +
-        "%";
-
-    }
+);
 
 }
 
 
 // ========================================
-// EDIT TARGET MODAL
+// TARGET DISPLAY
+// ========================================
+
+async function renderTarget(
+month,
+sales
+){
+
+
+const target =
+await getTarget(
+month
+);
+
+
+const amountBox =
+document.getElementById(
+"targetAmount"
+);
+
+
+const currentBox =
+document.getElementById(
+"targetCurrentSales"
+);
+
+
+const percentBox =
+document.getElementById(
+"targetPercent"
+);
+
+
+const bar =
+document.getElementById(
+"targetProgressBar"
+);
+
+
+if(amountBox){
+
+amountBox.textContent =
+money(target);
+
+}
+
+
+if(currentBox){
+
+currentBox.textContent =
+
+"Current Sales: "
+
++
+
+money(sales);
+
+}
+
+
+let percent = 0;
+
+
+if(target > 0){
+
+percent =
+(
+sales
+/
+target
+)
+*
+100;
+
+}
+
+
+if(percentBox){
+
+percentBox.textContent =
+
+percent.toFixed(1)
+
++
+
+"%";
+
+}
+
+
+if(bar){
+
+bar.style.width =
+
+Math.min(
+percent,
+100
+)
+
++
+
+"%";
+
+}
+
+}
+
+
+// ========================================
+// TARGET MODAL
 // ========================================
 
 function setupTargetModal(){
 
 
-    const modal =
-    document.getElementById(
-        "targetModal"
-    );
+const modal =
+document.getElementById(
+"targetModal"
+);
 
 
-    const editButton =
-    document.getElementById(
-        "editTarget"
-    );
+const editButton =
+document.getElementById(
+"editTarget"
+);
 
 
-    const cancelButton =
-    document.getElementById(
-        "cancelTarget"
-    );
+const cancelButton =
+document.getElementById(
+"cancelTarget"
+);
 
 
-    const saveButton =
-    document.getElementById(
-        "saveTarget"
-    );
+const saveButton =
+document.getElementById(
+"saveTarget"
+);
 
 
-    const input =
-    document.getElementById(
-        "targetInput"
-    );
+const input =
+document.getElementById(
+"targetInput"
+);
 
 
-    const monthBox =
-    document.getElementById(
-        "targetMonthName"
-    );
+const monthBox =
+document.getElementById(
+"targetMonthName"
+);
 
 
-    if(
-        !modal ||
-        !editButton ||
-        !saveButton
-    ){
+if(
+!modal
+||
+!editButton
+||
+!saveButton
+){
 
-        return;
+return;
 
-    }
+}
 
 
 // OPEN
 
-    editButton.onclick =
-    async()=>{
+editButton.onclick =
+async()=>{
 
 
-        const target =
-        await getTarget(
-            selectedMonth
-        );
+const target =
+await getTarget(
+selectedMonth
+);
 
 
-        monthBox.textContent =
-        monthName(
-            selectedMonth
-        );
+monthBox.textContent =
+monthName(
+selectedMonth
+);
 
 
-        input.value =
-        target || "";
+input.value =
+target || "";
 
 
-        modal.classList.add(
-            "show"
-        );
+modal.classList.add(
+"show"
+);
 
 
-        setTimeout(()=>{
+setTimeout(()=>{
 
-            input.focus();
+input.focus();
 
-        },100);
+},100);
 
-    };
+};
 
 
 // CANCEL
 
-    if(cancelButton){
+if(cancelButton){
 
-        cancelButton.onclick =
-        ()=>{
+cancelButton.onclick =
+()=>{
 
-            modal.classList.remove(
-                "show"
-            );
+modal.classList.remove(
+"show"
+);
 
-        };
+};
 
-    }
+}
 
 
 // CLICK OUTSIDE
 
-    modal.onclick =
-    event=>{
+modal.onclick =
+event=>{
 
 
-        if(event.target === modal){
+if(
+event.target === modal
+){
 
-            modal.classList.remove(
-                "show"
-            );
+modal.classList.remove(
+"show"
+);
 
-        }
+}
 
-    };
+};
 
 
 // SAVE
 
-    saveButton.onclick =
-    async()=>{
+saveButton.onclick =
+async()=>{
 
 
-        const value =
-        number(
-            input.value
-        );
+const value =
+number(
+input.value
+);
 
 
-        if(value < 0){
+if(value < 0){
 
-            alert(
-                "Target cannot be negative"
-            );
+alert(
+"Target cannot be negative"
+);
 
-            return;
+return;
 
-        }
-
-
-        try{
+}
 
 
-            saveButton.disabled =
-            true;
+try{
 
 
-            saveButton.textContent =
-            "Saving...";
+saveButton.disabled =
+true;
 
 
-            await saveTarget(
-                selectedMonth,
-                value
-            );
+saveButton.textContent =
+"Saving...";
 
 
-            modal.classList.remove(
-                "show"
-            );
+await saveTarget(
+selectedMonth,
+value
+);
 
 
-            await renderDashboard(
-                selectedMonth
-            );
+modal.classList.remove(
+"show"
+);
 
 
-        }catch(error){
+const report =
+calculateMonth(
+selectedMonth
+);
 
 
-            console.error(
-                error
-            );
+await renderTarget(
+selectedMonth,
+report.totalSales
+);
 
 
-            alert(
-                "Error saving target"
-            );
+}catch(error){
 
 
-        }finally{
+console.error(error);
 
 
-            saveButton.disabled =
-            false;
+alert(
+"Error saving target"
+);
 
 
-            saveButton.textContent =
-            "Save Target";
+}finally{
 
-        }
 
-    };
+saveButton.disabled =
+false;
+
+
+saveButton.textContent =
+"Save Target";
+
+}
+
+};
 
 }
 
 
 // ========================================
-// MONTHLY SALES CHART
+// MONTH CHART
 // ========================================
 
 function renderMonthlyChart(
-    month,
-    salesByDay
+month,
+salesByDay
 ){
 
 
-    const canvas =
-    document.getElementById(
-        "salesChart"
-    );
+const canvas =
+document.getElementById(
+"salesChart"
+);
 
 
-    if(
-        !canvas ||
-        !window.Chart
-    ){
+if(
+!canvas
+||
+!window.Chart
+){
 
-        return;
+return;
 
-    }
-
-
-    const totalDays =
-    daysInMonth(month);
+}
 
 
-    const labels = [];
-
-    const values = [];
-
-
-    for(
-        let day = 1;
-        day <= totalDays;
-        day++
-    ){
+const totalDays =
+daysInMonth(
+month
+);
 
 
-        labels.push(
-            day
-        );
+const labels = [];
+
+const values = [];
 
 
-        const key =
-
-        month
-        +
-        "-"
-        +
-        String(day)
-        .padStart(2,"0");
+for(
+let day = 1;
+day <= totalDays;
+day++
+){
 
 
-        values.push(
-            salesByDay[key] || 0
-        );
-
-    }
+labels.push(
+day
+);
 
 
-    if(salesChart){
+const key =
 
-        salesChart.destroy();
+month
 
-    }
++
+
+"-"
+
++
+
+String(day)
+.padStart(
+2,
+"0"
+);
 
 
-    salesChart =
-    new Chart(
-        canvas,
-        {
+values.push(
 
-            type:"bar",
+salesByDay[
+key
+]
+||
+0
 
-            data:{
+);
 
-                labels:labels,
+}
 
-                datasets:[{
 
-                    label:"Sales",
+if(salesChart){
 
-                    data:values,
+salesChart.destroy();
 
-                    backgroundColor:
-                    "rgba(139,107,57,.78)",
+}
 
-                    borderColor:
-                    "#8b6b39",
 
-                    borderWidth:1,
+salesChart =
+new Chart(
+canvas,
+{
 
-                    borderRadius:4
+type:"bar",
 
-                }]
+data:{
 
-            },
+labels:labels,
 
-            options:{
+datasets:[{
 
-                responsive:true,
+label:
+"Sales (AED)",
 
-                maintainAspectRatio:false,
+data:
+values,
 
-                plugins:{
+backgroundColor:
+"rgba(139,107,57,.78)",
 
-                    legend:{
+borderColor:
+"#8b6b39",
 
-                        display:false
+borderWidth:1,
 
-                    },
+borderRadius:4
 
-                    tooltip:{
+}]
 
-                        callbacks:{
+},
 
-                            label:
-                            context=>
-                            money(
-                                context.raw
-                            )
+options:{
 
-                        }
+responsive:true,
 
-                    }
+maintainAspectRatio:false,
 
-                },
+plugins:{
 
-                scales:{
+legend:{
 
-                    x:{
+display:false
 
-                        grid:{
+},
 
-                            display:false
+tooltip:{
 
-                        }
+callbacks:{
 
-                    },
+label:
+context=>
+money(
+context.raw
+)
 
-                    y:{
+}
 
-                        beginAtZero:true
+}
 
-                    }
+},
 
-                }
+scales:{
 
-            }
+x:{
 
-        }
-    );
+grid:{
+
+display:false
+
+}
+
+},
+
+y:{
+
+beginAtZero:true
+
+}
+
+}
+
+}
+
+}
+);
 
 }
 
@@ -1188,205 +1462,222 @@ function renderMonthlyChart(
 // YEAR OVERVIEW
 // ========================================
 
-function renderYearChart(month){
+function renderYearChart(
+month
+){
 
 
-    const canvas =
-    document.getElementById(
-        "yearChart"
-    );
+const canvas =
+document.getElementById(
+"yearChart"
+);
 
 
-    if(
-        !canvas ||
-        !window.Chart
-    ){
+if(
+!canvas
+||
+!window.Chart
+){
 
-        return;
+return;
 
-    }
+}
 
 
-    const year =
-    Number(
-        month.split("-")[0]
-    );
+const year =
+Number(
+month
+.split("-")[0]
+);
 
 
-    const values =
-    new Array(12).fill(0);
+const values =
+new Array(12)
+.fill(0);
 
 
-    allSales.forEach(s=>{
+allSales.forEach(s=>{
 
 
-        if(!s.date){
+if(!s.date){
 
-            return;
+return;
 
-        }
+}
 
 
-        const parts =
-        s.date.split("-");
+const parts =
+s.date.split("-");
 
 
-        if(parts.length < 2){
+if(
+parts.length < 2
+){
 
-            return;
+return;
 
-        }
+}
 
 
-        const saleYear =
-        Number(parts[0]);
+const saleYear =
+Number(
+parts[0]
+);
 
 
-        const saleMonth =
-        Number(parts[1]);
+const saleMonth =
+Number(
+parts[1]
+);
 
 
-        if(
-            saleYear === year &&
-            saleMonth >= 1 &&
-            saleMonth <= 12
-        ){
+if(
+saleYear === year
+&&
+saleMonth >= 1
+&&
+saleMonth <= 12
+){
 
 
-            values[
-                saleMonth - 1
-            ] +=
+values[
+saleMonth - 1
+] +=
 
-            number(s.cash)
-            +
-            number(s.card);
+number(s.cash)
 
-        }
++
 
-    });
+number(s.card);
 
+}
 
-    const labels = [
+});
 
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec"
 
-    ];
+if(yearChart){
 
+yearChart.destroy();
 
-    if(yearChart){
+}
 
-        yearChart.destroy();
 
-    }
+yearChart =
+new Chart(
+canvas,
+{
 
+type:"bar",
 
-    yearChart =
-    new Chart(
-        canvas,
-        {
+data:{
 
-            type:"bar",
+labels:[
 
-            data:{
+"Jan",
+"Feb",
+"Mar",
+"Apr",
+"May",
+"Jun",
+"Jul",
+"Aug",
+"Sep",
+"Oct",
+"Nov",
+"Dec"
 
-                labels:labels,
+],
 
-                datasets:[{
+datasets:[{
 
-                    data:values,
+data:values,
 
-                    backgroundColor:
-                    "rgba(139,107,57,.70)",
+backgroundColor:
+"rgba(139,107,57,.70)",
 
-                    borderRadius:5
+borderRadius:5
 
-                }]
+}]
 
-            },
+},
 
-            options:{
+options:{
 
-                responsive:true,
+responsive:true,
 
-                maintainAspectRatio:false,
+maintainAspectRatio:false,
 
-                plugins:{
+plugins:{
 
-                    legend:{
+legend:{
 
-                        display:false
+display:false
 
-                    },
+},
 
-                    tooltip:{
+tooltip:{
 
-                        callbacks:{
+callbacks:{
 
-                            label:
-                            context=>
-                            money(
-                                context.raw
-                            )
+label:
+context=>
+money(
+context.raw
+)
 
-                        }
+}
 
-                    }
+}
 
-                },
+},
 
-                scales:{
+scales:{
 
-                    x:{
+x:{
 
-                        grid:{
+grid:{
 
-                            display:false
+display:false
 
-                        }
+}
 
-                    },
+},
 
-                    y:{
+y:{
 
-                        beginAtZero:true
+beginAtZero:true
 
-                    }
+}
 
-                }
+}
 
-            }
+}
 
-        }
-    );
+}
+);
 
 
-    const title =
-    document.getElementById(
-        "yearOverviewTitle"
-    );
+const title =
+document.getElementById(
+"yearOverviewTitle"
+);
 
 
-    if(title){
+if(title){
 
-        title.textContent =
-        "Year Overview ("
-        +
-        year
-        +
-        ")";
+title.textContent =
 
-    }
+"Year Overview ("
+
++
+
+year
+
++
+
+")";
+
+}
 
 }
 
@@ -1396,107 +1687,121 @@ function renderYearChart(month){
 // ========================================
 
 function renderSalesRatio(
-    cash,
-    card
+cash,
+card
 ){
 
 
-    const canvas =
-    document.getElementById(
-        "salesRatioChart"
-    );
+const canvas =
+document.getElementById(
+"salesRatioChart"
+);
 
 
-    if(
-        !canvas ||
-        !window.Chart
-    ){
+if(
+!canvas
+||
+!window.Chart
+){
 
-        return;
+return;
 
-    }
-
-
-    if(ratioChart){
-
-        ratioChart.destroy();
-
-    }
+}
 
 
-    ratioChart =
-    new Chart(
-        canvas,
-        {
+if(ratioChart){
 
-            type:"doughnut",
+ratioChart.destroy();
 
-            data:{
+}
 
-                labels:[
-                    "Cash Sales",
-                    "Card Sales"
-                ],
 
-                datasets:[{
+ratioChart =
+new Chart(
+canvas,
+{
 
-                    data:[
-                        cash,
-                        card
-                    ],
+type:"doughnut",
 
-                    backgroundColor:[
-                        "#d8b46b",
-                        "#8b6b39"
-                    ],
+data:{
 
-                    borderWidth:0
+labels:[
 
-                }]
+"Cash Sales",
 
-            },
+"Card Sales"
 
-            options:{
+],
 
-                responsive:true,
+datasets:[{
 
-                maintainAspectRatio:false,
+data:[
 
-                cutout:"65%",
+cash,
 
-                plugins:{
+card
 
-                    legend:{
+],
 
-                        position:"bottom"
+backgroundColor:[
 
-                    },
+"#d8b46b",
 
-                    tooltip:{
+"#8b6b39"
 
-                        callbacks:{
+],
 
-                            label:
-                            context=>
+borderWidth:0
 
-                            context.label
-                            +
-                            ": "
-                            +
-                            money(
-                                context.raw
-                            )
+}]
 
-                        }
+},
 
-                    }
+options:{
 
-                }
+responsive:true,
 
-            }
+maintainAspectRatio:false,
 
-        }
-    );
+cutout:"65%",
+
+plugins:{
+
+legend:{
+
+position:"bottom"
+
+},
+
+tooltip:{
+
+callbacks:{
+
+label:
+context=>
+
+context.label
+
++
+
+": "
+
++
+
+money(
+context.raw
+)
+
+}
+
+}
+
+}
+
+}
+
+}
+);
 
 }
 
@@ -1508,168 +1813,195 @@ function renderSalesRatio(
 function renderRecords(){
 
 
-    const monthlyTotals = {};
+const monthlyTotals = {};
 
-    const dailyTotals = {};
-
-
-    allSales.forEach(s=>{
+const dailyTotals = {};
 
 
-        if(!s.date){
-
-            return;
-
-        }
+allSales.forEach(s=>{
 
 
-        const amount =
+if(!s.date){
 
-        number(s.cash)
-        +
-        number(s.card);
+return;
 
-
-        const month =
-        s.date.substring(0,7);
+}
 
 
-        if(!monthlyTotals[month]){
+const amount =
 
-            monthlyTotals[month] = 0;
+number(s.cash)
 
-        }
++
 
-
-        monthlyTotals[month] +=
-        amount;
+number(s.card);
 
 
-        if(!dailyTotals[s.date]){
+const month =
+s.date.substring(
+0,
+7
+);
 
-            dailyTotals[s.date] = 0;
 
-        }
+if(
+!monthlyTotals[
+month
+]
+){
+
+monthlyTotals[
+month
+] = 0;
+
+}
 
 
-        dailyTotals[s.date] +=
-        amount;
+monthlyTotals[
+month
+] +=
+amount;
 
-    });
+
+if(
+!dailyTotals[
+s.date
+]
+){
+
+dailyTotals[
+s.date
+] = 0;
+
+}
+
+
+dailyTotals[
+s.date
+] +=
+amount;
+
+});
 
 
 // HIGHEST MONTH
 
-    let highestMonth = null;
+let highestMonth = null;
 
-    let highestMonthAmount = 0;
-
-
-    Object.entries(
-        monthlyTotals
-    ).forEach(
-    ([month,amount])=>{
+let highestMonthAmount = 0;
 
 
-        if(
-            amount >
-            highestMonthAmount
-        ){
+Object.entries(
+monthlyTotals
+)
+.forEach(
+([month,amount])=>{
 
 
-            highestMonthAmount =
-            amount;
+if(
+amount >
+highestMonthAmount
+){
 
 
-            highestMonth =
-            month;
+highestMonth =
+month;
 
-        }
 
-    });
+highestMonthAmount =
+amount;
+
+}
+
+});
 
 
 // HIGHEST DAY
 
-    let highestDay = null;
+let highestDay = null;
 
-    let highestDayAmount = 0;
-
-
-    Object.entries(
-        dailyTotals
-    ).forEach(
-    ([date,amount])=>{
+let highestDayAmount = 0;
 
 
-        if(
-            amount >
-            highestDayAmount
-        ){
+Object.entries(
+dailyTotals
+)
+.forEach(
+([date,amount])=>{
 
 
-            highestDayAmount =
-            amount;
+if(
+amount >
+highestDayAmount
+){
 
 
-            highestDay =
-            date;
-
-        }
-
-    });
+highestDay =
+date;
 
 
-    const monthBox =
-    document.getElementById(
-        "highestMonthlySales"
-    );
+highestDayAmount =
+amount;
+
+}
+
+});
 
 
-    const dayBox =
-    document.getElementById(
-        "highestDailySales"
-    );
+const monthBox =
+document.getElementById(
+"highestMonthlySales"
+);
 
 
-    if(monthBox){
+const dayBox =
+document.getElementById(
+"highestDailySales"
+);
 
 
-        monthBox.textContent =
-
-        highestMonth
-        ?
-        monthName(highestMonth)
-        +
-        " — "
-        +
-        money(
-            highestMonthAmount
-        )
-        :
-        "--";
-
-    }
+if(monthBox){
 
 
-    if(dayBox){
+monthBox.textContent =
+
+highestMonth
+?
+monthName(
+highestMonth
+)
++
+" — "
++
+money(
+highestMonthAmount
+)
+:
+"--";
+
+}
 
 
-        dayBox.textContent =
+if(dayBox){
 
-        highestDay
-        ?
-        displayDate(highestDay)
-        +
-        " — "
-        +
-        money(
-            highestDayAmount
-        )
-        :
-        "--";
 
-    }
+dayBox.textContent =
+
+highestDay
+?
+displayDate(
+highestDay
+)
++
+" — "
++
+money(
+highestDayAmount
+)
+:
+"--";
+
+}
 
 }
 
@@ -1679,337 +2011,365 @@ function renderRecords(){
 // ========================================
 
 function renderMonthOverview(
-    month,
-    report
+month,
+report
 ){
 
 
-// TITLE
+// MONTH TITLE
 
-    const title =
-    document.getElementById(
-        "currentMonthTitle"
-    );
-
-
-    if(title){
-
-        title.textContent =
-        "Current Month ("
-        +
-        monthName(month)
-        +
-        ")";
-
-    }
+const title =
+document.getElementById(
+"currentMonthTitle"
+);
 
 
-// MAIN VALUES
+if(title){
 
-    document
-    .getElementById(
-        "totalSales"
-    )
-    .textContent =
-    money(
-        report.totalSales
-    );
+title.textContent =
 
+"Month Summary — "
 
-    document
-    .getElementById(
-        "totalCash"
-    )
-    .textContent =
-    money(
-        report.totalCash
-    );
++
+
+monthName(
+month
+);
+
+}
 
 
-    document
-    .getElementById(
-        "totalCard"
-    )
-    .textContent =
-    money(
-        report.totalCard
-    );
+// MAIN CARDS
+
+document
+.getElementById(
+"totalSales"
+)
+.textContent =
+money(
+report.totalSales
+);
 
 
-    document
-    .getElementById(
-        "totalCost"
-    )
-    .textContent =
-    money(
-        report.totalCost
-    );
+document
+.getElementById(
+"totalCash"
+)
+.textContent =
+money(
+report.totalCash
+);
 
 
-    document
-    .getElementById(
-        "totalStaff"
-    )
-    .textContent =
-    money(
-        report.totalStaff
-    );
+document
+.getElementById(
+"totalCard"
+)
+.textContent =
+money(
+report.totalCard
+);
 
 
-    document
-    .getElementById(
-        "totalWithdraw"
-    )
-    .textContent =
-    money(
-        report.totalWithdraw
-    );
+document
+.getElementById(
+"totalCost"
+)
+.textContent =
+money(
+report.totalCost
+);
 
 
-    document
-    .getElementById(
-        "netSalesAmount"
-    )
-    .textContent =
-    money(
-        report.netSalesAmount
-    );
+document
+.getElementById(
+"totalStaff"
+)
+.textContent =
+money(
+report.totalStaff
+);
 
 
-    document
-    .getElementById(
-        "topNetSalesAmount"
-    )
-    .textContent =
-    money(
-        report.netSalesAmount
-    );
+document
+.getElementById(
+"totalWithdraw"
+)
+.textContent =
+money(
+report.totalWithdraw
+);
 
 
-    document
-    .getElementById(
-        "totalTransactions"
-    )
-    .textContent =
-    report.transactions
-    .toLocaleString();
+document
+.getElementById(
+"netSalesAmount"
+)
+.textContent =
+money(
+report.netSalesAmount
+);
+
+
+document
+.getElementById(
+"topNetSalesAmount"
+)
+.textContent =
+money(
+report.netSalesAmount
+);
+
+
+document
+.getElementById(
+"totalTransactions"
+)
+.textContent =
+report.transactions
+.toLocaleString();
 
 
 // MONTH OVERVIEW
 
-    document
-    .getElementById(
-        "thisMonthSales"
-    )
-    .textContent =
-    money(
-        report.totalSales
-    );
+document
+.getElementById(
+"thisMonthSales"
+)
+.textContent =
+money(
+report.totalSales
+);
 
 
-    document
-    .getElementById(
-        "lastMonthSales"
-    )
-    .textContent =
-    money(
-        report.lastMonthSales
-    );
+document
+.getElementById(
+"lastMonthSales"
+)
+.textContent =
+money(
+report.previousSales
+);
 
 
 // MONTH CHANGE
 
-    let change = 0;
+let change = 0;
 
 
-    if(
-        report.lastMonthSales > 0
-    ){
+if(
+report.previousSales > 0
+){
 
 
-        change =
+change =
 
-        (
-            (
-                report.totalSales
-                -
-                report.lastMonthSales
-            )
-            /
-            report.lastMonthSales
-        )
-        *
-        100;
-
-
-    }else if(
-        report.totalSales > 0
-    ){
+(
+(
+report.totalSales
+-
+report.previousSales
+)
+/
+report.previousSales
+)
+*
+100;
 
 
-        change = 100;
-
-    }
-
-
-    const changeBox =
-    document.getElementById(
-        "monthlyChange"
-    );
+}else if(
+report.totalSales > 0
+){
 
 
-    if(change > 0){
+change = 100;
+
+}
 
 
-        changeBox.textContent =
-        "↑ "
-        +
-        change.toFixed(1)
-        +
-        "%";
+const changeBox =
+document.getElementById(
+"monthlyChange"
+);
 
 
-        changeBox.className =
-        "insight-value positive";
+if(change > 0){
 
 
-    }else if(change < 0){
+changeBox.textContent =
+
+"↑ "
+
++
+
+change.toFixed(1)
+
++
+
+"%";
 
 
-        changeBox.textContent =
-        "↓ "
-        +
-        Math.abs(change)
-        .toFixed(1)
-        +
-        "%";
+changeBox.className =
+"insight-value positive";
 
 
-        changeBox.className =
-        "insight-value negative";
+}else if(change < 0){
 
 
-    }else{
+changeBox.textContent =
+
+"↓ "
+
++
+
+Math.abs(change)
+.toFixed(1)
+
++
+
+"%";
 
 
-        changeBox.textContent =
-        "0%";
+changeBox.className =
+"insight-value negative";
 
 
-        changeBox.className =
-        "insight-value";
-
-    }
+}else{
 
 
-// BEST DAY
-
-    let bestDate = null;
-
-    let bestAmount = 0;
+changeBox.textContent =
+"0%";
 
 
-    Object.entries(
-        report.salesByDay
-    ).forEach(
-    ([date,amount])=>{
+changeBox.className =
+"insight-value";
+
+}
 
 
-        if(amount > bestAmount){
+// BEST SALES DAY
+
+let bestDate = null;
+
+let bestAmount = 0;
 
 
-            bestAmount =
-            amount;
+Object.entries(
+report.salesByDay
+)
+.forEach(
+([date,amount])=>{
 
 
-            bestDate =
-            date;
-
-        }
-
-    });
+if(
+amount >
+bestAmount
+){
 
 
-    document
-    .getElementById(
-        "bestSalesDay"
-    )
-    .textContent =
-
-    bestDate
-    ?
-    displayDate(bestDate)
-    :
-    "--";
+bestDate =
+date;
 
 
-    document
-    .getElementById(
-        "bestDayAmount"
-    )
-    .textContent =
-    money(bestAmount);
+bestAmount =
+amount;
+
+}
+
+});
+
+
+document
+.getElementById(
+"bestSalesDay"
+)
+.textContent =
+
+bestDate
+?
+displayDate(
+bestDate
+)
+:
+"--";
+
+
+document
+.getElementById(
+"bestDayAmount"
+)
+.textContent =
+money(
+bestAmount
+);
 
 
 // AVERAGE DAILY SALES
 
-    const selectedParts =
-    month.split("-");
+const parts =
+month.split("-");
 
 
-    const selectedYear =
-    Number(selectedParts[0]);
+const selectedYear =
+Number(
+parts[0]
+);
 
 
-    const selectedMonthNumber =
-    Number(selectedParts[1]);
+const selectedMonthNumber =
+Number(
+parts[1]
+);
 
 
-    const now =
-    new Date();
+const now =
+new Date();
 
 
-    let divisor =
-    daysInMonth(month);
+let divisor =
+daysInMonth(
+month
+);
 
 
-    /*
-    For the current month:
-    calculate average using days passed.
-
-    For previous months:
-    use the full number of days in that month.
-    */
-
-    if(
-        selectedYear ===
-        now.getFullYear()
-        &&
-        selectedMonthNumber ===
-        now.getMonth() + 1
-    ){
+if(
+selectedYear ===
+now.getFullYear()
+&&
+selectedMonthNumber ===
+now.getMonth() + 1
+){
 
 
-        divisor =
-        now.getDate();
+divisor =
+now.getDate();
 
-    }
-
-
-    const average =
-    divisor > 0
-    ?
-    report.totalSales / divisor
-    :
-    0;
+}
 
 
-    document
-    .getElementById(
-        "averageDailySales"
-    )
-    .textContent =
-    money(average);
+const average =
+
+divisor > 0
+
+?
+
+report.totalSales
+/
+divisor
+
+:
+
+0;
+
+
+document
+.getElementById(
+"averageDailySales"
+)
+.textContent =
+money(
+average
+);
 
 }
 
@@ -2018,43 +2378,70 @@ function renderMonthOverview(
 // RENDER DASHBOARD
 // ========================================
 
-async function renderDashboard(month){
+async function renderDashboard(
+month
+){
 
 
-    const report =
-    calculateMonth(month);
+const report =
+calculateMonth(
+month
+);
 
 
-    renderMonthOverview(
-        month,
-        report
-    );
+// MONTH VALUES
+
+renderMonthOverview(
+month,
+report
+);
 
 
-    renderMonthlyChart(
-        month,
-        report.salesByDay
-    );
+// CURRENT CASH
+// This does NOT change when month changes.
+
+const currentCash =
+calculateCurrentCashBalance();
 
 
-    renderYearChart(
-        month
-    );
+document
+.getElementById(
+"cashBalance"
+)
+.textContent =
+money(
+currentCash
+);
 
 
-    renderSalesRatio(
-        report.totalCash,
-        report.totalCard
-    );
+// CHARTS
+
+renderMonthlyChart(
+month,
+report.salesByDay
+);
 
 
-    renderRecords();
+renderYearChart(
+month
+);
 
 
-    await renderTarget(
-        month,
-        report.totalSales
-    );
+renderSalesRatio(
+report.totalCash,
+report.totalCard
+);
+
+
+renderRecords();
+
+
+// TARGET
+
+await renderTarget(
+month,
+report.totalSales
+);
 
 }
 
@@ -2066,37 +2453,37 @@ async function renderDashboard(month){
 async function startDashboard(){
 
 
-    try{
+try{
 
 
-        await loadData();
+await loadData();
 
 
-        createMonthSelector();
+createMonthSelector();
 
 
-        setupTargetModal();
+setupTargetModal();
 
 
-        await renderDashboard(
-            selectedMonth
-        );
+await renderDashboard(
+selectedMonth
+);
 
 
-    }catch(error){
+}catch(error){
 
 
-        console.error(
-            "Dashboard Error:",
-            error
-        );
+console.error(
+"Dashboard Error:",
+error
+);
 
 
-        alert(
-            "Error loading dashboard"
-        );
+alert(
+"Error loading dashboard"
+);
 
-    }
+}
 
 }
 
