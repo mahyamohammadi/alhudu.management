@@ -2,11 +2,11 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-getFirestore,
-collection,
-getDocs,
-doc,
-getDoc
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -16,9 +16,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 // ========================================
 
 if(localStorage.getItem("alhuduLogin") !== "true"){
-
     window.location.href = "login.html";
-
 }
 
 
@@ -27,28 +25,35 @@ if(localStorage.getItem("alhuduLogin") !== "true"){
 // ========================================
 
 const firebaseConfig = {
-
     apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
-
     authDomain: "al-hudu-management.firebaseapp.com",
-
     projectId: "al-hudu-management",
-
     storageBucket: "al-hudu-management.firebasestorage.app",
-
     messagingSenderId: "1045649803744",
-
     appId: "1:1045649803744:web:bc6ead0755d196c020c385"
-
 };
 
 
-const app =
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 
-const db =
-getFirestore(app);
+// ========================================
+// GLOBAL DATA
+// ========================================
+
+let salesData = [];
+let expenseData = [];
+let staffData = [];
+let withdrawalData = [];
+
+let openingCash = 0;
+
+let salesChart = null;
+let yearChart = null;
+let ratioChart = null;
+
+const MONTHLY_TARGET = 200000;
 
 
 // ========================================
@@ -56,85 +61,55 @@ getFirestore(app);
 // ========================================
 
 function number(value){
-
     return Number(value || 0);
-
 }
 
 
 function money(value){
+    return number(value).toLocaleString() + " AED";
+}
 
-    return number(value)
-    .toLocaleString()
-    + " AED";
 
+function pad(value){
+    return String(value).padStart(2,"0");
 }
 
 
 function dateKey(date){
 
-    const year =
-    date.getFullYear();
-
-
-    const month =
-    String(
-        date.getMonth() + 1
-    ).padStart(2,"0");
-
-
-    const day =
-    String(
-        date.getDate()
-    ).padStart(2,"0");
-
-
-    return `${year}-${month}-${day}`;
+    return (
+        date.getFullYear()
+        + "-"
+        + pad(date.getMonth() + 1)
+        + "-"
+        + pad(date.getDate())
+    );
 
 }
 
 
 function monthKey(date){
 
-    const year =
-    date.getFullYear();
-
-
-    const month =
-    String(
-        date.getMonth() + 1
-    ).padStart(2,"0");
-
-
-    return `${year}-${month}`;
+    return (
+        date.getFullYear()
+        + "-"
+        + pad(date.getMonth() + 1)
+    );
 
 }
 
 
-// ========================================
-// DISPLAY DATE
-// 2026-08-10 -> 10-08-2026
-// ========================================
-
 function displayDate(value){
 
     if(!value){
-
         return "--";
-
     }
 
-
-    const parts =
-    value.split("-");
-
+    const parts = value.split("-");
 
     if(parts.length !== 3){
-
         return value;
-
     }
-
 
     return (
         parts[2]
@@ -147,669 +122,931 @@ function displayDate(value){
 }
 
 
-// ========================================
-// LOAD DASHBOARD
-// ========================================
+function monthName(monthKeyValue){
 
-async function loadDashboard(){
+    const parts = monthKeyValue.split("-");
 
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
 
-    try{
+    return new Date(
+        year,
+        month - 1,
+        1
+    ).toLocaleString(
+        "en-US",
+        {
+            month:"long",
+            year:"numeric"
+        }
+    );
 
-
-        const now =
-        new Date();
-
-
-        const today =
-        dateKey(now);
-
-
-        const currentMonth =
-        monthKey(now);
-
-
-        const previousMonthDate =
-        new Date(
-            now.getFullYear(),
-            now.getMonth() - 1,
-            1
-        );
-
-
-        const previousMonth =
-        monthKey(
-            previousMonthDate
-        );
+}
 
 
 // ========================================
-// LOAD FIREBASE
+// DAYS IN SELECTED MONTH
+// Automatically 28 / 29 / 30 / 31
 // ========================================
 
-        const [
+function getDaysInMonth(monthValue){
 
-            openingSnap,
+    const parts = monthValue.split("-");
 
-            salesSnap,
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
 
-            expenseSnap,
+    return new Date(
+        year,
+        month,
+        0
+    ).getDate();
 
-            staffSnap,
-
-            withdrawSnap
-
-        ] = await Promise.all([
-
-
-            getDoc(
-                doc(
-                    db,
-                    "settings",
-                    "openingBalance"
-                )
-            ),
+}
 
 
-            getDocs(
-                collection(
-                    db,
-                    "sales"
-                )
-            ),
+// ========================================
+// SALE TOTAL
+// ========================================
+
+function getSaleTotal(s){
+
+    /*
+    Cash + Card is used instead of s.total
+    so old records also work.
+    */
+
+    return (
+        number(s.cash)
+        +
+        number(s.card)
+    );
+
+}
 
 
-            getDocs(
-                collection(
-                    db,
-                    "expenses"
-                )
-            ),
+// ========================================
+// SAFE ELEMENT UPDATE
+// ========================================
+
+function setText(id,value){
+
+    const el = document.getElementById(id);
+
+    if(el){
+        el.textContent = value;
+    }
+
+}
 
 
-            getDocs(
-                collection(
-                    db,
-                    "staff"
-                )
-            ),
+// ========================================
+// LOAD FIREBASE DATA
+// ========================================
 
+async function loadData(){
 
-            getDocs(
-                collection(
-                    db,
-                    "withdrawals"
-                )
+    const [
+        openingSnap,
+        salesSnap,
+        expenseSnap,
+        staffSnap,
+        withdrawSnap
+    ] = await Promise.all([
+
+        getDoc(
+            doc(
+                db,
+                "settings",
+                "openingBalance"
             )
+        ),
+
+        getDocs(
+            collection(
+                db,
+                "sales"
+            )
+        ),
+
+        getDocs(
+            collection(
+                db,
+                "expenses"
+            )
+        ),
+
+        getDocs(
+            collection(
+                db,
+                "staff"
+            )
+        ),
+
+        getDocs(
+            collection(
+                db,
+                "withdrawals"
+            )
+        )
+
+    ]);
 
 
-        ]);
+    if(openingSnap.exists()){
+
+        openingCash =
+        number(
+            openingSnap.data().amount
+        );
+
+    }
+
+
+    salesData = [];
+
+    salesSnap.forEach(item=>{
+
+        salesData.push({
+            id:item.id,
+            ...item.data()
+        });
+
+    });
+
+
+    expenseData = [];
+
+    expenseSnap.forEach(item=>{
+
+        expenseData.push({
+            id:item.id,
+            ...item.data()
+        });
+
+    });
+
+
+    staffData = [];
+
+    staffSnap.forEach(item=>{
+
+        staffData.push({
+            id:item.id,
+            ...item.data()
+        });
+
+    });
+
+
+    withdrawalData = [];
+
+    withdrawSnap.forEach(item=>{
+
+        withdrawalData.push({
+            id:item.id,
+            ...item.data()
+        });
+
+    });
+
+}
 
 
 // ========================================
-// OPENING CASH
+// CASH BALANCE
 // ========================================
 
-        let openingCash = 0;
+function calculateCashBalance(){
+
+    let cashSales = 0;
+    let expenses = 0;
+    let staff = 0;
+    let withdrawals = 0;
 
 
-        if(openingSnap.exists()){
+    salesData.forEach(s=>{
 
-            openingCash =
-            number(
-                openingSnap
-                .data()
-                .amount
+        cashSales += number(s.cash);
+
+    });
+
+
+    expenseData.forEach(e=>{
+
+        expenses += number(e.amount);
+
+    });
+
+
+    staffData.forEach(s=>{
+
+        staff += number(s.total);
+
+    });
+
+
+    withdrawalData.forEach(w=>{
+
+        withdrawals += number(w.amount);
+
+    });
+
+
+    return (
+        openingCash
+        +
+        cashSales
+        -
+        expenses
+        -
+        staff
+        -
+        withdrawals
+    );
+
+}
+
+
+// ========================================
+// BUILD MONTH SELECT
+// ========================================
+
+function buildMonthSelect(){
+
+    const select =
+    document.getElementById(
+        "analyticsMonth"
+    );
+
+
+    if(!select){
+        return;
+    }
+
+
+    const months = new Set();
+
+
+    salesData.forEach(s=>{
+
+        if(
+            typeof s.date === "string"
+            &&
+            s.date.length >= 7
+        ){
+
+            months.add(
+                s.date.substring(0,7)
             );
 
         }
 
+    });
+
+
+    expenseData.forEach(e=>{
+
+        if(
+            typeof e.date === "string"
+            &&
+            e.date.length >= 7
+        ){
+
+            months.add(
+                e.date.substring(0,7)
+            );
+
+        }
+
+    });
+
+
+    staffData.forEach(s=>{
+
+        if(
+            typeof s.date === "string"
+            &&
+            s.date.length >= 7
+        ){
+
+            months.add(
+                s.date.substring(0,7)
+            );
+
+        }
+
+    });
+
+
+    withdrawalData.forEach(w=>{
+
+        if(
+            typeof w.date === "string"
+            &&
+            w.date.length >= 7
+        ){
+
+            months.add(
+                w.date.substring(0,7)
+            );
+
+        }
+
+    });
+
+
+    const currentMonth =
+    monthKey(new Date());
+
+
+    months.add(currentMonth);
+
+
+    const sortedMonths =
+    [...months].sort().reverse();
+
+
+    select.innerHTML = "";
+
+
+    sortedMonths.forEach(month=>{
+
+        const option =
+        document.createElement(
+            "option"
+        );
+
+
+        option.value = month;
+
+        option.textContent =
+        monthName(month);
+
+
+        select.appendChild(option);
+
+    });
+
+
+    select.value = currentMonth;
+
+
+    select.onchange = ()=>{
+
+        renderMonth(
+            select.value
+        );
+
+    };
+
+}
+
 
 // ========================================
-// VARIABLES
+// MONTH CALCULATION
 // ========================================
 
-        let totalSales = 0;
+function calculateMonth(selectedMonth){
 
-        let totalCash = 0;
-
-        let totalCard = 0;
-
-        let totalCost = 0;
-
-        let totalStaff = 0;
-
-        let totalWithdraw = 0;
+    const [
+        selectedYear,
+        selectedMonthNumber
+    ] =
+    selectedMonth
+    .split("-")
+    .map(Number);
 
 
-        let todaySales = 0;
-
-        let todayCost = 0;
-
-        let todayStaff = 0;
-
-        let todayWithdraw = 0;
-
-
-        let lastMonthSales = 0;
-
-        let transactions = 0;
+    const previousDate =
+    new Date(
+        selectedYear,
+        selectedMonthNumber - 2,
+        1
+    );
 
 
-        let allTimeCashSales = 0;
-
-        let allTimeExpenses = 0;
-
-        let allTimeStaff = 0;
-
-        let allTimeWithdrawals = 0;
+    const previousMonth =
+    monthKey(previousDate);
 
 
-        const salesByDay = {};
+    let totalSales = 0;
+    let totalCash = 0;
+    let totalCard = 0;
+
+    let totalCost = 0;
+    let totalStaff = 0;
+    let totalWithdraw = 0;
+
+    let transactions = 0;
+    let previousSales = 0;
 
 
-// ========================================
-// SALES
-// ========================================
-
-        salesSnap.forEach(item=>{
+    const salesByDay = {};
 
 
-            const s =
-            item.data();
+    // SALES
+
+    salesData.forEach(s=>{
+
+        if(!s.date){
+            return;
+        }
 
 
-            if(!s.date){
-
-                return;
-
-            }
+        const saleTotal =
+        getSaleTotal(s);
 
 
-            const cash =
+        if(
+            s.date.startsWith(
+                selectedMonth
+            )
+        ){
+
+            totalCash +=
             number(s.cash);
 
 
-            const card =
+            totalCard +=
             number(s.card);
 
 
-            /*
-            We calculate total ourselves
-            so old records also work correctly.
-            */
-
-            const saleTotal =
-            cash + card;
+            totalSales +=
+            saleTotal;
 
 
-            allTimeCashSales +=
-            cash;
+            transactions++;
 
 
-// CURRENT MONTH
-
-            if(
-                s.date.startsWith(
-                    currentMonth
-                )
-            ){
-
-
-                totalCash +=
-                cash;
-
-
-                totalCard +=
-                card;
-
-
-                totalSales +=
-                saleTotal;
-
-
-                transactions++;
-
-
-                if(!salesByDay[s.date]){
-
-                    salesByDay[s.date] = 0;
-
-                }
-
-
-                salesByDay[s.date] +=
-                saleTotal;
-
+            if(!salesByDay[s.date]){
+                salesByDay[s.date] = 0;
             }
 
 
-// TODAY
-
-            if(s.date === today){
-
-                todaySales +=
-                saleTotal;
-
-            }
-
-
-// LAST MONTH
-
-            if(
-                s.date.startsWith(
-                    previousMonth
-                )
-            ){
-
-                lastMonthSales +=
-                saleTotal;
-
-            }
-
-        });
-
-
-// ========================================
-// EXPENSES
-// ========================================
-
-        expenseSnap.forEach(item=>{
-
-
-            const e =
-            item.data();
-
-
-            if(!e.date){
-
-                return;
-
-            }
-
-
-            const amount =
-            number(e.amount);
-
-
-            allTimeExpenses +=
-            amount;
-
-
-            if(
-                e.date.startsWith(
-                    currentMonth
-                )
-            ){
-
-                totalCost +=
-                amount;
-
-            }
-
-
-            if(e.date === today){
-
-                todayCost +=
-                amount;
-
-            }
-
-        });
-
-
-// ========================================
-// STAFF
-// ========================================
-
-        staffSnap.forEach(item=>{
-
-
-            const s =
-            item.data();
-
-
-            if(!s.date){
-
-                return;
-
-            }
-
-
-            const amount =
-            number(s.total);
-
-
-            allTimeStaff +=
-            amount;
-
-
-            if(
-                s.date.startsWith(
-                    currentMonth
-                )
-            ){
-
-                totalStaff +=
-                amount;
-
-            }
-
-
-            if(s.date === today){
-
-                todayStaff +=
-                amount;
-
-            }
-
-        });
-
-
-// ========================================
-// WITHDRAWALS
-// ========================================
-
-        withdrawSnap.forEach(item=>{
-
-
-            const w =
-            item.data();
-
-
-            if(!w.date){
-
-                return;
-
-            }
-
-
-            const amount =
-            number(w.amount);
-
-
-            allTimeWithdrawals +=
-            amount;
-
-
-            if(
-                w.date.startsWith(
-                    currentMonth
-                )
-            ){
-
-                totalWithdraw +=
-                amount;
-
-            }
-
-
-            if(w.date === today){
-
-                todayWithdraw +=
-                amount;
-
-            }
-
-        });
-
-
-// ========================================
-// NET SALES AMOUNT
-//
-// IMPORTANT:
-//
-// Staff Payment is NOT deducted.
-// Cash Withdrawal is NOT deducted.
-//
-// Total Sales - Expenses (Cost)
-// ========================================
-
-        const netSalesAmount =
-
-        totalSales
-        -
-        totalCost;
-
-
-        const todayNetSales =
-
-        todaySales
-        -
-        todayCost;
-
-
-// ========================================
-// CURRENT CASH BALANCE
-//
-// Cash balance is different.
-//
-// Staff + Withdrawal ARE deducted
-// because they physically leave cash.
-// ========================================
-
-        const cashBalance =
-
-        openingCash
-        +
-        allTimeCashSales
-        -
-        allTimeExpenses
-        -
-        allTimeStaff
-        -
-        allTimeWithdrawals;
-
-
-// ========================================
-// MONTH COMPARISON
-// ========================================
-
-        let monthlyChange = 0;
-
-
-        if(lastMonthSales > 0){
-
-            monthlyChange =
-
-            (
-                (
-                    totalSales
-                    -
-                    lastMonthSales
-                )
-                /
-                lastMonthSales
-            )
-            *
-            100;
-
-        }else if(totalSales > 0){
-
-            monthlyChange = 100;
+            salesByDay[s.date] +=
+            saleTotal;
 
         }
 
 
+        if(
+            s.date.startsWith(
+                previousMonth
+            )
+        ){
+
+            previousSales +=
+            saleTotal;
+
+        }
+
+    });
+
+
+    // EXPENSES
+
+    expenseData.forEach(e=>{
+
+        if(
+            e.date
+            &&
+            e.date.startsWith(
+                selectedMonth
+            )
+        ){
+
+            totalCost +=
+            number(e.amount);
+
+        }
+
+    });
+
+
+    // STAFF
+
+    staffData.forEach(s=>{
+
+        if(
+            s.date
+            &&
+            s.date.startsWith(
+                selectedMonth
+            )
+        ){
+
+            totalStaff +=
+            number(s.total);
+
+        }
+
+    });
+
+
+    // WITHDRAWALS
+
+    withdrawalData.forEach(w=>{
+
+        if(
+            w.date
+            &&
+            w.date.startsWith(
+                selectedMonth
+            )
+        ){
+
+            totalWithdraw +=
+            number(w.amount);
+
+        }
+
+    });
+
+
+    // NET SALES
+
+    /*
+    IMPORTANT:
+
+    Staff Payment is NOT deducted.
+
+    Cash Withdrawal is NOT deducted.
+
+    Net Sales Amount =
+    Total Sales - Expenses (Cost)
+    */
+
+    const netSalesAmount =
+    totalSales - totalCost;
+
+
+    // PERCENTAGES
+
+    const cashPercent =
+    totalSales > 0
+    ?
+    (totalCash / totalSales) * 100
+    :
+    0;
+
+
+    const cardPercent =
+    totalSales > 0
+    ?
+    (totalCard / totalSales) * 100
+    :
+    0;
+
+
+    const costPercent =
+    totalSales > 0
+    ?
+    (totalCost / totalSales) * 100
+    :
+    0;
+
+
+    const netPercent =
+    totalSales > 0
+    ?
+    (netSalesAmount / totalSales) * 100
+    :
+    0;
+
+
+    // MONTHLY CHANGE
+
+    let monthlyChange = 0;
+
+
+    if(previousSales > 0){
+
+        monthlyChange =
+        (
+            (
+                totalSales
+                -
+                previousSales
+            )
+            /
+            previousSales
+        )
+        *
+        100;
+
+    }else if(totalSales > 0){
+
+        monthlyChange = 100;
+
+    }
+
+
+    const monthlyDifference =
+    totalSales - previousSales;
+
+
+    // BEST DAY
+
+    let bestSalesDay = null;
+    let bestDayAmount = 0;
+
+
+    Object.entries(
+        salesByDay
+    ).forEach(([date,amount])=>{
+
+        if(amount > bestDayAmount){
+
+            bestDayAmount = amount;
+            bestSalesDay = date;
+
+        }
+
+    });
+
+
+    // DAYS
+
+    const daysInMonth =
+    getDaysInMonth(
+        selectedMonth
+    );
+
+
+    /*
+    Average daily sales:
+    For current month use days passed.
+    For past months use full month.
+    */
+
+
+    const now = new Date();
+
+    const currentMonth =
+    monthKey(now);
+
+
+    let daysForAverage =
+    daysInMonth;
+
+
+    if(
+        selectedMonth === currentMonth
+    ){
+
+        daysForAverage =
+        now.getDate();
+
+    }
+
+
+    const averageDailySales =
+    daysForAverage > 0
+    ?
+    totalSales / daysForAverage
+    :
+    0;
+
+
+    /*
+    Projection only makes sense
+    for current month.
+    */
+
+    let projectedSales =
+    totalSales;
+
+
+    if(
+        selectedMonth === currentMonth
+    ){
+
+        projectedSales =
+        averageDailySales
+        *
+        daysInMonth;
+
+    }
+
+
+    return {
+
+        selectedMonth,
+
+        totalSales,
+
+        totalCash,
+
+        totalCard,
+
+        totalCost,
+
+        totalStaff,
+
+        totalWithdraw,
+
+        netSalesAmount,
+
+        transactions,
+
+        previousSales,
+
+        monthlyChange,
+
+        monthlyDifference,
+
+        bestSalesDay,
+
+        bestDayAmount,
+
+        averageDailySales,
+
+        projectedSales,
+
+        cashPercent,
+
+        cardPercent,
+
+        costPercent,
+
+        netPercent,
+
+        salesByDay,
+
+        daysInMonth
+
+    };
+
+}
+
+
 // ========================================
-// BEST SALES DAY
+// RENDER SELECTED MONTH
 // ========================================
 
-        let bestSalesDay = null;
+function renderMonth(selectedMonth){
 
-        let bestDayAmount = 0;
-
-
-        Object.entries(
-            salesByDay
-        ).forEach(
-        ([date,amount])=>{
+    const r =
+    calculateMonth(
+        selectedMonth
+    );
 
 
-            if(amount > bestDayAmount){
+    // TOP NET SALES
 
-                bestDayAmount =
-                amount;
-
-                bestSalesDay =
-                date;
-
-            }
-
-        });
+    setText(
+        "netSalesTop",
+        money(r.netSalesAmount)
+    );
 
 
-// ========================================
-// UPDATE DASHBOARD
-// ========================================
+    // MONTH CARDS
 
-        document
-        .getElementById(
-            "todaySales"
+    setText(
+        "totalSales",
+        money(r.totalSales)
+    );
+
+
+    setText(
+        "totalCash",
+        money(r.totalCash)
+    );
+
+
+    setText(
+        "totalCard",
+        money(r.totalCard)
+    );
+
+
+    setText(
+        "totalCost",
+        money(r.totalCost)
+    );
+
+
+    setText(
+        "totalStaff",
+        money(r.totalStaff)
+    );
+
+
+    setText(
+        "totalWithdraw",
+        money(r.totalWithdraw)
+    );
+
+
+    setText(
+        "netSalesAmount",
+        money(r.netSalesAmount)
+    );
+
+
+    setText(
+        "totalTransactions",
+        r.transactions.toLocaleString()
+    );
+
+
+    // RATIOS
+
+    setText(
+        "cashPercent",
+        r.cashPercent.toFixed(1) + "%"
+    );
+
+
+    setText(
+        "cardPercent",
+        r.cardPercent.toFixed(1) + "%"
+    );
+
+
+    setText(
+        "costPercent",
+        r.costPercent.toFixed(1)
+        + "% of sales"
+    );
+
+
+    setText(
+        "netPercent",
+        r.netPercent.toFixed(1)
+        + "% of sales"
+    );
+
+
+    // MONTH OVERVIEW
+
+    setText(
+        "thisMonthSales",
+        money(r.totalSales)
+    );
+
+
+    setText(
+        "lastMonthSales",
+        money(r.previousSales)
+    );
+
+
+    setText(
+        "averageDailySales",
+        money(
+            Math.round(
+                r.averageDailySales
+            )
         )
-        .textContent =
-        money(todaySales);
+    );
 
 
-        document
-        .getElementById(
-            "cashBalance"
+    setText(
+        "bestSalesDay",
+        r.bestSalesDay
+        ?
+        displayDate(
+            r.bestSalesDay
         )
-        .textContent =
-        money(cashBalance);
+        :
+        "--"
+    );
 
 
-        document
-        .getElementById(
-            "totalSales"
+    setText(
+        "bestDayAmount",
+        money(r.bestDayAmount)
+    );
+
+
+    setText(
+        "projectedSales",
+        money(
+            Math.round(
+                r.projectedSales
+            )
         )
-        .textContent =
-        money(totalSales);
+    );
 
 
-        document
-        .getElementById(
-            "totalCash"
-        )
-        .textContent =
-        money(totalCash);
+    // MONTH CHANGE
+
+    const changeBox =
+    document.getElementById(
+        "monthlyChange"
+    );
 
 
-        document
-        .getElementById(
-            "totalCard"
-        )
-        .textContent =
-        money(totalCard);
+    if(changeBox){
 
-
-        document
-        .getElementById(
-            "totalCost"
-        )
-        .textContent =
-        money(totalCost);
-
-
-        document
-        .getElementById(
-            "totalStaff"
-        )
-        .textContent =
-        money(totalStaff);
-
-
-        document
-        .getElementById(
-            "totalWithdraw"
-        )
-        .textContent =
-        money(totalWithdraw);
-
-
-        document
-        .getElementById(
-            "netSalesAmount"
-        )
-        .textContent =
-        money(netSalesAmount);
-
-
-        document
-        .getElementById(
-            "totalTransactions"
-        )
-        .textContent =
-        transactions
-        .toLocaleString();
-
-
-        document
-        .getElementById(
-            "todayCost"
-        )
-        .textContent =
-        money(todayCost);
-
-
-        document
-        .getElementById(
-            "todayStaff"
-        )
-        .textContent =
-        money(todayStaff);
-
-
-        document
-        .getElementById(
-            "todayWithdraw"
-        )
-        .textContent =
-        money(todayWithdraw);
-
-
-        document
-        .getElementById(
-            "todayNetSales"
-        )
-        .textContent =
-        money(todayNetSales);
-
-
-        document
-        .getElementById(
-            "thisMonthSales"
-        )
-        .textContent =
-        money(totalSales);
-
-
-        document
-        .getElementById(
-            "lastMonthSales"
-        )
-        .textContent =
-        money(lastMonthSales);
-
-
-// ========================================
-// MONTHLY CHANGE UI
-// ========================================
-
-        const changeBox =
-        document.getElementById(
-            "monthlyChange"
-        );
-
-
-        if(monthlyChange > 0){
-
+        if(r.monthlyChange > 0){
 
             changeBox.textContent =
-
             "↑ "
             +
-            monthlyChange
+            r.monthlyChange
             .toFixed(1)
             +
             "%";
@@ -818,16 +1055,15 @@ async function loadDashboard(){
             changeBox.className =
             "insight-value positive";
 
+        }
 
-        }else if(monthlyChange < 0){
-
+        else if(r.monthlyChange < 0){
 
             changeBox.textContent =
-
             "↓ "
             +
             Math.abs(
-                monthlyChange
+                r.monthlyChange
             )
             .toFixed(1)
             +
@@ -837,9 +1073,9 @@ async function loadDashboard(){
             changeBox.className =
             "insight-value negative";
 
+        }
 
-        }else{
-
+        else{
 
             changeBox.textContent =
             "0%";
@@ -850,149 +1086,234 @@ async function loadDashboard(){
 
         }
 
-
-// ========================================
-// BEST DAY UI
-// ========================================
-
-        document
-        .getElementById(
-            "bestSalesDay"
-        )
-        .textContent =
-
-        bestSalesDay
-        ?
-        displayDate(
-            bestSalesDay
-        )
-        :
-        "--";
+    }
 
 
-        document
-        .getElementById(
-            "bestDayAmount"
-        )
-        .textContent =
-        money(bestDayAmount);
+    // DIFFERENCE
+
+    const differenceBox =
+    document.getElementById(
+        "monthlyDifference"
+    );
 
 
-// ========================================
-// LAST 7 DAYS CHART
-// ========================================
+    if(differenceBox){
 
-        const labels = [];
+        if(r.monthlyDifference > 0){
 
-        const chartValues = [];
-
-
-        for(let i = 6; i >= 0; i--){
-
-
-            const d =
-            new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate() - i
+            differenceBox.textContent =
+            "+"
+            +
+            money(
+                r.monthlyDifference
             );
 
 
-            const key =
-            dateKey(d);
-
-
-            labels.push(
-
-                String(
-                    d.getDate()
-                )
-                +
-                "/"
-                +
-                String(
-                    d.getMonth() + 1
-                )
-
-            );
-
-
-            chartValues.push(
-                salesByDay[key] || 0
-            );
+            differenceBox.className =
+            "insight-sub positive";
 
         }
 
+        else if(
+            r.monthlyDifference < 0
+        ){
+
+            differenceBox.textContent =
+            "-"
+            +
+            money(
+                Math.abs(
+                    r.monthlyDifference
+                )
+            );
+
+
+            differenceBox.className =
+            "insight-sub negative";
+
+        }
+
+        else{
+
+            differenceBox.textContent =
+            "0 AED";
+
+            differenceBox.className =
+            "insight-sub";
+
+        }
+
+    }
+
+
+    // TARGET
+
+    updateTarget(r.totalSales);
+
+
+    // CHARTS
+
+    drawMonthlyChart(r);
+
+    drawRatioChart(
+        r.totalCash,
+        r.totalCard
+    );
+
+}
+
 
 // ========================================
-// CHART
+// MONTHLY CHART
+// 28 / 29 / 30 / 31 DAYS AUTOMATIC
 // ========================================
 
-        const canvas =
-        document.getElementById(
-            "salesChart"
+function drawMonthlyChart(r){
+
+    const canvas =
+    document.getElementById(
+        "salesChart"
+    );
+
+
+    if(
+        !canvas
+        ||
+        !window.Chart
+    ){
+        return;
+    }
+
+
+    const labels = [];
+    const values = [];
+
+
+    /*
+    This is the important part.
+
+    February automatically gives 28/29.
+    April gives 30.
+    August gives 31.
+    */
+
+
+    for(
+        let day = 1;
+        day <= r.daysInMonth;
+        day++
+    ){
+
+        labels.push(
+            String(day)
         );
 
 
-        if(
-            canvas &&
-            window.Chart
-        ){
+        const key =
+        r.selectedMonth
+        +
+        "-"
+        +
+        pad(day);
 
 
-            new Chart(
-                canvas,
-                {
+        values.push(
+            r.salesByDay[key] || 0
+        );
 
-                    type:"line",
+    }
 
-                    data:{
 
-                        labels:labels,
+    if(salesChart){
 
-                        datasets:[{
+        salesChart.destroy();
 
-                            label:"Sales (AED)",
+    }
 
-                            data:chartValues,
 
-                            borderColor:"#8b6b39",
+    salesChart =
+    new Chart(
+        canvas,
+        {
 
-                            backgroundColor:"rgba(139,107,57,.10)",
+            type:"bar",
 
-                            borderWidth:2,
+            data:{
 
-                            fill:true,
+                labels:labels,
 
-                            tension:.35,
+                datasets:[{
 
-                            pointRadius:4
+                    label:"Sales (AED)",
 
-                        }]
+                    data:values,
 
+                    backgroundColor:
+                    "rgba(139,107,57,.82)",
+
+                    borderColor:
+                    "#8b6b39",
+
+                    borderWidth:1,
+
+                    borderRadius:4
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+                        display:false
                     },
 
-                    options:{
+                    tooltip:{
 
-                        responsive:true,
+                        callbacks:{
 
-                        maintainAspectRatio:false,
+                            label:function(context){
 
-                        plugins:{
-
-                            legend:{
-
-                                display:false
+                                return (
+                                    money(
+                                        context.raw
+                                    )
+                                );
 
                             }
 
-                        },
+                        }
 
-                        scales:{
+                    }
 
-                            y:{
+                },
 
-                                beginAtZero:true
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+
+                        ticks:{
+
+                            callback:function(value){
+
+                                return Number(value)
+                                .toLocaleString();
 
                             }
 
@@ -1001,7 +1322,609 @@ async function loadDashboard(){
                     }
 
                 }
-            );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ========================================
+// SALES RATIO CHART
+// ========================================
+
+function drawRatioChart(
+    cash,
+    card
+){
+
+    const canvas =
+    document.getElementById(
+        "ratioChart"
+    );
+
+
+    if(
+        !canvas
+        ||
+        !window.Chart
+    ){
+        return;
+    }
+
+
+    if(ratioChart){
+
+        ratioChart.destroy();
+
+    }
+
+
+    ratioChart =
+    new Chart(
+        canvas,
+        {
+
+            type:"doughnut",
+
+            data:{
+
+                labels:[
+                    "Cash Sales",
+                    "Card Sales"
+                ],
+
+                datasets:[{
+
+                    data:[
+                        cash,
+                        card
+                    ],
+
+                    backgroundColor:[
+                        "#c89a4b",
+                        "#7c5b2c"
+                    ],
+
+                    borderWidth:0
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                cutout:"68%",
+
+                plugins:{
+
+                    legend:{
+
+                        position:"bottom",
+
+                        labels:{
+
+                            boxWidth:10,
+
+                            usePointStyle:true
+
+                        }
+
+                    },
+
+                    tooltip:{
+
+                        callbacks:{
+
+                            label:function(context){
+
+                                return (
+                                    context.label
+                                    +
+                                    ": "
+                                    +
+                                    money(
+                                        context.raw
+                                    )
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+// ========================================
+// TARGET
+// ========================================
+
+function updateTarget(
+    totalSales
+){
+
+    const percentage =
+    MONTHLY_TARGET > 0
+    ?
+    (
+        totalSales
+        /
+        MONTHLY_TARGET
+    )
+    *
+    100
+    :
+    0;
+
+
+    setText(
+        "targetValue",
+        money(MONTHLY_TARGET)
+    );
+
+
+    setText(
+        "targetCurrent",
+        "Current Sales: "
+        +
+        money(totalSales)
+    );
+
+
+    setText(
+        "targetPercent",
+        percentage.toFixed(1)
+        +
+        "%"
+    );
+
+
+    const bar =
+    document.getElementById(
+        "targetProgress"
+    );
+
+
+    if(bar){
+
+        bar.style.width =
+        Math.min(
+            percentage,
+            100
+        )
+        +
+        "%";
+
+    }
+
+}
+
+
+// ========================================
+// YEAR OVERVIEW
+// ========================================
+
+function drawYearOverview(){
+
+    const canvas =
+    document.getElementById(
+        "yearChart"
+    );
+
+
+    if(
+        !canvas
+        ||
+        !window.Chart
+    ){
+        return;
+    }
+
+
+    const selected =
+    document.getElementById(
+        "analyticsMonth"
+    );
+
+
+    let year =
+    new Date().getFullYear();
+
+
+    if(
+        selected
+        &&
+        selected.value
+    ){
+
+        year =
+        Number(
+            selected.value
+            .split("-")[0]
+        );
+
+    }
+
+
+    const totals =
+    Array(12).fill(0);
+
+
+    salesData.forEach(s=>{
+
+        if(!s.date){
+            return;
+        }
+
+
+        const parts =
+        s.date.split("-");
+
+
+        if(parts.length < 2){
+            return;
+        }
+
+
+        if(
+            Number(parts[0])
+            !==
+            year
+        ){
+            return;
+        }
+
+
+        const monthIndex =
+        Number(parts[1]) - 1;
+
+
+        if(
+            monthIndex >= 0
+            &&
+            monthIndex < 12
+        ){
+
+            totals[monthIndex] +=
+            getSaleTotal(s);
+
+        }
+
+    });
+
+
+    if(yearChart){
+
+        yearChart.destroy();
+
+    }
+
+
+    yearChart =
+    new Chart(
+        canvas,
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:[
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec"
+                ],
+
+                datasets:[{
+
+                    data:totals,
+
+                    backgroundColor:
+                    "rgba(139,107,57,.72)",
+
+                    borderRadius:5
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    },
+
+                    tooltip:{
+
+                        callbacks:{
+
+                            label:function(context){
+
+                                return money(
+                                    context.raw
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+
+                        ticks:{
+
+                            callback:function(value){
+
+                                if(value >= 1000){
+
+                                    return (
+                                        Math.round(
+                                            value / 1000
+                                        )
+                                        +
+                                        "K"
+                                    );
+
+                                }
+
+                                return value;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+// ========================================
+// RECORDS
+// ========================================
+
+function calculateRecords(){
+
+    const monthTotals = {};
+    const dayTotals = {};
+
+
+    salesData.forEach(s=>{
+
+        if(!s.date){
+            return;
+        }
+
+
+        const total =
+        getSaleTotal(s);
+
+
+        const month =
+        s.date.substring(0,7);
+
+
+        if(!monthTotals[month]){
+            monthTotals[month] = 0;
+        }
+
+
+        monthTotals[month] +=
+        total;
+
+
+        if(!dayTotals[s.date]){
+            dayTotals[s.date] = 0;
+        }
+
+
+        dayTotals[s.date] +=
+        total;
+
+    });
+
+
+    let highestMonth = null;
+    let highestMonthAmount = 0;
+
+
+    Object.entries(
+        monthTotals
+    ).forEach(([month,amount])=>{
+
+        if(
+            amount
+            >
+            highestMonthAmount
+        ){
+
+            highestMonth = month;
+            highestMonthAmount = amount;
+
+        }
+
+    });
+
+
+    let highestDay = null;
+    let highestDayAmount = 0;
+
+
+    Object.entries(
+        dayTotals
+    ).forEach(([day,amount])=>{
+
+        if(
+            amount
+            >
+            highestDayAmount
+        ){
+
+            highestDay = day;
+            highestDayAmount = amount;
+
+        }
+
+    });
+
+
+    setText(
+        "highestMonth",
+
+        highestMonth
+        ?
+        monthName(highestMonth)
+        +
+        " — "
+        +
+        money(highestMonthAmount)
+        :
+        "--"
+    );
+
+
+    setText(
+        "highestDay",
+
+        highestDay
+        ?
+        displayDate(highestDay)
+        +
+        " — "
+        +
+        money(highestDayAmount)
+        :
+        "--"
+    );
+
+}
+
+
+// ========================================
+// START DASHBOARD
+// ========================================
+
+async function loadDashboard(){
+
+    try{
+
+
+        await loadData();
+
+
+        // CASH BALANCE
+
+        setText(
+            "cashBalance",
+            money(
+                calculateCashBalance()
+            )
+        );
+
+
+        // MONTH SELECT
+
+        buildMonthSelect();
+
+
+        const select =
+        document.getElementById(
+            "analyticsMonth"
+        );
+
+
+        const selectedMonth =
+        select
+        ?
+        select.value
+        :
+        monthKey(new Date());
+
+
+        // CURRENT MONTH / ANALYTICS
+
+        renderMonth(
+            selectedMonth
+        );
+
+
+        // YEAR OVERVIEW
+
+        drawYearOverview();
+
+
+        // RECORDS
+
+        calculateRecords();
+
+
+        /*
+        When month changes,
+        also update Year Overview.
+        */
+
+        if(select){
+
+            select.onchange = ()=>{
+
+                renderMonth(
+                    select.value
+                );
+
+                drawYearOverview();
+
+            };
 
         }
 
