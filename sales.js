@@ -2,31 +2,27 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
 getFirestore,
 collection,
 addDoc,
 getDocs,
 deleteDoc,
 doc,
-updateDoc
+updateDoc,
+getDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// =========================
-// LOGIN CHECK
-// =========================
-
-if(localStorage.getItem("alhuduLogin") !== "true"){
-
-window.location.href = "login.html";
-
-}
-
-
-// =========================
+// ========================================
 // FIREBASE
-// =========================
+// ========================================
 
 const firebaseConfig = {
 
@@ -45,14 +41,32 @@ const firebaseConfig = {
 };
 
 
-const app = initializeApp(firebaseConfig);
+const app =
+initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+
+const db =
+getFirestore(app);
 
 
-// =========================
+const auth =
+getAuth(app);
+
+
+// ========================================
+// CURRENT USER
+// ========================================
+
+let currentRole = "";
+
+let currentUsername = "";
+
+let pageStarted = false;
+
+
+// ========================================
 // VARIABLES
-// =========================
+// ========================================
 
 let editId = null;
 
@@ -63,9 +77,9 @@ let currentMonthSales = [];
 let displayedSales = [];
 
 
-// =========================
+// ========================================
 // INPUTS
-// =========================
+// ========================================
 
 const cashInput =
 document.getElementById("cash");
@@ -76,18 +90,185 @@ document.getElementById("card");
 const totalInput =
 document.getElementById("totalSale");
 
+const saveButton =
+document.getElementById("saveSale");
 
-// =========================
+
+// ========================================
+// HELPERS
+// ========================================
+
+function number(value){
+
+return Number(value || 0);
+
+}
+
+
+function money(value){
+
+return number(value)
+.toLocaleString()
++
+" AED";
+
+}
+
+
+// ========================================
+// AUTH USER PROFILE
+// ========================================
+
+async function loadUserProfile(user){
+
+
+const snap =
+await getDoc(
+doc(
+db,
+"user",
+user.uid
+)
+);
+
+
+if(!snap.exists()){
+
+throw new Error(
+"User profile not found"
+);
+
+}
+
+
+const data =
+snap.data();
+
+
+currentRole =
+String(
+data.role || ""
+)
+.trim()
+.toLowerCase();
+
+
+currentUsername =
+String(
+data.username || ""
+)
+.trim()
+.toLowerCase();
+
+
+if(
+currentRole !== "admin"
+&&
+currentRole !== "viewer"
+){
+
+throw new Error(
+"Invalid user role"
+);
+
+}
+
+
+sessionStorage.setItem(
+"alhuduRole",
+currentRole
+);
+
+
+sessionStorage.setItem(
+"alhuduUsername",
+currentUsername
+);
+
+
+}
+
+
+// ========================================
+// VIEWER MODE
+// ========================================
+
+function applyViewerMode(){
+
+
+if(currentRole !== "viewer"){
+
+return;
+
+}
+
+
+// Disable form inputs
+
+const ids = [
+"date",
+"cash",
+"card",
+"totalSale",
+"note"
+];
+
+
+ids.forEach(id=>{
+
+
+const el =
+document.getElementById(id);
+
+
+if(el){
+
+el.disabled =
+true;
+
+}
+
+});
+
+
+// Hide save button
+
+if(saveButton){
+
+saveButton.style.display =
+"none";
+
+}
+
+
+// Hide edit/delete buttons after rendering
+
+document.body.classList.add(
+"viewer-mode"
+);
+
+
+}
+
+
+// ========================================
 // TOTAL CALCULATION
-// =========================
+// ========================================
 
 function calculateTotal(){
 
+
 const cash =
-Number(cashInput.value || 0);
+number(
+cashInput.value
+);
+
 
 const card =
-Number(cardInput.value || 0);
+number(
+cardInput.value
+);
+
 
 totalInput.value =
 cash + card;
@@ -95,39 +276,64 @@ cash + card;
 }
 
 
-cashInput.oninput = calculateTotal;
+cashInput.oninput =
+calculateTotal;
 
-cardInput.oninput = calculateTotal;
+
+cardInput.oninput =
+calculateTotal;
 
 
-// =========================
+// ========================================
 // SAVE / UPDATE SALE
-// =========================
+// ADMIN ONLY
+// ========================================
 
-document
-.getElementById("saveSale")
-.onclick = async()=>{
+saveButton.onclick =
+async()=>{
+
+
+if(currentRole !== "admin"){
+
+alert(
+"Read only access"
+);
+
+return;
+
+}
 
 
 const date =
-document.getElementById("date").value;
+document
+.getElementById("date")
+.value;
 
 
 const cash =
-Number(cashInput.value || 0);
+number(
+cashInput.value
+);
 
 
 const card =
-Number(cardInput.value || 0);
+number(
+cardInput.value
+);
 
 
 const note =
-document.getElementById("note").value.trim();
+document
+.getElementById("note")
+.value
+.trim();
 
 
 if(!date){
 
-alert("Please select a date");
+alert(
+"Please select a date"
+);
 
 return;
 
@@ -136,7 +342,24 @@ return;
 
 if(cash < 0 || card < 0){
 
-alert("Amount cannot be negative");
+alert(
+"Amount cannot be negative"
+);
+
+return;
+
+}
+
+
+if(
+cash === 0
+&&
+card === 0
+){
+
+alert(
+"Enter Cash or Card amount"
+);
 
 return;
 
@@ -151,31 +374,59 @@ cash,
 
 card,
 
-total: cash + card,
+total:
+cash + card,
 
-note
+note,
+
+updatedAt:
+new Date()
+.toISOString()
 
 };
+
+
+try{
+
+
+saveButton.disabled =
+true;
+
+
+saveButton.textContent =
+editId
+?
+"Updating..."
+:
+"Saving...";
 
 
 if(editId){
 
 
 await updateDoc(
-doc(db,"sales",editId),
+
+doc(
+db,
+"sales",
+editId
+),
+
 sale
+
 );
 
 
-alert("Sale Updated ✅");
+alert(
+"Sale Updated ✅"
+);
 
 
-editId = null;
+editId =
+null;
 
 
-document
-.getElementById("saveSale")
-.innerHTML =
+saveButton.textContent =
 "Save Sale";
 
 
@@ -183,28 +434,96 @@ document
 
 
 await addDoc(
-collection(db,"sales"),
-sale
+
+collection(
+db,
+"sales"
+),
+
+{
+
+...sale,
+
+createdAt:
+new Date()
+.toISOString()
+
+}
+
 );
 
 
-alert("Sale Saved ✅");
-
+alert(
+"Sale Saved ✅"
+);
 
 }
 
 
 clearForm();
 
+
 await loadSales();
 
+
+}catch(error){
+
+
+console.error(
+"Save Sale Error:",
+error
+);
+
+
+if(
+error.code ===
+"permission-denied"
+){
+
+
+alert(
+"Permission denied. This account cannot save sales."
+);
+
+
+}else{
+
+
+alert(
+"Error saving sale: "
++
+(
+error.code
+||
+error.message
+)
+);
+
+}
+
+
+}finally{
+
+
+saveButton.disabled =
+false;
+
+
+if(!editId){
+
+saveButton.textContent =
+"Save Sale";
+
+}
+
+}
 
 };
 
 
-// =========================
+// ========================================
 // CLEAR FORM
-// =========================
+// ========================================
 
 function clearForm(){
 
@@ -214,26 +533,46 @@ document
 .value = "";
 
 
-cashInput.value = "";
+cashInput.value =
+"";
 
-cardInput.value = "";
 
-totalInput.value = "";
+cardInput.value =
+"";
+
+
+totalInput.value =
+"";
 
 
 document
 .getElementById("note")
-.value = "";
+.value =
+"";
 
+
+editId =
+null;
+
+
+if(saveButton){
+
+saveButton.textContent =
+"Save Sale";
+
+}
 
 }
 
 
-// =========================
+// ========================================
 // LOAD SALES
-// =========================
+// ========================================
 
 async function loadSales(){
+
+
+try{
 
 
 allSales = [];
@@ -241,7 +580,10 @@ allSales = [];
 
 const snap =
 await getDocs(
-collection(db,"sales")
+collection(
+db,
+"sales"
+)
 );
 
 
@@ -260,14 +602,20 @@ id:item.id,
 });
 
 
-// newest date first
+// NEWEST FIRST
 
-allSales.sort((a,b)=>{
+allSales.sort(
+(a,b)=>{
 
-return (b.date || "")
-.localeCompare(a.date || "");
+return (
+b.date || ""
+)
+.localeCompare(
+a.date || ""
+);
 
-});
+}
+);
 
 
 const today =
@@ -277,44 +625,88 @@ new Date()
 
 
 const currentMonth =
-today.substring(0,7);
+today.substring(
+0,
+7
+);
 
 
 currentMonthSales =
-allSales.filter(sale=>{
+allSales.filter(
+sale=>{
 
 return (
-sale.date &&
-sale.date.startsWith(currentMonth)
+sale.date
+&&
+sale.date.startsWith(
+currentMonth
+)
 );
 
-});
+}
+);
 
 
 displayedSales =
-[...currentMonthSales];
+[
+...currentMonthSales
+];
 
 
-displaySales(displayedSales);
+displaySales(
+displayedSales
+);
+
 
 updateSalesSummary();
 
 
+}catch(error){
+
+
+console.error(
+"Load Sales Error:",
+error
+);
+
+
+alert(
+"Error loading sales: "
++
+(
+error.code
+||
+error.message
+)
+);
+
+}
+
 }
 
 
-// =========================
+// ========================================
 // DISPLAY SALES
-// =========================
+// ========================================
 
 function displaySales(list){
 
 
 const box =
-document.getElementById("salesList");
+document.getElementById(
+"salesList"
+);
 
 
-box.innerHTML = "";
+if(!box){
+
+return;
+
+}
+
+
+box.innerHTML =
+"";
 
 
 if(list.length === 0){
@@ -343,56 +735,13 @@ return;
 list.forEach(sale=>{
 
 
-box.innerHTML += `
+const actionButtons =
 
-<div class="sale-card">
+currentRole === "admin"
 
+?
 
-<div class="sale-header">
-
-<span>
-📅 ${sale.date || "-"}
-</span>
-
-<span>
-${Number(sale.total || 0).toLocaleString()} AED
-</span>
-
-</div>
-
-
-<div class="sale-row">
-
-<span>💵 Cash</span>
-
-<b>
-${Number(sale.cash || 0).toLocaleString()} AED
-</b>
-
-</div>
-
-
-<div class="sale-row">
-
-<span>💳 Card</span>
-
-<b>
-${Number(sale.card || 0).toLocaleString()} AED
-</b>
-
-</div>
-
-
-<div class="sale-row">
-
-<span>📝 Note</span>
-
-<b>
-${sale.note || "-"}
-</b>
-
-</div>
-
+`
 
 <div class="action">
 
@@ -415,21 +764,79 @@ onclick="deleteSale('${sale.id}')">
 
 </div>
 
+`
+
+:
+
+"";
+
+
+box.innerHTML += `
+
+<div class="sale-card">
+
+
+<div class="sale-header">
+
+<span>
+📅 ${sale.date || "-"}
+</span>
+
+<span>
+${money(sale.total)}
+</span>
+
+</div>
+
+
+<div class="sale-row">
+
+<span>💵 Cash</span>
+
+<b>
+${money(sale.cash)}
+</b>
+
+</div>
+
+
+<div class="sale-row">
+
+<span>💳 Card</span>
+
+<b>
+${money(sale.card)}
+</b>
+
+</div>
+
+
+<div class="sale-row">
+
+<span>📝 Note</span>
+
+<b>
+${sale.note || "-"}
+</b>
+
+</div>
+
+
+${actionButtons}
+
 
 </div>
 
 `;
 
-
 });
-
 
 }
 
 
-// =========================
+// ========================================
 // SALES SUMMARY
-// =========================
+// ========================================
 
 function updateSalesSummary(){
 
@@ -441,7 +848,10 @@ new Date()
 
 
 const currentMonth =
-today.substring(0,7);
+today.substring(
+0,
+7
+);
 
 
 let todayTotal = 0;
@@ -457,75 +867,128 @@ allSales.forEach(sale=>{
 
 
 const total =
-Number(sale.total || 0);
+number(
+sale.total
+);
 
 
 const cash =
-Number(sale.cash || 0);
+number(
+sale.cash
+);
 
 
 const card =
-Number(sale.card || 0);
+number(
+sale.card
+);
 
 
-if(sale.date === today){
+if(
+sale.date === today
+){
 
-todayTotal += total;
+todayTotal +=
+total;
 
 }
 
 
 if(
-sale.date &&
-sale.date.startsWith(currentMonth)
+sale.date
+&&
+sale.date.startsWith(
+currentMonth
+)
 ){
 
-monthTotal += total;
+monthTotal +=
+total;
 
-monthCash += cash;
+monthCash +=
+cash;
 
-monthCard += card;
+monthCard +=
+card;
 
 }
-
 
 });
 
 
-document
-.getElementById("todaySalesTotal")
-.innerHTML =
-todayTotal.toLocaleString() + " AED";
+const todayBox =
+document.getElementById(
+"todaySalesTotal"
+);
 
 
-document
-.getElementById("monthSalesTotal")
-.innerHTML =
-monthTotal.toLocaleString() + " AED";
+const monthBox =
+document.getElementById(
+"monthSalesTotal"
+);
 
 
-document
-.getElementById("monthCashTotal")
-.innerHTML =
-monthCash.toLocaleString() + " AED";
+const cashBox =
+document.getElementById(
+"monthCashTotal"
+);
 
 
-document
-.getElementById("monthCardTotal")
-.innerHTML =
-monthCard.toLocaleString() + " AED";
+const cardBox =
+document.getElementById(
+"monthCardTotal"
+);
 
+
+if(todayBox){
+
+todayBox.textContent =
+money(todayTotal);
 
 }
 
 
-// =========================
-// SEARCH TEXT
-// =========================
+if(monthBox){
 
-document
-.getElementById("searchSale")
-.oninput = function(){
+monthBox.textContent =
+money(monthTotal);
+
+}
+
+
+if(cashBox){
+
+cashBox.textContent =
+money(monthCash);
+
+}
+
+
+if(cardBox){
+
+cardBox.textContent =
+money(monthCard);
+
+}
+
+}
+
+
+// ========================================
+// SEARCH TEXT
+// ========================================
+
+const searchSale =
+document.getElementById(
+"searchSale"
+);
+
+
+if(searchSale){
+
+
+searchSale.oninput =
+function(){
 
 
 const text =
@@ -537,7 +1000,10 @@ this.value
 if(text === ""){
 
 
-displaySales(displayedSales);
+displaySales(
+displayedSales
+);
+
 
 return;
 
@@ -545,63 +1011,89 @@ return;
 
 
 const result =
-displayedSales.filter(sale=>{
+displayedSales.filter(
+sale=>{
 
 
 const date =
-(sale.date || "")
+String(
+sale.date || ""
+)
 .toLowerCase();
 
 
 const note =
-(sale.note || "")
+String(
+sale.note || ""
+)
 .toLowerCase();
 
 
 return (
 
-date.includes(text)
+date.includes(
+text
+)
 
 ||
 
-note.includes(text)
+note.includes(
+text
+)
 
 );
 
+}
+);
 
-});
 
-
-displaySales(result);
-
+displaySales(
+result
+);
 
 };
 
+}
 
-// =========================
+
+// ========================================
 // FILTER DATE RANGE
-// =========================
+// ========================================
 
-document
-.getElementById("filterSales")
-.onclick = function(){
+const filterSales =
+document.getElementById(
+"filterSales"
+);
+
+
+if(filterSales){
+
+
+filterSales.onclick =
+function(){
 
 
 const from =
 document
-.getElementById("fromSaleDate")
+.getElementById(
+"fromSaleDate"
+)
 .value;
 
 
 const to =
 document
-.getElementById("toSaleDate")
+.getElementById(
+"toSaleDate"
+)
 .value;
 
 
 if(!from || !to){
 
-alert("Select From Date and To Date");
+alert(
+"Select From Date and To Date"
+);
 
 return;
 
@@ -610,7 +1102,9 @@ return;
 
 if(from > to){
 
-alert("From Date cannot be after To Date");
+alert(
+"From Date cannot be after To Date"
+);
 
 return;
 
@@ -618,29 +1112,45 @@ return;
 
 
 displayedSales =
-allSales.filter(sale=>{
+allSales.filter(
+sale=>{
 
 return (
-sale.date &&
-sale.date >= from &&
+sale.date
+&&
+sale.date >= from
+&&
 sale.date <= to
 );
 
-});
+}
+);
 
 
-displaySales(displayedSales);
+displaySales(
+displayedSales
+);
 
 };
 
+}
 
-// =========================
+
+// ========================================
 // THIS MONTH
-// =========================
+// ========================================
 
-document
-.getElementById("showThisMonth")
-.onclick = function(){
+const showThisMonth =
+document.getElementById(
+"showThisMonth"
+);
+
+
+if(showThisMonth){
+
+
+showThisMonth.onclick =
+function(){
 
 
 const today =
@@ -650,51 +1160,103 @@ new Date()
 
 
 const currentMonth =
-today.substring(0,7);
+today.substring(
+0,
+7
+);
 
 
 displayedSales =
-allSales.filter(sale=>{
+allSales.filter(
+sale=>{
 
 return (
-sale.date &&
-sale.date.startsWith(currentMonth)
+sale.date
+&&
+sale.date.startsWith(
+currentMonth
+)
 );
 
-});
+}
+);
 
 
-document
-.getElementById("fromSaleDate")
-.value = "";
+const fromBox =
+document.getElementById(
+"fromSaleDate"
+);
 
 
-document
-.getElementById("toSaleDate")
-.value = "";
+const toBox =
+document.getElementById(
+"toSaleDate"
+);
 
 
-document
-.getElementById("searchSale")
-.value = "";
+const searchBox =
+document.getElementById(
+"searchSale"
+);
 
 
-displaySales(displayedSales);
+if(fromBox){
 
+fromBox.value =
+"";
+
+}
+
+
+if(toBox){
+
+toBox.value =
+"";
+
+}
+
+
+if(searchBox){
+
+searchBox.value =
+"";
+
+}
+
+
+displaySales(
+displayedSales
+);
 
 };
 
+}
 
-// =========================
+
+// ========================================
 // EDIT SALE
-// =========================
+// ADMIN ONLY
+// ========================================
 
-window.editSale = function(id){
+window.editSale =
+function(id){
+
+
+if(currentRole !== "admin"){
+
+alert(
+"Read only access"
+);
+
+return;
+
+}
 
 
 const sale =
 allSales.find(
-item=>item.id === id
+item=>
+item.id === id
 );
 
 
@@ -712,15 +1274,21 @@ sale.date || "";
 
 
 cashInput.value =
-Number(sale.cash || 0);
+number(
+sale.cash
+);
 
 
 cardInput.value =
-Number(sale.card || 0);
+number(
+sale.card
+);
 
 
 totalInput.value =
-Number(sale.total || 0);
+number(
+sale.total
+);
 
 
 document
@@ -729,12 +1297,11 @@ document
 sale.note || "";
 
 
-editId = id;
+editId =
+id;
 
 
-document
-.getElementById("saveSale")
-.innerHTML =
+saveButton.textContent =
 "Update Sale";
 
 
@@ -746,40 +1313,190 @@ behavior:"smooth"
 
 });
 
-
 };
 
 
-// =========================
+// ========================================
 // DELETE SALE
-// =========================
+// ADMIN ONLY
+// ========================================
 
-window.deleteSale = async function(id){
+window.deleteSale =
+async function(id){
 
 
-if(!confirm("Delete this sale?")){
+if(currentRole !== "admin"){
+
+alert(
+"Read only access"
+);
 
 return;
 
 }
 
 
+if(
+!confirm(
+"Delete this sale?"
+)
+){
+
+return;
+
+}
+
+
+try{
+
+
 await deleteDoc(
-doc(db,"sales",id)
+
+doc(
+db,
+"sales",
+id
+)
+
 );
 
 
-alert("Sale Deleted ✅");
+alert(
+"Sale Deleted ✅"
+);
 
 
 await loadSales();
 
 
+}catch(error){
+
+
+console.error(
+"Delete Sale Error:",
+error
+);
+
+
+alert(
+"Error deleting sale: "
++
+(
+error.code
+||
+error.message
+)
+);
+
+}
+
 };
 
 
-// =========================
-// START
-// =========================
+// ========================================
+// START PAGE
+// ========================================
 
-loadSales();
+async function startPage(){
+
+
+if(pageStarted){
+
+return;
+
+}
+
+
+pageStarted =
+true;
+
+
+try{
+
+
+await loadSales();
+
+
+applyViewerMode();
+
+
+}catch(error){
+
+
+console.error(
+"Sales Page Error:",
+error
+);
+
+
+alert(
+"Sales page error: "
++
+(
+error.code
+||
+error.message
+)
+);
+
+}
+
+}
+
+
+// ========================================
+// AUTH START
+// ========================================
+
+onAuthStateChanged(
+auth,
+async user=>{
+
+
+if(!user){
+
+
+window.location.replace(
+"login.html"
+);
+
+
+return;
+
+}
+
+
+try{
+
+
+await loadUserProfile(
+user
+);
+
+
+await startPage();
+
+
+}catch(error){
+
+
+console.error(
+"Sales Authentication Error:",
+error
+);
+
+
+alert(
+"Authentication error: "
++
+(
+error.code
+||
+error.message
+)
+);
+
+}
+
+}
+);
