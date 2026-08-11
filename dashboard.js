@@ -2,18 +2,18 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-getAuth,
-onAuthStateChanged
+  getAuth,
+  onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-getFirestore,
-collection,
-getDocs,
-doc,
-getDoc,
-setDoc
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -24,31 +24,31 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
 
-authDomain: "al-hudu-management.firebaseapp.com",
+  authDomain: "al-hudu-management.firebaseapp.com",
 
-projectId: "al-hudu-management",
+  projectId: "al-hudu-management",
 
-storageBucket: "al-hudu-management.firebasestorage.app",
+  storageBucket: "al-hudu-management.firebasestorage.app",
 
-messagingSenderId: "1045649803744",
+  messagingSenderId: "1045649803744",
 
-appId: "1:1045649803744:web:bc6ead0755d196c020c385"
+  appId: "1:1045649803744:web:bc6ead0755d196c020c385"
 
 };
 
 
 const app =
-initializeApp(firebaseConfig);
+  initializeApp(firebaseConfig);
 
 
 const db =
-getFirestore(app);
+  getFirestore(app);
 
 
 const auth =
-getAuth(app);
+  getAuth(app);
 
 
 // ========================================
@@ -58,6 +58,8 @@ getAuth(app);
 let currentRole = "";
 
 let currentUsername = "";
+
+let dashboardStarted = false;
 
 
 // ========================================
@@ -76,7 +78,6 @@ let openingCash = 0;
 
 let selectedMonth = "";
 
-
 let salesChart = null;
 
 let yearChart = null;
@@ -88,175 +89,175 @@ let ratioChart = null;
 // HELPERS
 // ========================================
 
-function number(value){
+function number(value) {
 
-return Number(value || 0);
-
-}
-
-
-function money(value){
-
-return number(value)
-.toLocaleString(
-undefined,
-{
-maximumFractionDigits:0
-}
-)
-+
-" AED";
+  return Number(value || 0);
 
 }
 
 
-function currentMonthKey(){
+function money(value) {
 
-const now =
-new Date();
-
-
-return (
-
-now.getFullYear()
-
-+
-
-"-"
-
-+
-
-String(
-now.getMonth() + 1
-)
-.padStart(
-2,
-"0"
-)
-
-);
+  return number(value)
+    .toLocaleString(
+      undefined,
+      {
+        maximumFractionDigits: 0
+      }
+    )
+    +
+    " AED";
 
 }
 
 
-function previousMonthKey(value){
+function currentMonthKey() {
 
-const parts =
-value.split("-");
-
-
-const year =
-Number(parts[0]);
+  const now =
+    new Date();
 
 
-const month =
-Number(parts[1]);
+  return (
 
+    now.getFullYear()
 
-const date =
-new Date(
-year,
-month - 2,
-1
-);
+    +
 
+    "-"
 
-return (
+    +
 
-date.getFullYear()
+    String(
+      now.getMonth() + 1
+    )
+      .padStart(
+        2,
+        "0"
+      )
 
-+
-
-"-"
-
-+
-
-String(
-date.getMonth() + 1
-)
-.padStart(
-2,
-"0"
-)
-
-);
+  );
 
 }
 
 
-function monthName(value){
+function previousMonthKey(value) {
 
-if(!value){
-
-return "--";
-
-}
+  const parts =
+    value.split("-");
 
 
-const parts =
-value.split("-");
+  const year =
+    Number(parts[0]);
 
 
-const date =
-new Date(
-Number(parts[0]),
-Number(parts[1]) - 1,
-1
-);
+  const month =
+    Number(parts[1]);
 
 
-return date.toLocaleDateString(
-"en-US",
-{
-month:"long",
-year:"numeric"
-}
-);
-
-}
+  const date =
+    new Date(
+      year,
+      month - 2,
+      1
+    );
 
 
-function displayDate(value){
+  return (
 
-if(!value){
+    date.getFullYear()
 
-return "--";
+    +
 
-}
+    "-"
 
+    +
 
-const parts =
-value.split("-");
+    String(
+      date.getMonth() + 1
+    )
+      .padStart(
+        2,
+        "0"
+      )
 
-
-if(parts.length !== 3){
-
-return value;
+  );
 
 }
 
 
-return (
+function monthName(value) {
 
-parts[2]
+  if (!value) {
 
-+
+    return "--";
 
-"-"
+  }
 
-+
 
-parts[1]
+  const parts =
+    value.split("-");
 
-+
 
-"-"
+  const date =
+    new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      1
+    );
 
-+
 
-parts[0]
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      year: "numeric"
+    }
+  );
 
-);
+}
+
+
+function displayDate(value) {
+
+  if (!value) {
+
+    return "--";
+
+  }
+
+
+  const parts =
+    value.split("-");
+
+
+  if (parts.length !== 3) {
+
+    return value;
+
+  }
+
+
+  return (
+
+    parts[2]
+
+    +
+
+    "-"
+
+    +
+
+    parts[1]
+
+    +
+
+    "-"
+
+    +
+
+    parts[0]
+
+  );
 
 }
 
@@ -265,186 +266,97 @@ parts[0]
 // DAYS IN MONTH
 // ========================================
 
-function daysInMonth(value){
+function daysInMonth(value) {
 
-const parts =
-value.split("-");
-
-
-const year =
-Number(parts[0]);
+  const parts =
+    value.split("-");
 
 
-const month =
-Number(parts[1]);
+  const year =
+    Number(parts[0]);
 
 
-return new Date(
-year,
-month,
-0
-)
-.getDate();
-
-}
+  const month =
+    Number(parts[1]);
 
 
-// ========================================
-// AUTHENTICATION
-// ========================================
-
-async function checkUser(user){
-
-try{
-
-
-const userSnap =
-await getDoc(
-
-doc(
-db,
-"user",
-user.uid
-)
-
-);
-
-
-if(!userSnap.exists()){
-
-window.location.href =
-"login.html";
-
-return false;
+  return new Date(
+    year,
+    month,
+    0
+  )
+    .getDate();
 
 }
-
-
-const data =
-userSnap.data();
-
-
-currentRole =
-String(
-data.role || ""
-)
-.toLowerCase();
-
-
-currentUsername =
-String(
-data.username || ""
-)
-.toLowerCase();
-
-
-if(
-currentRole !== "admin"
-&&
-currentRole !== "viewer"
-){
-
-window.location.href =
-"login.html";
-
-return false;
-
-}
-
-
-// Save only for UI use.
-// Firestore Rules provide the real security.
-
-sessionStorage.setItem(
-"alhuduRole",
-currentRole
-);
-
-
-sessionStorage.setItem(
-"alhuduUsername",
-currentUsername
-);
 
 
 // ========================================
 // VIEWER MODE
 // ========================================
 
-if(currentRole === "viewer"){
+function applyViewerMode() {
 
-document.body.classList.add(
-"viewer-mode"
-);
+  if (currentRole !== "viewer") {
 
+    return;
 
-// VIEWER CANNOT EDIT TARGET
-
-const editTarget =
-document.getElementById(
-"editTarget"
-);
+  }
 
 
-if(editTarget){
-
-editTarget.style.display =
-"none";
-
-}
+  document.body.classList.add(
+    "viewer-mode"
+  );
 
 
-// HIDE WRITE QUICK ACTIONS
+  // Hide Edit Target
 
-document
-.querySelectorAll(
-".quick-button"
-)
-.forEach(button=>{
-
-
-const text =
-button.textContent
-.toLowerCase();
+  const editTarget =
+    document.getElementById(
+      "editTarget"
+    );
 
 
-if(
-text.includes("new sale")
-||
-text.includes("new expense")
-||
-text.includes("cash withdrawal")
-){
+  if (editTarget) {
 
-button.style.display =
-"none";
+    editTarget.style.display =
+      "none";
 
-}
-
-});
-
-}
+  }
 
 
-return true;
+  // Hide write quick actions
+
+  document
+    .querySelectorAll(
+      ".quick-button"
+    )
+    .forEach(button => {
 
 
-}catch(error){
+      const text =
+        button.textContent
+          .trim()
+          .toLowerCase();
 
 
-console.error(
-"Authentication Error:",
-error
-);
+      if (
+        text.includes("new sale")
+        ||
+        text.includes("new expense")
+        ||
+        text.includes("cash withdrawal")
+        ||
+        text.includes("add sale")
+        ||
+        text.includes("add expense")
+      ) {
 
+        button.style.display =
+          "none";
 
-window.location.href =
-"login.html";
+      }
 
-
-return false;
-
-}
+    });
 
 }
 
@@ -453,241 +365,233 @@ return false;
 // LOAD ALL DATA
 // ========================================
 
-async function loadData(){
+async function loadData() {
 
 
-const [
+  const [
 
-openingSnap,
+    openingSnap,
 
-salesSnap,
+    salesSnap,
 
-expensesSnap,
+    expensesSnap,
 
-staffSnap,
+    staffSnap,
 
-withdrawalsSnap
+    withdrawalsSnap
 
-] = await Promise.all([
+  ] = await Promise.all([
 
 
-getDoc(
-doc(
-db,
-"settings",
-"openingBalance"
-)
-),
+    getDoc(
+      doc(
+        db,
+        "settings",
+        "openingBalance"
+      )
+    ),
 
 
-getDocs(
-collection(
-db,
-"sales"
-)
-),
+    getDocs(
+      collection(
+        db,
+        "sales"
+      )
+    ),
 
 
-getDocs(
-collection(
-db,
-"expenses"
-)
-),
+    getDocs(
+      collection(
+        db,
+        "expenses"
+      )
+    ),
 
 
-getDocs(
-collection(
-db,
-"staff"
-)
-),
+    getDocs(
+      collection(
+        db,
+        "staff"
+      )
+    ),
 
 
-getDocs(
-collection(
-db,
-"withdrawals"
-)
-)
+    getDocs(
+      collection(
+        db,
+        "withdrawals"
+      )
+    )
 
 
-]);
+  ]);
 
 
-// OPENING CASH
+  // OPENING CASH
 
-if(openingSnap.exists()){
+  if (openingSnap.exists()) {
 
-openingCash =
-number(
-openingSnap
-.data()
-.amount
-);
+    openingCash =
+      number(
+        openingSnap
+          .data()
+          .amount
+      );
 
-}
+  }
 
 
-// SALES
+  // SALES
 
-allSales = [];
+  allSales = [];
 
 
-salesSnap.forEach(item=>{
+  salesSnap.forEach(item => {
 
-allSales.push({
+    allSales.push({
 
-id:item.id,
+      id: item.id,
 
-...item.data()
+      ...item.data()
 
-});
+    });
 
-});
+  });
 
 
-// EXPENSES
+  // EXPENSES
 
-allExpenses = [];
+  allExpenses = [];
 
 
-expensesSnap.forEach(item=>{
+  expensesSnap.forEach(item => {
 
-allExpenses.push({
+    allExpenses.push({
 
-id:item.id,
+      id: item.id,
 
-...item.data()
+      ...item.data()
 
-});
+    });
 
-});
+  });
 
 
-// STAFF
+  // STAFF
 
-allStaff = [];
+  allStaff = [];
 
 
-staffSnap.forEach(item=>{
+  staffSnap.forEach(item => {
 
-allStaff.push({
+    allStaff.push({
 
-id:item.id,
+      id: item.id,
 
-...item.data()
+      ...item.data()
 
-});
+    });
 
-});
+  });
 
 
-// WITHDRAWALS
+  // WITHDRAWALS
 
-allWithdrawals = [];
+  allWithdrawals = [];
 
 
-withdrawalsSnap.forEach(item=>{
+  withdrawalsSnap.forEach(item => {
 
-allWithdrawals.push({
+    allWithdrawals.push({
 
-id:item.id,
+      id: item.id,
 
-...item.data()
+      ...item.data()
 
-});
+    });
 
-});
+  });
 
 }
 
 
 // ========================================
 // CURRENT CASH BALANCE
-//
-// Opening Cash
-// + ALL Cash Sales
-// - ALL Expenses
-// - ALL Staff Payments
-// - ALL Cash Withdrawals
-//
-// Card Sales are NOT added.
 // ========================================
 
-function calculateCurrentCashBalance(){
+function calculateCurrentCashBalance() {
 
 
-let cashSales = 0;
+  let cashSales = 0;
 
-let expenses = 0;
+  let expenses = 0;
 
-let staff = 0;
+  let staff = 0;
 
-let withdrawals = 0;
-
-
-allSales.forEach(s=>{
-
-cashSales +=
-number(
-s.cash
-);
-
-});
+  let withdrawals = 0;
 
 
-allExpenses.forEach(e=>{
+  allSales.forEach(s => {
 
-expenses +=
-number(
-e.amount
-);
+    cashSales +=
+      number(
+        s.cash
+      );
 
-});
-
-
-allStaff.forEach(s=>{
-
-staff +=
-number(
-s.total
-);
-
-});
+  });
 
 
-allWithdrawals.forEach(w=>{
+  allExpenses.forEach(e => {
 
-withdrawals +=
-number(
-w.amount
-);
+    expenses +=
+      number(
+        e.amount
+      );
 
-});
+  });
 
 
-return (
+  allStaff.forEach(s => {
 
-openingCash
+    staff +=
+      number(
+        s.total
+      );
 
-+
+  });
 
-cashSales
 
--
+  allWithdrawals.forEach(w => {
 
-expenses
+    withdrawals +=
+      number(
+        w.amount
+      );
 
--
+  });
 
-staff
 
--
+  return (
 
-withdrawals
+    openingCash
 
-);
+    +
+
+    cashSales
+
+    -
+
+    expenses
+
+    -
+
+    staff
+
+    -
+
+    withdrawals
+
+  );
 
 }
 
@@ -696,105 +600,105 @@ withdrawals
 // MONTH SELECTOR
 // ========================================
 
-function createMonthSelector(){
+function createMonthSelector() {
 
 
-const select =
-document.getElementById(
-"dashboardMonth"
-);
+  const select =
+    document.getElementById(
+      "dashboardMonth"
+    );
 
 
-if(!select){
+  if (!select) {
 
-return;
+    return;
 
-}
-
-
-select.innerHTML = "";
+  }
 
 
-const now =
-new Date();
+  select.innerHTML = "";
 
 
-for(
-let i = 0;
-i < 36;
-i++
-){
+  const now =
+    new Date();
 
 
-const date =
-new Date(
-now.getFullYear(),
-now.getMonth() - i,
-1
-);
+  for (
+    let i = 0;
+    i < 36;
+    i++
+  ) {
 
 
-const key =
-
-date.getFullYear()
-
-+
-
-"-"
-
-+
-
-String(
-date.getMonth() + 1
-)
-.padStart(
-2,
-"0"
-);
+    const date =
+      new Date(
+        now.getFullYear(),
+        now.getMonth() - i,
+        1
+      );
 
 
-const option =
-document.createElement(
-"option"
-);
+    const key =
+
+      date.getFullYear()
+
+      +
+
+      "-"
+
+      +
+
+      String(
+        date.getMonth() + 1
+      )
+        .padStart(
+          2,
+          "0"
+        );
 
 
-option.value =
-key;
+    const option =
+      document.createElement(
+        "option"
+      );
 
 
-option.textContent =
-monthName(key);
+    option.value =
+      key;
 
 
-select.appendChild(
-option
-);
-
-}
+    option.textContent =
+      monthName(key);
 
 
-selectedMonth =
-currentMonthKey();
+    select.appendChild(
+      option
+    );
+
+  }
 
 
-select.value =
-selectedMonth;
+  selectedMonth =
+    currentMonthKey();
 
 
-select.onchange =
-async function(){
+  select.value =
+    selectedMonth;
 
 
-selectedMonth =
-this.value;
+  select.onchange =
+    async function () {
 
 
-await renderDashboard(
-selectedMonth
-);
+      selectedMonth =
+        this.value;
 
-};
+
+      await renderDashboard(
+        selectedMonth
+      );
+
+    };
 
 }
 
@@ -803,224 +707,217 @@ selectedMonth
 // CALCULATE SELECTED MONTH
 // ========================================
 
-function calculateMonth(month){
+function calculateMonth(month) {
 
 
-const previousMonth =
-previousMonthKey(month);
+  const previousMonth =
+    previousMonthKey(month);
 
 
-let totalSales = 0;
+  let totalSales = 0;
 
-let totalCash = 0;
+  let totalCash = 0;
 
-let totalCard = 0;
+  let totalCard = 0;
 
-let totalCost = 0;
+  let totalCost = 0;
 
-let totalStaff = 0;
+  let totalStaff = 0;
 
-let totalWithdraw = 0;
+  let totalWithdraw = 0;
 
-let transactions = 0;
+  let transactions = 0;
 
-let previousSales = 0;
+  let previousSales = 0;
 
 
-const salesByDay = {};
+  const salesByDay = {};
 
 
-// SALES
+  // SALES
 
-allSales.forEach(s=>{
+  allSales.forEach(s => {
 
 
-if(!s.date){
+    if (!s.date) {
 
-return;
+      return;
 
-}
+    }
 
 
-const cash =
-number(s.cash);
+    const cash =
+      number(s.cash);
 
 
-const card =
-number(s.card);
+    const card =
+      number(s.card);
 
 
-const saleTotal =
-cash + card;
+    const saleTotal =
+      cash + card;
 
 
-if(
-s.date.startsWith(
-month
-)
-){
+    if (
+      s.date.startsWith(
+        month
+      )
+    ) {
 
 
-totalCash +=
-cash;
+      totalCash +=
+        cash;
 
 
-totalCard +=
-card;
+      totalCard +=
+        card;
 
 
-totalSales +=
-saleTotal;
+      totalSales +=
+        saleTotal;
 
 
-transactions++;
+      transactions++;
 
 
-if(
-!salesByDay[
-s.date
-]
-){
+      if (
+        !salesByDay[
+          s.date
+        ]
+      ) {
 
-salesByDay[
-s.date
-] = 0;
+        salesByDay[
+          s.date
+        ] = 0;
 
-}
+      }
 
 
-salesByDay[
-s.date
-] +=
-saleTotal;
+      salesByDay[
+        s.date
+      ] +=
+        saleTotal;
 
-}
+    }
 
 
-if(
-s.date.startsWith(
-previousMonth
-)
-){
+    if (
+      s.date.startsWith(
+        previousMonth
+      )
+    ) {
 
-previousSales +=
-saleTotal;
+      previousSales +=
+        saleTotal;
 
-}
+    }
 
-});
+  });
 
 
-// EXPENSES
+  // EXPENSES
 
-allExpenses.forEach(e=>{
+  allExpenses.forEach(e => {
 
 
-if(
-e.date
-&&
-e.date.startsWith(
-month
-)
-){
+    if (
+      e.date
+      &&
+      e.date.startsWith(
+        month
+      )
+    ) {
 
-totalCost +=
-number(
-e.amount
-);
+      totalCost +=
+        number(
+          e.amount
+        );
 
-}
+    }
 
-});
+  });
 
 
-// STAFF
+  // STAFF
 
-allStaff.forEach(s=>{
+  allStaff.forEach(s => {
 
 
-if(
-s.date
-&&
-s.date.startsWith(
-month
-)
-){
+    if (
+      s.date
+      &&
+      s.date.startsWith(
+        month
+      )
+    ) {
 
-totalStaff +=
-number(
-s.total
-);
+      totalStaff +=
+        number(
+          s.total
+        );
 
-}
+    }
 
-});
+  });
 
 
-// WITHDRAWALS
+  // WITHDRAWALS
 
-allWithdrawals.forEach(w=>{
+  allWithdrawals.forEach(w => {
 
 
-if(
-w.date
-&&
-w.date.startsWith(
-month
-)
-){
+    if (
+      w.date
+      &&
+      w.date.startsWith(
+        month
+      )
+    ) {
 
-totalWithdraw +=
-number(
-w.amount
-);
+      totalWithdraw +=
+        number(
+          w.amount
+        );
 
-}
+    }
 
-});
+  });
 
 
-// ========================================
-// NET SALES AMOUNT
-//
-// Staff Payment is NOT deducted.
-// Cash Withdrawal is NOT deducted.
-//
-// Total Sales - Expenses
-// ========================================
+  // NET SALES = SALES - EXPENSES
 
-const netSalesAmount =
+  const netSalesAmount =
 
-totalSales
+    totalSales
 
--
+    -
 
-totalCost;
+    totalCost;
 
 
-return {
+  return {
 
-totalSales,
+    totalSales,
 
-totalCash,
+    totalCash,
 
-totalCard,
+    totalCard,
 
-totalCost,
+    totalCost,
 
-totalStaff,
+    totalStaff,
 
-totalWithdraw,
+    totalWithdraw,
 
-transactions,
+    transactions,
 
-previousSales,
+    previousSales,
 
-netSalesAmount,
+    netSalesAmount,
 
-salesByDay
+    salesByDay
 
-};
+  };
 
 }
 
@@ -1029,50 +926,52 @@ salesByDay
 // TARGET
 // ========================================
 
-async function getTarget(month){
+async function getTarget(month) {
 
 
-try{
+  try {
 
 
-const snap =
-await getDoc(
+    const snap =
+      await getDoc(
 
-doc(
-db,
-"monthlyTargets",
-month
-)
+        doc(
+          db,
+          "monthlyTargets",
+          month
+        )
 
-);
-
-
-if(snap.exists()){
-
-return number(
-snap
-.data()
-.amount
-);
-
-}
+      );
 
 
-return 0;
+    if (
+      snap.exists()
+    ) {
+
+      return number(
+        snap
+          .data()
+          .amount
+      );
+
+    }
 
 
-}catch(error){
+    return 0;
 
 
-console.error(
-"Target Load Error:",
-error
-);
+  } catch (error) {
 
 
-return 0;
+    console.error(
+      "Target Load Error:",
+      error
+    );
 
-}
+
+    return 0;
+
+  }
 
 }
 
@@ -1083,50 +982,48 @@ return 0;
 // ========================================
 
 async function saveTarget(
-month,
-amount
-){
+  month,
+  amount
+) {
 
 
-// EXTRA UI PROTECTION
+  if (currentRole !== "admin") {
 
-if(currentRole !== "admin"){
+    alert(
+      "Read only access"
+    );
 
-alert(
-"Read only access"
-);
+    return;
 
-return;
-
-}
+  }
 
 
-await setDoc(
+  await setDoc(
 
-doc(
-db,
-"monthlyTargets",
-month
-),
+    doc(
+      db,
+      "monthlyTargets",
+      month
+    ),
 
-{
+    {
 
-month:month,
+      month: month,
 
-amount:
-number(amount),
+      amount:
+        number(amount),
 
-updatedAt:
-new Date()
-.toISOString()
+      updatedAt:
+        new Date()
+          .toISOString()
 
-},
+    },
 
-{
-merge:true
-}
+    {
+      merge: true
+    }
 
-);
+  );
 
 }
 
@@ -1136,106 +1033,106 @@ merge:true
 // ========================================
 
 async function renderTarget(
-month,
-sales
-){
+  month,
+  sales
+) {
 
 
-const target =
-await getTarget(
-month
-);
+  const target =
+    await getTarget(
+      month
+    );
 
 
-const amountBox =
-document.getElementById(
-"targetAmount"
-);
+  const amountBox =
+    document.getElementById(
+      "targetAmount"
+    );
 
 
-const currentBox =
-document.getElementById(
-"targetCurrentSales"
-);
+  const currentBox =
+    document.getElementById(
+      "targetCurrentSales"
+    );
 
 
-const percentBox =
-document.getElementById(
-"targetPercent"
-);
+  const percentBox =
+    document.getElementById(
+      "targetPercent"
+    );
 
 
-const bar =
-document.getElementById(
-"targetProgressBar"
-);
+  const bar =
+    document.getElementById(
+      "targetProgressBar"
+    );
 
 
-if(amountBox){
+  if (amountBox) {
 
-amountBox.textContent =
-money(target);
+    amountBox.textContent =
+      money(target);
 
-}
-
-
-if(currentBox){
-
-currentBox.textContent =
-
-"Current Sales: "
-
-+
-
-money(sales);
-
-}
+  }
 
 
-let percent = 0;
+  if (currentBox) {
+
+    currentBox.textContent =
+
+      "Current Sales: "
+
+      +
+
+      money(sales);
+
+  }
 
 
-if(target > 0){
-
-percent =
-(
-sales
-/
-target
-)
-*
-100;
-
-}
+  let percent = 0;
 
 
-if(percentBox){
+  if (target > 0) {
 
-percentBox.textContent =
+    percent =
+      (
+        sales
+        /
+        target
+      )
+      *
+      100;
 
-percent.toFixed(1)
-
-+
-
-"%";
-
-}
+  }
 
 
-if(bar){
+  if (percentBox) {
 
-bar.style.width =
+    percentBox.textContent =
 
-Math.min(
-percent,
-100
-)
+      percent.toFixed(1)
 
-+
+      +
 
-"%";
+      "%";
 
-}
+  }
+
+
+  if (bar) {
+
+    bar.style.width =
+
+      Math.min(
+        percent,
+        100
+      )
+
+      +
+
+      "%";
+
+  }
 
 }
 
@@ -1244,1477 +1141,38 @@ percent,
 // TARGET MODAL
 // ========================================
 
-function setupTargetModal(){
+function setupTargetModal() {
 
 
-const modal =
-document.getElementById(
-"targetModal"
-);
+  const modal =
+    document.getElementById(
+      "targetModal"
+    );
 
 
-const editButton =
-document.getElementById(
-"editTarget"
-);
+  const editButton =
+    document.getElementById(
+      "editTarget"
+    );
 
 
-const cancelButton =
-document.getElementById(
-"cancelTarget"
-);
+  const cancelButton =
+    document.getElementById(
+      "cancelTarget"
+    );
 
 
-const saveButton =
-document.getElementById(
-"saveTarget"
-);
+  const saveButton =
+    document.getElementById(
+      "saveTarget"
+    );
 
 
-const input =
-document.getElementById(
-"targetInput"
-);
+  const input =
+    document.getElementById(
+      "targetInput"
+    );
 
 
-const monthBox =
-document.getElementById(
-"targetMonthName"
-);
-
-
-if(
-!modal
-||
-!editButton
-||
-!saveButton
-){
-
-return;
-
-}
-
-
-// VIEWER CANNOT USE TARGET EDITOR
-
-if(currentRole !== "admin"){
-
-editButton.style.display =
-"none";
-
-return;
-
-}
-
-
-// OPEN
-
-editButton.onclick =
-async()=>{
-
-
-const target =
-await getTarget(
-selectedMonth
-);
-
-
-monthBox.textContent =
-monthName(
-selectedMonth
-);
-
-
-input.value =
-target || "";
-
-
-modal.classList.add(
-"show"
-);
-
-
-setTimeout(()=>{
-
-input.focus();
-
-},100);
-
-};
-
-
-// CANCEL
-
-if(cancelButton){
-
-cancelButton.onclick =
-()=>{
-
-modal.classList.remove(
-"show"
-);
-
-};
-
-}
-
-
-// CLICK OUTSIDE
-
-modal.onclick =
-event=>{
-
-
-if(
-event.target === modal
-){
-
-modal.classList.remove(
-"show"
-);
-
-}
-
-};
-
-
-// SAVE
-
-saveButton.onclick =
-async()=>{
-
-
-if(currentRole !== "admin"){
-
-alert(
-"Read only access"
-);
-
-return;
-
-}
-
-
-const value =
-number(
-input.value
-);
-
-
-if(value < 0){
-
-alert(
-"Target cannot be negative"
-);
-
-return;
-
-}
-
-
-try{
-
-
-saveButton.disabled =
-true;
-
-
-saveButton.textContent =
-"Saving...";
-
-
-await saveTarget(
-selectedMonth,
-value
-);
-
-
-modal.classList.remove(
-"show"
-);
-
-
-const report =
-calculateMonth(
-selectedMonth
-);
-
-
-await renderTarget(
-selectedMonth,
-report.totalSales
-);
-
-
-}catch(error){
-
-
-console.error(error);
-
-
-alert(
-"Error saving target"
-);
-
-
-}finally{
-
-
-saveButton.disabled =
-false;
-
-
-saveButton.textContent =
-"Save Target";
-
-}
-
-};
-
-}
-
-
-// ========================================
-// MONTH CHART
-// ========================================
-
-function renderMonthlyChart(
-month,
-salesByDay
-){
-
-
-const canvas =
-document.getElementById(
-"salesChart"
-);
-
-
-if(
-!canvas
-||
-!window.Chart
-){
-
-return;
-
-}
-
-
-const totalDays =
-daysInMonth(
-month
-);
-
-
-const labels = [];
-
-const values = [];
-
-
-for(
-let day = 1;
-day <= totalDays;
-day++
-){
-
-
-labels.push(
-day
-);
-
-
-const key =
-
-month
-
-+
-
-"-"
-
-+
-
-String(day)
-.padStart(
-2,
-"0"
-);
-
-
-values.push(
-
-salesByDay[
-key
-]
-||
-0
-
-);
-
-}
-
-
-if(salesChart){
-
-salesChart.destroy();
-
-}
-
-
-salesChart =
-new Chart(
-canvas,
-{
-
-type:"bar",
-
-data:{
-
-labels:labels,
-
-datasets:[{
-
-label:
-"Sales (AED)",
-
-data:
-values,
-
-backgroundColor:
-"rgba(139,107,57,.78)",
-
-borderColor:
-"#8b6b39",
-
-borderWidth:1,
-
-borderRadius:4
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false,
-
-plugins:{
-
-legend:{
-
-display:false
-
-},
-
-tooltip:{
-
-callbacks:{
-
-label:
-context=>
-money(
-context.raw
-)
-
-}
-
-}
-
-},
-
-scales:{
-
-x:{
-
-grid:{
-
-display:false
-
-}
-
-},
-
-y:{
-
-beginAtZero:true
-
-}
-
-}
-
-}
-
-}
-);
-
-}
-
-
-// ========================================
-// YEAR OVERVIEW
-// ========================================
-
-function renderYearChart(
-month
-){
-
-
-const canvas =
-document.getElementById(
-"yearChart"
-);
-
-
-if(
-!canvas
-||
-!window.Chart
-){
-
-return;
-
-}
-
-
-const year =
-Number(
-month
-.split("-")[0]
-);
-
-
-const values =
-new Array(12)
-.fill(0);
-
-
-allSales.forEach(s=>{
-
-
-if(!s.date){
-
-return;
-
-}
-
-
-const parts =
-s.date.split("-");
-
-
-if(
-parts.length < 2
-){
-
-return;
-
-}
-
-
-const saleYear =
-Number(
-parts[0]
-);
-
-
-const saleMonth =
-Number(
-parts[1]
-);
-
-
-if(
-saleYear === year
-&&
-saleMonth >= 1
-&&
-saleMonth <= 12
-){
-
-
-values[
-saleMonth - 1
-] +=
-
-number(s.cash)
-
-+
-
-number(s.card);
-
-}
-
-});
-
-
-if(yearChart){
-
-yearChart.destroy();
-
-}
-
-
-yearChart =
-new Chart(
-canvas,
-{
-
-type:"bar",
-
-data:{
-
-labels:[
-
-"Jan",
-"Feb",
-"Mar",
-"Apr",
-"May",
-"Jun",
-"Jul",
-"Aug",
-"Sep",
-"Oct",
-"Nov",
-"Dec"
-
-],
-
-datasets:[{
-
-data:values,
-
-backgroundColor:
-"rgba(139,107,57,.70)",
-
-borderRadius:5
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false,
-
-plugins:{
-
-legend:{
-
-display:false
-
-},
-
-tooltip:{
-
-callbacks:{
-
-label:
-context=>
-money(
-context.raw
-)
-
-}
-
-}
-
-},
-
-scales:{
-
-x:{
-
-grid:{
-
-display:false
-
-}
-
-},
-
-y:{
-
-beginAtZero:true
-
-}
-
-}
-
-}
-
-}
-);
-
-
-const title =
-document.getElementById(
-"yearOverviewTitle"
-);
-
-
-if(title){
-
-title.textContent =
-
-"Year Overview ("
-
-+
-
-year
-
-+
-
-")";
-
-}
-
-}
-
-
-// ========================================
-// SALES RATIO
-// ========================================
-
-function renderSalesRatio(
-cash,
-card
-){
-
-
-const canvas =
-document.getElementById(
-"salesRatioChart"
-);
-
-
-if(
-!canvas
-||
-!window.Chart
-){
-
-return;
-
-}
-
-
-if(ratioChart){
-
-ratioChart.destroy();
-
-}
-
-
-ratioChart =
-new Chart(
-canvas,
-{
-
-type:"doughnut",
-
-data:{
-
-labels:[
-
-"Cash Sales",
-
-"Card Sales"
-
-],
-
-datasets:[{
-
-data:[
-
-cash,
-
-card
-
-],
-
-backgroundColor:[
-
-"#d8b46b",
-
-"#8b6b39"
-
-],
-
-borderWidth:0
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false,
-
-cutout:"65%",
-
-plugins:{
-
-legend:{
-
-position:"bottom"
-
-},
-
-tooltip:{
-
-callbacks:{
-
-label:
-context=>
-
-context.label
-
-+
-
-": "
-
-+
-
-money(
-context.raw
-)
-
-}
-
-}
-
-}
-
-}
-
-}
-);
-
-}
-
-
-// ========================================
-// RECORDS
-// ========================================
-
-function renderRecords(){
-
-
-const monthlyTotals = {};
-
-const dailyTotals = {};
-
-
-allSales.forEach(s=>{
-
-
-if(!s.date){
-
-return;
-
-}
-
-
-const amount =
-
-number(s.cash)
-
-+
-
-number(s.card);
-
-
-const month =
-s.date.substring(
-0,
-7
-);
-
-
-if(
-!monthlyTotals[
-month
-]
-){
-
-monthlyTotals[
-month
-] = 0;
-
-}
-
-
-monthlyTotals[
-month
-] +=
-amount;
-
-
-if(
-!dailyTotals[
-s.date
-]
-){
-
-dailyTotals[
-s.date
-] = 0;
-
-}
-
-
-dailyTotals[
-s.date
-] +=
-amount;
-
-});
-
-
-// HIGHEST MONTH
-
-let highestMonth = null;
-
-let highestMonthAmount = 0;
-
-
-Object.entries(
-monthlyTotals
-)
-.forEach(
-([month,amount])=>{
-
-
-if(
-amount >
-highestMonthAmount
-){
-
-
-highestMonth =
-month;
-
-
-highestMonthAmount =
-amount;
-
-}
-
-});
-
-
-// HIGHEST DAY
-
-let highestDay = null;
-
-let highestDayAmount = 0;
-
-
-Object.entries(
-dailyTotals
-)
-.forEach(
-([date,amount])=>{
-
-
-if(
-amount >
-highestDayAmount
-){
-
-
-highestDay =
-date;
-
-
-highestDayAmount =
-amount;
-
-}
-
-});
-
-
-const monthBox =
-document.getElementById(
-"highestMonthlySales"
-);
-
-
-const dayBox =
-document.getElementById(
-"highestDailySales"
-);
-
-
-if(monthBox){
-
-
-monthBox.textContent =
-
-highestMonth
-?
-monthName(
-highestMonth
-)
-+
-" — "
-+
-money(
-highestMonthAmount
-)
-:
-"--";
-
-}
-
-
-if(dayBox){
-
-
-dayBox.textContent =
-
-highestDay
-?
-displayDate(
-highestDay
-)
-+
-" — "
-+
-money(
-highestDayAmount
-)
-:
-"--";
-
-}
-
-}
-
-
-// ========================================
-// MONTH OVERVIEW
-// ========================================
-
-function renderMonthOverview(
-month,
-report
-){
-
-
-// MONTH TITLE
-
-const title =
-document.getElementById(
-"currentMonthTitle"
-);
-
-
-if(title){
-
-title.textContent =
-
-"Month Summary — "
-
-+
-
-monthName(
-month
-);
-
-}
-
-
-// MAIN CARDS
-
-document
-.getElementById(
-"totalSales"
-)
-.textContent =
-money(
-report.totalSales
-);
-
-
-document
-.getElementById(
-"totalCash"
-)
-.textContent =
-money(
-report.totalCash
-);
-
-
-document
-.getElementById(
-"totalCard"
-)
-.textContent =
-money(
-report.totalCard
-);
-
-
-document
-.getElementById(
-"totalCost"
-)
-.textContent =
-money(
-report.totalCost
-);
-
-
-document
-.getElementById(
-"totalStaff"
-)
-.textContent =
-money(
-report.totalStaff
-);
-
-
-document
-.getElementById(
-"totalWithdraw"
-)
-.textContent =
-money(
-report.totalWithdraw
-);
-
-
-document
-.getElementById(
-"netSalesAmount"
-)
-.textContent =
-money(
-report.netSalesAmount
-);
-
-
-document
-.getElementById(
-"topNetSalesAmount"
-)
-.textContent =
-money(
-report.netSalesAmount
-);
-
-
-document
-.getElementById(
-"totalTransactions"
-)
-.textContent =
-report.transactions
-.toLocaleString();
-
-
-// MONTH OVERVIEW
-
-document
-.getElementById(
-"thisMonthSales"
-)
-.textContent =
-money(
-report.totalSales
-);
-
-
-document
-.getElementById(
-"lastMonthSales"
-)
-.textContent =
-money(
-report.previousSales
-);
-
-
-// MONTH CHANGE
-
-let change = 0;
-
-
-if(
-report.previousSales > 0
-){
-
-
-change =
-
-(
-(
-report.totalSales
--
-report.previousSales
-)
-/
-report.previousSales
-)
-*
-100;
-
-
-}else if(
-report.totalSales > 0
-){
-
-
-change = 100;
-
-}
-
-
-const changeBox =
-document.getElementById(
-"monthlyChange"
-);
-
-
-if(change > 0){
-
-
-changeBox.textContent =
-
-"↑ "
-
-+
-
-change.toFixed(1)
-
-+
-
-"%";
-
-
-changeBox.className =
-"insight-value positive";
-
-
-}else if(change < 0){
-
-
-changeBox.textContent =
-
-"↓ "
-
-+
-
-Math.abs(change)
-.toFixed(1)
-
-+
-
-"%";
-
-
-changeBox.className =
-"insight-value negative";
-
-
-}else{
-
-
-changeBox.textContent =
-"0%";
-
-
-changeBox.className =
-"insight-value";
-
-}
-
-
-// BEST SALES DAY
-
-let bestDate = null;
-
-let bestAmount = 0;
-
-
-Object.entries(
-report.salesByDay
-)
-.forEach(
-([date,amount])=>{
-
-
-if(
-amount >
-bestAmount
-){
-
-
-bestDate =
-date;
-
-
-bestAmount =
-amount;
-
-}
-
-});
-
-
-document
-.getElementById(
-"bestSalesDay"
-)
-.textContent =
-
-bestDate
-?
-displayDate(
-bestDate
-)
-:
-"--";
-
-
-document
-.getElementById(
-"bestDayAmount"
-)
-.textContent =
-money(
-bestAmount
-);
-
-
-// AVERAGE DAILY SALES
-
-const parts =
-month.split("-");
-
-
-const selectedYear =
-Number(
-parts[0]
-);
-
-
-const selectedMonthNumber =
-Number(
-parts[1]
-);
-
-
-const now =
-new Date();
-
-
-let divisor =
-daysInMonth(
-month
-);
-
-
-if(
-selectedYear ===
-now.getFullYear()
-&&
-selectedMonthNumber ===
-now.getMonth() + 1
-){
-
-
-divisor =
-now.getDate();
-
-}
-
-
-const average =
-
-divisor > 0
-
-?
-
-report.totalSales
-/
-divisor
-
-:
-
-0;
-
-
-document
-.getElementById(
-"averageDailySales"
-)
-.textContent =
-money(
-average
-);
-
-}
-
-
-// ========================================
-// RENDER DASHBOARD
-// ========================================
-
-async function renderDashboard(
-month
-){
-
-
-const report =
-calculateMonth(
-month
-);
-
-
-// MONTH VALUES
-
-renderMonthOverview(
-month,
-report
-);
-
-
-// CURRENT CASH
-
-const currentCash =
-calculateCurrentCashBalance();
-
-
-document
-.getElementById(
-"cashBalance"
-)
-.textContent =
-money(
-currentCash
-);
-
-
-// CHARTS
-
-renderMonthlyChart(
-month,
-report.salesByDay
-);
-
-
-renderYearChart(
-month
-);
-
-
-renderSalesRatio(
-report.totalCash,
-report.totalCard
-);
-
-
-renderRecords();
-
-
-// TARGET
-
-await renderTarget(
-month,
-report.totalSales
-);
-
-}
-
-
-// ========================================
-// START DASHBOARD
-// ========================================
-
-async function startDashboard(){
-
-
-try{
-
-
-await loadData();
-
-
-createMonthSelector();
-
-
-setupTargetModal();
-
-
-await renderDashboard(
-selectedMonth
-);
-
-
-}catch(error){
-
-
-console.error(
-"Dashboard Error:",
-error
-);
-
-
-alert(
-"Error loading dashboard"
-);
-
-}
-
-}
-
-
-// ========================================
-// AUTH START
-// ========================================
-
-onAuthStateChanged(
-auth,
-async user=>{
-
-
-if(!user){
-
-window.location.href =
-"login.html";
-
-return;
-
-}
-
-
-const allowed =
-await checkUser(
-user
-);
-
-
-if(!allowed){
-
-return;
-
-}
-
-
-await startDashboard();
-
-}
-);
+  const monthBox =
+   
