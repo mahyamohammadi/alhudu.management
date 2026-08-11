@@ -2,6 +2,12 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
 getFirestore,
 collection,
 getDocs,
@@ -10,17 +16,6 @@ getDoc,
 setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-// ========================================
-// LOGIN
-// ========================================
-
-if(localStorage.getItem("alhuduLogin") !== "true"){
-
-window.location.href = "login.html";
-
-}
 
 
 // ========================================
@@ -50,6 +45,19 @@ initializeApp(firebaseConfig);
 
 const db =
 getFirestore(app);
+
+
+const auth =
+getAuth(app);
+
+
+// ========================================
+// CURRENT USER
+// ========================================
+
+let currentRole = "";
+
+let currentUsername = "";
 
 
 // ========================================
@@ -282,6 +290,166 @@ month,
 
 
 // ========================================
+// AUTHENTICATION
+// ========================================
+
+async function checkUser(user){
+
+try{
+
+
+const userSnap =
+await getDoc(
+
+doc(
+db,
+"user",
+user.uid
+)
+
+);
+
+
+if(!userSnap.exists()){
+
+window.location.href =
+"login.html";
+
+return false;
+
+}
+
+
+const data =
+userSnap.data();
+
+
+currentRole =
+String(
+data.role || ""
+)
+.toLowerCase();
+
+
+currentUsername =
+String(
+data.username || ""
+)
+.toLowerCase();
+
+
+if(
+currentRole !== "admin"
+&&
+currentRole !== "viewer"
+){
+
+window.location.href =
+"login.html";
+
+return false;
+
+}
+
+
+// Save only for UI use.
+// Firestore Rules provide the real security.
+
+sessionStorage.setItem(
+"alhuduRole",
+currentRole
+);
+
+
+sessionStorage.setItem(
+"alhuduUsername",
+currentUsername
+);
+
+
+// ========================================
+// VIEWER MODE
+// ========================================
+
+if(currentRole === "viewer"){
+
+document.body.classList.add(
+"viewer-mode"
+);
+
+
+// VIEWER CANNOT EDIT TARGET
+
+const editTarget =
+document.getElementById(
+"editTarget"
+);
+
+
+if(editTarget){
+
+editTarget.style.display =
+"none";
+
+}
+
+
+// HIDE WRITE QUICK ACTIONS
+
+document
+.querySelectorAll(
+".quick-button"
+)
+.forEach(button=>{
+
+
+const text =
+button.textContent
+.toLowerCase();
+
+
+if(
+text.includes("new sale")
+||
+text.includes("new expense")
+||
+text.includes("cash withdrawal")
+){
+
+button.style.display =
+"none";
+
+}
+
+});
+
+}
+
+
+return true;
+
+
+}catch(error){
+
+
+console.error(
+"Authentication Error:",
+error
+);
+
+
+window.location.href =
+"login.html";
+
+
+return false;
+
+}
+
+}
+
+
+// ========================================
 // LOAD ALL DATA
 // ========================================
 
@@ -459,8 +627,6 @@ let staff = 0;
 let withdrawals = 0;
 
 
-// ALL CASH SALES
-
 allSales.forEach(s=>{
 
 cashSales +=
@@ -470,8 +636,6 @@ s.cash
 
 });
 
-
-// ALL EXPENSES
 
 allExpenses.forEach(e=>{
 
@@ -483,8 +647,6 @@ e.amount
 });
 
 
-// ALL STAFF PAYMENTS
-
 allStaff.forEach(s=>{
 
 staff +=
@@ -494,8 +656,6 @@ s.total
 
 });
 
-
-// ALL WITHDRAWALS
 
 allWithdrawals.forEach(w=>{
 
@@ -887,9 +1047,7 @@ month
 );
 
 
-if(
-snap.exists()
-){
+if(snap.exists()){
 
 return number(
 snap
@@ -921,12 +1079,26 @@ return 0;
 
 // ========================================
 // SAVE TARGET
+// ADMIN ONLY
 // ========================================
 
 async function saveTarget(
 month,
 amount
 ){
+
+
+// EXTRA UI PROTECTION
+
+if(currentRole !== "admin"){
+
+alert(
+"Read only access"
+);
+
+return;
+
+}
 
 
 await setDoc(
@@ -1124,6 +1296,18 @@ return;
 }
 
 
+// VIEWER CANNOT USE TARGET EDITOR
+
+if(currentRole !== "admin"){
+
+editButton.style.display =
+"none";
+
+return;
+
+}
+
+
 // OPEN
 
 editButton.onclick =
@@ -1199,6 +1383,17 @@ modal.classList.remove(
 
 saveButton.onclick =
 async()=>{
+
+
+if(currentRole !== "admin"){
+
+alert(
+"Read only access"
+);
+
+return;
+
+}
 
 
 const value =
@@ -2398,7 +2593,6 @@ report
 
 
 // CURRENT CASH
-// This does NOT change when month changes.
 
 const currentCash =
 calculateCurrentCashBalance();
@@ -2447,7 +2641,7 @@ report.totalSales
 
 
 // ========================================
-// START
+// START DASHBOARD
 // ========================================
 
 async function startDashboard(){
@@ -2488,4 +2682,39 @@ alert(
 }
 
 
-startDashboard();
+// ========================================
+// AUTH START
+// ========================================
+
+onAuthStateChanged(
+auth,
+async user=>{
+
+
+if(!user){
+
+window.location.href =
+"login.html";
+
+return;
+
+}
+
+
+const allowed =
+await checkUser(
+user
+);
+
+
+if(!allowed){
+
+return;
+
+}
+
+
+await startDashboard();
+
+}
+);
