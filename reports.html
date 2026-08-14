@@ -23,6 +23,7 @@ background:#fff;
 padding:18px;
 border-radius:15px;
 box-shadow:0 4px 12px rgba(0,0,0,.07);
+border:1px solid #eee8df;
 }
 
 .report-box span{
@@ -53,6 +54,61 @@ padding:12px;
 border-radius:10px;
 margin-top:8px;
 border:1px solid #eee;
+}
+
+
+/* ========================================
+   MONTHLY SALES CHART
+======================================== */
+
+.monthly-chart-section{
+display:none;
+margin-top:25px;
+}
+
+.monthly-chart-card{
+background:#fff;
+padding:22px;
+border-radius:15px;
+box-shadow:0 4px 12px rgba(0,0,0,.07);
+border:1px solid #eee8df;
+}
+
+.monthly-chart-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:22px;
+}
+
+.monthly-chart-header h2{
+margin:0;
+}
+
+.monthly-chart-period{
+font-size:13px;
+color:#8a7a64;
+margin-top:5px;
+}
+
+.chart-container{
+position:relative;
+width:100%;
+height:500px;
+}
+
+#monthlySalesChart{
+width:100% !important;
+height:100% !important;
+}
+
+
+@media(max-width:700px){
+
+.chart-container{
+height:420px;
+}
+
 }
 
 </style>
@@ -119,9 +175,7 @@ id="dailyDate"
 >
 
 <button id="generateDaily">
-
 Generate Daily Report
-
 </button>
 
 </div>
@@ -142,9 +196,7 @@ id="monthlyDate"
 >
 
 <button id="generateMonthly">
-
 Generate Monthly Report
-
 </button>
 
 </div>
@@ -168,9 +220,7 @@ max="2100"
 >
 
 <button id="generateYearly">
-
 Generate Yearly Report
-
 </button>
 
 </div>
@@ -198,25 +248,21 @@ id="toDate"
 >
 
 <button id="generateRange">
-
 Generate Range Report
-
 </button>
 
 </div>
 
 
 
-<!-- REPORT HEADER -->
+<!-- REPORT SUMMARY -->
 
 <div class="card report-section">
 
 <h2>Report Summary</h2>
 
 <p id="reportPeriod">
-
 Select a report above
-
 </p>
 
 
@@ -313,13 +359,56 @@ Select a report above
 <div class="report-actions">
 
 <button id="exportPDF">
-
 📄 Export PDF
-
 </button>
 
 </div>
 
+
+</div>
+
+
+
+<!-- ========================================
+     MONTHLY DAILY SALES CHART
+========================================= -->
+
+<div
+id="monthlyChartSection"
+class="monthly-chart-section"
+>
+
+<div class="monthly-chart-card">
+
+
+<div class="monthly-chart-header">
+
+<div>
+
+<h2>
+📊 Daily Sales Overview
+</h2>
+
+<div
+class="monthly-chart-period"
+id="monthlyChartPeriod"
+>
+Monthly Sales
+</div>
+
+</div>
+
+</div>
+
+
+<div class="chart-container">
+
+<canvas id="monthlySalesChart"></canvas>
+
+</div>
+
+
+</div>
 
 </div>
 
@@ -332,9 +421,7 @@ Select a report above
 <h2>💸 Expense Details</h2>
 
 <div id="expenseDetails">
-
 No expense data selected.
-
 </div>
 
 </div>
@@ -348,9 +435,7 @@ No expense data selected.
 <h2>🏦 Cash Withdrawal Details</h2>
 
 <div id="withdrawalDetails">
-
 No withdrawal data selected.
-
 </div>
 
 </div>
@@ -364,9 +449,7 @@ No withdrawal data selected.
 <h2>👨‍💼 Staff Payment Details</h2>
 
 <div id="staffDetails">
-
 No staff payment data selected.
-
 </div>
 
 </div>
@@ -376,10 +459,21 @@ No staff payment data selected.
 </div>
 
 
+<!-- CHART.JS -->
+
+<script
+src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+</script>
+
+
+<!-- PDF -->
 
 <script
 src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 </script>
+
+
+<!-- REPORT SYSTEM -->
 
 <script
 type="module"
