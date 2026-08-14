@@ -1,3 +1,7 @@
+// ========================================
+// AL HUDU REPORTS
+// ========================================
+
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -38,15 +42,18 @@ const firebaseConfig = {
 };
 
 
-const app = initializeApp(firebaseConfig);
+const app =
+  initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+const db =
+  getFirestore(app);
 
-const auth = getAuth(app);
+const auth =
+  getAuth(app);
 
 
 // ========================================
-// USER
+// USER / REPORT VARIABLES
 // ========================================
 
 let currentRole = "";
@@ -56,6 +63,8 @@ let currentUsername = "";
 let authReady = false;
 
 let currentReport = null;
+
+let monthlyChart = null;
 
 
 // ========================================
@@ -71,7 +80,9 @@ function number(value){
 
 function money(value){
 
-  return number(value).toLocaleString() + " AED";
+  return number(value)
+    .toLocaleString()
+    + " AED";
 
 }
 
@@ -88,7 +99,8 @@ function displayDate(date){
   }
 
 
-  const parts = date.split("-");
+  const parts =
+    date.split("-");
 
 
   if(parts.length !== 3){
@@ -99,11 +111,11 @@ function displayDate(date){
 
 
   return (
-    parts[2] +
-    "-" +
-    parts[1] +
-    "-" +
-    parts[0]
+    parts[2]
+    + "-"
+    + parts[1]
+    + "-"
+    + parts[0]
   );
 
 }
@@ -119,7 +131,11 @@ function validDate(date){
 }
 
 
-function isBetween(date,from,to){
+function isBetween(
+  date,
+  from,
+  to
+){
 
   if(!validDate(date)){
 
@@ -138,14 +154,18 @@ function isBetween(date,from,to){
 
 function sortNewest(list){
 
-  return [...list].sort((a,b)=>{
+  return [...list]
+    .sort(
+      (a,b)=>{
 
-    return (b.date || "")
-      .localeCompare(
-        a.date || ""
-      );
+        return (
+          b.date || ""
+        ).localeCompare(
+          a.date || ""
+        );
 
-  });
+      }
+    );
 
 }
 
@@ -154,15 +174,49 @@ function escapeHTML(value){
 
   return String(value ?? "")
 
-    .replaceAll("&","&amp;")
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
 
-    .replaceAll("<","&lt;")
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
 
-    .replaceAll(">","&gt;")
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
 
-    .replaceAll('"',"&quot;")
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
 
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+function setText(
+  id,
+  value
+){
+
+  const el =
+    document.getElementById(id);
+
+
+  if(el){
+
+    el.textContent =
+      value;
+
+  }
 
 }
 
@@ -172,7 +226,6 @@ function escapeHTML(value){
 // ========================================
 
 async function loadUserProfile(user){
-
 
   const snap =
     await getDoc(
@@ -207,7 +260,9 @@ async function loadUserProfile(user){
 
   currentUsername =
     String(
-      data.username || ""
+      data.username ||
+      localStorage.getItem("username") ||
+      ""
     )
     .trim()
     .toLowerCase();
@@ -243,6 +298,12 @@ async function loadUserProfile(user){
   );
 
 
+  localStorage.setItem(
+    "uid",
+    user.uid
+  );
+
+
   sessionStorage.setItem(
     "alhuduUsername",
     currentUsername
@@ -265,7 +326,6 @@ async function loadUserProfile(user){
 // ========================================
 
 async function getData(){
-
 
   if(!authReady){
 
@@ -323,56 +383,64 @@ async function getData(){
   ]);
 
 
-  salesSnap.forEach(item=>{
+  salesSnap.forEach(
+    item=>{
 
-    sales.push({
+      sales.push({
 
-      id:item.id,
+        id:item.id,
 
-      ...item.data()
+        ...item.data()
 
-    });
+      });
 
-  });
-
-
-  expenseSnap.forEach(item=>{
-
-    expenses.push({
-
-      id:item.id,
-
-      ...item.data()
-
-    });
-
-  });
+    }
+  );
 
 
-  staffSnap.forEach(item=>{
+  expenseSnap.forEach(
+    item=>{
 
-    staff.push({
+      expenses.push({
 
-      id:item.id,
+        id:item.id,
 
-      ...item.data()
+        ...item.data()
 
-    });
+      });
 
-  });
+    }
+  );
 
 
-  withdrawalSnap.forEach(item=>{
+  staffSnap.forEach(
+    item=>{
 
-    withdrawals.push({
+      staff.push({
 
-      id:item.id,
+        id:item.id,
 
-      ...item.data()
+        ...item.data()
 
-    });
+      });
 
-  });
+    }
+  );
+
+
+  withdrawalSnap.forEach(
+    item=>{
+
+      withdrawals.push({
+
+        id:item.id,
+
+        ...item.data()
+
+      });
+
+    }
+  );
 
 
   return {
@@ -402,7 +470,6 @@ function calculateReport(
   reportType
 ){
 
-
   let cash = 0;
 
   let card = 0;
@@ -414,6 +481,8 @@ function calculateReport(
   let withdrawalTotal = 0;
 
 
+  let salesDetails = [];
+
   let expenseDetails = [];
 
   let staffDetails = [];
@@ -421,108 +490,133 @@ function calculateReport(
   let withdrawalDetails = [];
 
 
+  // ========================================
   // SALES
+  // ========================================
 
-  data.sales.forEach(s=>{
+  data.sales.forEach(
+    s=>{
+
+      if(
+        isBetween(
+          s.date,
+          from,
+          to
+        )
+      ){
+
+        cash +=
+          number(
+            s.cash
+          );
 
 
-    if(
-      isBetween(
-        s.date,
-        from,
-        to
-      )
-    ){
+        card +=
+          number(
+            s.card
+          );
 
 
-      cash += number(s.cash);
+        salesDetails.push(s);
 
-      card += number(s.card);
+      }
 
     }
+  );
 
-  });
 
-
+  // ========================================
   // EXPENSES
+  // ========================================
 
-  data.expenses.forEach(e=>{
+  data.expenses.forEach(
+    e=>{
+
+      if(
+        isBetween(
+          e.date,
+          from,
+          to
+        )
+      ){
+
+        expensesTotal +=
+          number(
+            e.amount
+          );
 
 
-    if(
-      isBetween(
-        e.date,
-        from,
-        to
-      )
-    ){
+        expenseDetails.push(e);
 
-
-      expensesTotal +=
-        number(e.amount);
-
-
-      expenseDetails.push(e);
+      }
 
     }
+  );
 
-  });
 
-
+  // ========================================
   // STAFF
+  // ========================================
 
-  data.staff.forEach(s=>{
+  data.staff.forEach(
+    s=>{
+
+      if(
+        isBetween(
+          s.date,
+          from,
+          to
+        )
+      ){
+
+        staffTotal +=
+          number(
+            s.total
+          );
 
 
-    if(
-      isBetween(
-        s.date,
-        from,
-        to
-      )
-    ){
+        staffDetails.push(s);
 
-
-      staffTotal +=
-        number(s.total);
-
-
-      staffDetails.push(s);
+      }
 
     }
+  );
 
-  });
 
-
+  // ========================================
   // WITHDRAWALS
+  // ========================================
 
-  data.withdrawals.forEach(w=>{
+  data.withdrawals.forEach(
+    w=>{
+
+      if(
+        isBetween(
+          w.date,
+          from,
+          to
+        )
+      ){
+
+        withdrawalTotal +=
+          number(
+            w.amount
+          );
 
 
-    if(
-      isBetween(
-        w.date,
-        from,
-        to
-      )
-    ){
+        withdrawalDetails.push(w);
 
-
-      withdrawalTotal +=
-        number(w.amount);
-
-
-      withdrawalDetails.push(w);
+      }
 
     }
-
-  });
+  );
 
 
   const salesTotal =
     cash + card;
 
 
+  // Same calculation as existing report
   const netSalesAmount =
     salesTotal -
     expensesTotal;
@@ -552,6 +646,11 @@ function calculateReport(
 
     netSalesAmount,
 
+    salesDetails:
+      sortNewest(
+        salesDetails
+      ),
+
     expenseDetails:
       sortNewest(
         expenseDetails
@@ -577,7 +676,6 @@ function calculateReport(
 // ========================================
 
 function showReport(r){
-
 
   const periodBox =
     document.getElementById(
@@ -655,20 +753,648 @@ function showReport(r){
     r.withdrawalDetails
   );
 
+
+  // Monthly chart
+  showMonthlyChart(r);
+
 }
 
 
-function setText(id,value){
+// ========================================
+// MONTHLY DAILY SALES CHART
+// ========================================
 
-  const el =
-    document.getElementById(id);
+function showMonthlyChart(report){
+
+  const section =
+    document.getElementById(
+      "monthlyChartSection"
+    );
 
 
-  if(el){
+  // ========================================
+  // ONLY MONTHLY REPORT
+  // ========================================
 
-    el.textContent = value;
+  if(
+    report.reportType !==
+    "monthly"
+  ){
+
+    if(section){
+
+      section.style.display =
+        "none";
+
+    }
+
+
+    if(monthlyChart){
+
+      monthlyChart.destroy();
+
+      monthlyChart = null;
+
+    }
+
+
+    return;
 
   }
+
+
+  if(!section){
+
+    return;
+
+  }
+
+
+  section.style.display =
+    "block";
+
+
+  const canvas =
+    document.getElementById(
+      "monthlySalesChart"
+    );
+
+
+  if(!canvas){
+
+    return;
+
+  }
+
+
+  if(!window.Chart){
+
+    console.error(
+      "Chart.js is not loaded"
+    );
+
+    return;
+
+  }
+
+
+  // ========================================
+  // MONTH / YEAR
+  // ========================================
+
+  const parts =
+    report.from.split("-");
+
+
+  const year =
+    Number(
+      parts[0]
+    );
+
+
+  const month =
+    Number(
+      parts[1]
+    );
+
+
+  const daysInMonth =
+    new Date(
+      year,
+      month,
+      0
+    )
+    .getDate();
+
+
+  // ========================================
+  // DAYS
+  // ========================================
+
+  const labels = [];
+
+  const cashData = [];
+
+  const cardData = [];
+
+
+  for(
+    let day = 1;
+    day <= daysInMonth;
+    day++
+  ){
+
+    labels.push(
+      String(day)
+    );
+
+
+    cashData.push(0);
+
+    cardData.push(0);
+
+  }
+
+
+  // ========================================
+  // CALCULATE SALES PER DAY
+  // ========================================
+
+  report.salesDetails.forEach(
+    sale=>{
+
+      if(
+        !validDate(
+          sale.date
+        )
+      ){
+
+        return;
+
+      }
+
+
+      const dateParts =
+        sale.date.split("-");
+
+
+      const saleYear =
+        Number(
+          dateParts[0]
+        );
+
+
+      const saleMonth =
+        Number(
+          dateParts[1]
+        );
+
+
+      const day =
+        Number(
+          dateParts[2]
+        );
+
+
+      if(
+        saleYear !== year ||
+        saleMonth !== month
+      ){
+
+        return;
+
+      }
+
+
+      if(
+        day < 1 ||
+        day > daysInMonth
+      ){
+
+        return;
+
+      }
+
+
+      cashData[
+        day - 1
+      ] +=
+        number(
+          sale.cash
+        );
+
+
+      cardData[
+        day - 1
+      ] +=
+        number(
+          sale.card
+        );
+
+    }
+  );
+
+
+  // ========================================
+  // MONTH NAME
+  // ========================================
+
+  const monthName =
+    new Date(
+      year,
+      month - 1,
+      1
+    )
+    .toLocaleString(
+      "en-US",
+      {
+        month:"long",
+        year:"numeric"
+      }
+    );
+
+
+  const period =
+    document.getElementById(
+      "monthlyChartPeriod"
+    );
+
+
+  if(period){
+
+    period.textContent =
+      monthName +
+      " • Daily Cash & Card Sales";
+
+  }
+
+
+  // ========================================
+  // DESTROY OLD CHART
+  // ========================================
+
+  if(monthlyChart){
+
+    monthlyChart.destroy();
+
+    monthlyChart = null;
+
+  }
+
+
+  // ========================================
+  // AL HUDU BRAND COLORS
+  // ========================================
+
+  const ALHUDU_GOLD =
+    "#b88a48";
+
+
+  const ALHUDU_DARK =
+    "#2d2a26";
+
+
+  // ========================================
+  // CREATE CHART
+  // ========================================
+
+  monthlyChart =
+    new window.Chart(
+      canvas,
+      {
+
+        type:"bar",
+
+
+        data:{
+
+          labels:labels,
+
+
+          datasets:[
+
+
+            // =================================
+            // CASH SALES
+            // =================================
+
+            {
+
+              label:
+                "Cash Sales",
+
+              data:
+                cashData,
+
+              backgroundColor:
+                ALHUDU_GOLD,
+
+              borderColor:
+                ALHUDU_GOLD,
+
+              borderWidth:
+                1,
+
+              borderRadius:
+                5,
+
+              borderSkipped:
+                false,
+
+              maxBarThickness:
+                18
+
+            },
+
+
+            // =================================
+            // CARD SALES
+            // =================================
+
+            {
+
+              label:
+                "Card Sales",
+
+              data:
+                cardData,
+
+              backgroundColor:
+                ALHUDU_DARK,
+
+              borderColor:
+                ALHUDU_DARK,
+
+              borderWidth:
+                1,
+
+              borderRadius:
+                5,
+
+              borderSkipped:
+                false,
+
+              maxBarThickness:
+                18
+
+            }
+
+          ]
+
+        },
+
+
+        options:{
+
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false,
+
+
+          interaction:{
+
+            mode:
+              "index",
+
+            intersect:
+              false
+
+          },
+
+
+          plugins:{
+
+            // =================================
+            // LEGEND
+            // =================================
+
+            legend:{
+
+              display:
+                true,
+
+              position:
+                "top",
+
+              align:
+                "end",
+
+              labels:{
+
+                usePointStyle:
+                  true,
+
+                pointStyle:
+                  "circle",
+
+                padding:
+                  18,
+
+                color:
+                  "#554d44",
+
+                font:{
+
+                  size:
+                    12
+
+                }
+
+              }
+
+            },
+
+
+            // =================================
+            // TOOLTIP
+            // =================================
+
+            tooltip:{
+
+              callbacks:{
+
+                title:function(items){
+
+                  if(
+                    !items ||
+                    !items.length
+                  ){
+
+                    return "";
+
+                  }
+
+
+                  return (
+                    monthName +
+                    " - Day " +
+                    items[0].label
+                  );
+
+                },
+
+
+                label:function(context){
+
+                  return (
+                    context.dataset.label +
+                    ": " +
+                    money(
+                      context.raw
+                    )
+                  );
+
+                },
+
+
+                footer:function(items){
+
+                  let total = 0;
+
+
+                  items.forEach(
+                    item=>{
+
+                      total +=
+                        number(
+                          item.raw
+                        );
+
+                    }
+                  );
+
+
+                  return (
+                    "Total Sales: " +
+                    money(total)
+                  );
+
+                }
+
+              }
+
+            }
+
+          },
+
+
+          scales:{
+
+            // =================================
+            // DAY AXIS
+            // =================================
+
+            x:{
+
+              stacked:
+                false,
+
+              grid:{
+
+                display:
+                  false
+
+              },
+
+              ticks:{
+
+                autoSkip:
+                  false,
+
+                maxRotation:
+                  0,
+
+                minRotation:
+                  0,
+
+                color:
+                  "#777",
+
+                font:{
+
+                  size:
+                    10
+
+                }
+
+              },
+
+              title:{
+
+                display:
+                  true,
+
+                text:
+                  "Day of Month",
+
+                color:
+                  "#777",
+
+                font:{
+
+                  size:
+                    11,
+
+                  weight:
+                    "bold"
+
+                }
+
+              }
+
+            },
+
+
+            // =================================
+            // ONE SHARED SALES AXIS
+            //
+            // CASH + CARD BOTH USE THIS AXIS
+            // =================================
+
+            y:{
+
+              beginAtZero:
+                true,
+
+              grid:{
+
+                color:
+                  "#eee8df"
+
+              },
+
+              ticks:{
+
+                color:
+                  "#777",
+
+                callback:
+                  function(value){
+
+                    return (
+                      Number(value)
+                      .toLocaleString()
+                      +
+                      " AED"
+                    );
+
+                  }
+
+              },
+
+              title:{
+
+                display:
+                  true,
+
+                text:
+                  "Sales (AED)",
+
+                color:
+                  "#777",
+
+                font:{
+
+                  size:
+                    11,
+
+                  weight:
+                    "bold"
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+    );
 
 }
 
@@ -678,7 +1404,6 @@ function setText(id,value){
 // ========================================
 
 function showExpenseDetails(list){
-
 
   const box =
     document.getElementById(
@@ -693,7 +1418,9 @@ function showExpenseDetails(list){
   }
 
 
-  if(list.length === 0){
+  if(
+    list.length === 0
+  ){
 
     box.innerHTML =
       "No expenses in this period.";
@@ -706,51 +1433,54 @@ function showExpenseDetails(list){
   box.innerHTML = "";
 
 
-  list.forEach(e=>{
+  list.forEach(
+    e=>{
 
+      box.innerHTML += `
 
-    box.innerHTML += `
+        <div class="detail-card">
 
-      <div class="detail-card">
+        <b dir="ltr">
+        📅 ${escapeHTML(
+          displayDate(
+            e.date
+          )
+        )}
+        </b>
 
-      <b dir="ltr">
-      📅 ${escapeHTML(
-        displayDate(
-          e.date
-        )
-      )}
-      </b>
+        <br><br>
 
-      <br><br>
+        🏷 Category:
+        <b>
+        ${escapeHTML(
+          e.category || "-"
+        )}
+        </b>
 
-      🏷 Category:
-      <b>
-      ${escapeHTML(
-        e.category || "-"
-      )}
-      </b>
+        <br>
 
-      <br>
+        💰 Amount:
+        <b>
+        ${money(
+          e.amount
+        )}
+        </b>
 
-      💰 Amount:
-      <b>
-      ${money(e.amount)}
-      </b>
+        <br>
 
-      <br>
+        📝 Note:
+        <b>
+        ${escapeHTML(
+          e.note || "-"
+        )}
+        </b>
 
-      📝 Note:
-      <b>
-      ${escapeHTML(
-        e.note || "-"
-      )}
-      </b>
+        </div>
 
-      </div>
+      `;
 
-    `;
-
-  });
+    }
+  );
 
 }
 
@@ -760,7 +1490,6 @@ function showExpenseDetails(list){
 // ========================================
 
 function showStaffDetails(list){
-
 
   const box =
     document.getElementById(
@@ -775,7 +1504,9 @@ function showStaffDetails(list){
   }
 
 
-  if(list.length === 0){
+  if(
+    list.length === 0
+  ){
 
     box.innerHTML =
       "No staff payments in this period.";
@@ -788,72 +1519,81 @@ function showStaffDetails(list){
   box.innerHTML = "";
 
 
-  list.forEach(s=>{
+  list.forEach(
+    s=>{
 
+      box.innerHTML += `
 
-    box.innerHTML += `
+        <div class="detail-card">
 
-      <div class="detail-card">
+        <b dir="ltr">
+        📅 ${escapeHTML(
+          displayDate(
+            s.date
+          )
+        )}
+        </b>
 
-      <b dir="ltr">
-      📅 ${escapeHTML(
-        displayDate(
-          s.date
-        )
-      )}
-      </b>
+        <br><br>
 
-      <br><br>
+        👤 Staff:
+        <b>
+        ${escapeHTML(
+          s.name || "-"
+        )}
+        </b>
 
-      👤 Staff:
-      <b>
-      ${escapeHTML(
-        s.name || "-"
-      )}
-      </b>
+        <br>
 
-      <br>
+        💰 Salary:
+        <b>
+        ${money(
+          s.salary
+        )}
+        </b>
 
-      💰 Salary:
-      <b>
-      ${money(s.salary)}
-      </b>
+        <br>
 
-      <br>
+        📈 Commission:
+        <b>
+        ${money(
+          s.commission
+        )}
+        </b>
 
-      📈 Commission:
-      <b>
-      ${money(s.commission)}
-      </b>
+        <br>
 
-      <br>
+        🚗 Car Lift:
+        <b>
+        ${money(
+          s.carLift
+        )}
+        </b>
 
-      🚗 Car Lift:
-      <b>
-      ${money(s.carLift)}
-      </b>
+        <br>
 
-      <br>
+        💵 Total:
+        <b>
+        ${money(
+          s.total
+        )}
+        </b>
 
-      💵 Total:
-      <b>
-      ${money(s.total)}
-      </b>
+        <br>
 
-      <br>
+        Status:
+        <b>
+        ${escapeHTML(
+          s.status || "-"
+        )}
+        </b>
 
-      Status:
-      <b>
-      ${escapeHTML(
-        s.status || "-"
-      )}
-      </b>
+        </div>
 
-      </div>
+      `;
 
-    `;
-
-  });
+    }
+  );
 
 }
 
@@ -863,7 +1603,6 @@ function showStaffDetails(list){
 // ========================================
 
 function showWithdrawalDetails(list){
-
 
   const box =
     document.getElementById(
@@ -878,7 +1617,9 @@ function showWithdrawalDetails(list){
   }
 
 
-  if(list.length === 0){
+  if(
+    list.length === 0
+  ){
 
     box.innerHTML =
       "No cash withdrawals in this period.";
@@ -891,57 +1632,60 @@ function showWithdrawalDetails(list){
   box.innerHTML = "";
 
 
-  list.forEach(w=>{
+  list.forEach(
+    w=>{
 
+      box.innerHTML += `
 
-    box.innerHTML += `
+        <div class="detail-card">
 
-      <div class="detail-card">
+        <b dir="ltr">
+        📅 ${escapeHTML(
+          displayDate(
+            w.date
+          )
+        )}
+        </b>
 
-      <b dir="ltr">
-      📅 ${escapeHTML(
-        displayDate(
-          w.date
-        )
-      )}
-      </b>
+        <br><br>
 
-      <br><br>
+        👤 Person:
+        <b>
+        ${escapeHTML(
+          w.person || "-"
+        )}
+        </b>
 
-      👤 Person:
-      <b>
-      ${escapeHTML(
-        w.person || "-"
-      )}
-      </b>
+        <br>
 
-      <br>
+        💰 Amount:
+        <b>
+        ${money(
+          w.amount
+        )}
+        </b>
 
-      💰 Amount:
-      <b>
-      ${money(w.amount)}
-      </b>
+        <br>
 
-      <br>
+        📝 Reason:
+        <b>
+        ${escapeHTML(
+          w.reason || "-"
+        )}
+        </b>
 
-      📝 Reason:
-      <b>
-      ${escapeHTML(
-        w.reason || "-"
-      )}
-      </b>
+        </div>
 
-      </div>
+      `;
 
-    `;
-
-  });
+    }
+  );
 
 }
 
 
 // ========================================
-// GENERATE
+// GENERATE REPORT
 // ========================================
 
 async function generate(
@@ -950,7 +1694,6 @@ async function generate(
   title,
   reportType
 ){
-
 
   if(!authReady){
 
@@ -963,7 +1706,10 @@ async function generate(
   }
 
 
-  if(!from || !to){
+  if(
+    !from ||
+    !to
+  ){
 
     alert(
       "Please select date"
@@ -974,7 +1720,9 @@ async function generate(
   }
 
 
-  if(from > to){
+  if(
+    from > to
+  ){
 
     alert(
       "From Date cannot be after To Date"
@@ -986,7 +1734,6 @@ async function generate(
 
 
   try{
-
 
     const data =
       await getData();
@@ -1008,7 +1755,6 @@ async function generate(
 
 
   }catch(error){
-
 
     console.error(
       "Report Error:",
@@ -1043,7 +1789,7 @@ async function generate(
 
 
 // ========================================
-// DAILY
+// DAILY REPORT
 // ========================================
 
 const generateDaily =
@@ -1056,7 +1802,6 @@ if(generateDaily){
 
   generateDaily.onclick =
     async()=>{
-
 
       const date =
         document
@@ -1090,7 +1835,7 @@ if(generateDaily){
 
 
 // ========================================
-// MONTHLY
+// MONTHLY REPORT
 // ========================================
 
 const generateMonthly =
@@ -1103,7 +1848,6 @@ if(generateMonthly){
 
   generateMonthly.onclick =
     async()=>{
-
 
       const value =
         document
@@ -1129,11 +1873,15 @@ if(generateMonthly){
 
 
       const year =
-        Number(parts[0]);
+        Number(
+          parts[0]
+        );
 
 
       const month =
-        Number(parts[1]);
+        Number(
+          parts[1]
+        );
 
 
       const lastDay =
@@ -1166,7 +1914,7 @@ if(generateMonthly){
 
 
 // ========================================
-// YEARLY
+// YEARLY REPORT
 // ========================================
 
 const generateYearly =
@@ -1179,7 +1927,6 @@ if(generateYearly){
 
   generateYearly.onclick =
     async()=>{
-
 
       const year =
         document
@@ -1232,7 +1979,6 @@ if(generateRange){
   generateRange.onclick =
     async()=>{
 
-
       const from =
         document
         .getElementById(
@@ -1262,7 +2008,7 @@ if(generateRange){
 
 
 // ========================================
-// PDF
+// PDF COLORS
 // ========================================
 
 const PDF_GOLD =
@@ -1289,12 +2035,14 @@ const LOGO_PATH =
   "A635BB04-1710-494A-B351-7663741B1606.png";
 
 
-function loadLogo(){
+// ========================================
+// LOAD LOGO
+// ========================================
 
+function loadLogo(){
 
   return new Promise(
     (resolve,reject)=>{
-
 
       const img =
         new Image();
@@ -1324,11 +2072,10 @@ function loadLogo(){
 
 
 // ========================================
-// CREATE PDF
+// CREATE PROFESSIONAL PDF
 // ========================================
 
 async function createProfessionalPDF(){
-
 
   if(!currentReport){
 
@@ -1366,10 +2113,11 @@ async function createProfessionalPDF(){
   let y = 7;
 
 
+  // ========================================
   // LOGO
+  // ========================================
 
   try{
-
 
     const logo =
       await loadLogo();
@@ -1405,7 +2153,6 @@ async function createProfessionalPDF(){
 
   }catch(error){
 
-
     console.warn(
       "Logo not loaded",
       error
@@ -1417,7 +2164,9 @@ async function createProfessionalPDF(){
   }
 
 
+  // ========================================
   // BRAND
+  // ========================================
 
   pdf.setTextColor(
     ...PDF_DARK
@@ -1473,14 +2222,18 @@ async function createProfessionalPDF(){
   y += 7;
 
 
+  // ========================================
   // GOLD LINE
+  // ========================================
 
   pdf.setDrawColor(
     ...PDF_GOLD
   );
 
 
-  pdf.setLineWidth(0.5);
+  pdf.setLineWidth(
+    0.5
+  );
 
 
   pdf.line(
@@ -1494,7 +2247,9 @@ async function createProfessionalPDF(){
   y += 7;
 
 
+  // ========================================
   // REPORT TITLE
+  // ========================================
 
   pdf.setTextColor(
     ...PDF_DARK
@@ -1546,7 +2301,9 @@ async function createProfessionalPDF(){
   y += 8;
 
 
-  // SUMMARY
+  // ========================================
+  // SUMMARY TITLE
+  // ========================================
 
   pdf.setFont(
     "helvetica",
@@ -1580,13 +2337,16 @@ async function createProfessionalPDF(){
     18;
 
 
+  // ========================================
+  // SMALL CARD
+  // ========================================
+
   function smallCard(
     label,
     value,
     x,
     cardY
   ){
-
 
     pdf.setFillColor(
       252,
@@ -1655,7 +2415,9 @@ async function createProfessionalPDF(){
   }
 
 
-  // ROW 1
+  // ========================================
+  // SUMMARY ROW 1
+  // ========================================
 
   smallCard(
     "Cash Sales",
@@ -1685,7 +2447,9 @@ async function createProfessionalPDF(){
     cardHeight + 3;
 
 
-  // ROW 2
+  // ========================================
+  // SUMMARY ROW 2
+  // ========================================
 
   smallCard(
     "Expenses (Cost)",
@@ -1715,7 +2479,9 @@ async function createProfessionalPDF(){
     cardHeight + 4;
 
 
+  // ========================================
   // NET SALES
+  // ========================================
 
   pdf.setFillColor(
     ...PDF_GOLD
@@ -1775,19 +2541,17 @@ async function createProfessionalPDF(){
 
 
   // ========================================
-  // TABLE HELPERS
+  // PAGE CHECK
   // ========================================
 
   function checkPage(
     requiredHeight = 20
   ){
 
-
     if(
       y + requiredHeight >
       278
     ){
-
 
       pdf.addPage();
 
@@ -1798,8 +2562,11 @@ async function createProfessionalPDF(){
   }
 
 
-  function sectionTitle(title){
+  // ========================================
+  // SECTION TITLE
+  // ========================================
 
+  function sectionTitle(title){
 
     checkPage(15);
 
@@ -1833,7 +2600,9 @@ async function createProfessionalPDF(){
     );
 
 
-    pdf.setLineWidth(0.35);
+    pdf.setLineWidth(
+      0.35
+    );
 
 
     pdf.line(
@@ -1849,11 +2618,14 @@ async function createProfessionalPDF(){
   }
 
 
+  // ========================================
+  // TABLE HEADER
+  // ========================================
+
   function tableHeader(
     headers,
     widths
   ){
-
 
     checkPage(12);
 
@@ -1892,7 +2664,6 @@ async function createProfessionalPDF(){
     headers.forEach(
       (header,index)=>{
 
-
         pdf.text(
           String(header),
           x + 2,
@@ -1912,11 +2683,14 @@ async function createProfessionalPDF(){
   }
 
 
+  // ========================================
+  // TABLE ROW
+  // ========================================
+
   function tableRow(
     values,
     widths
   ){
-
 
     checkPage(12);
 
@@ -1941,7 +2715,6 @@ async function createProfessionalPDF(){
     values.forEach(
       (value,index)=>{
 
-
         const width =
           widths[index];
 
@@ -1962,7 +2735,6 @@ async function createProfessionalPDF(){
           text.length > 4
         ){
 
-
           text =
             text.slice(
               0,
@@ -1979,7 +2751,8 @@ async function createProfessionalPDF(){
         );
 
 
-        x += width;
+        x +=
+          width;
 
       }
     );
@@ -2004,14 +2777,13 @@ async function createProfessionalPDF(){
 
 
   // ========================================
-  // EXPENSE DETAILS
+  // DAILY EXPENSE DETAILS
   // ========================================
 
   if(
     currentReport.reportType ===
     "daily"
   ){
-
 
     sectionTitle(
       "EXPENSE DETAILS (COST)"
@@ -2043,7 +2815,6 @@ async function createProfessionalPDF(){
       .length === 0
     ){
 
-
       tableRow(
         [
           "-",
@@ -2057,23 +2828,27 @@ async function createProfessionalPDF(){
 
     }else{
 
-
       currentReport
       .expenseDetails
-      .forEach(e=>{
+      .forEach(
+        e=>{
 
+          tableRow(
+            [
+              displayDate(
+                e.date
+              ),
+              e.category || "-",
+              e.note || "-",
+              money(
+                e.amount
+              )
+            ],
+            expenseWidths
+          );
 
-        tableRow(
-          [
-            displayDate(e.date),
-            e.category || "-",
-            e.note || "-",
-            money(e.amount)
-          ],
-          expenseWidths
-        );
-
-      });
+        }
+      );
 
     }
 
@@ -2119,7 +2894,6 @@ async function createProfessionalPDF(){
     .length === 0
   ){
 
-
     tableRow(
       [
         "-",
@@ -2134,24 +2908,30 @@ async function createProfessionalPDF(){
 
   }else{
 
-
     currentReport
     .staffDetails
-    .forEach(s=>{
+    .forEach(
+      s=>{
 
+        tableRow(
+          [
+            displayDate(
+              s.date
+            ),
+            s.name || "-",
+            s.status || "-",
+            money(
+              s.salary
+            ),
+            money(
+              s.total
+            )
+          ],
+          staffWidths
+        );
 
-      tableRow(
-        [
-          displayDate(s.date),
-          s.name || "-",
-          s.status || "-",
-          money(s.salary),
-          money(s.total)
-        ],
-        staffWidths
-      );
-
-    });
+      }
+    );
 
   }
 
@@ -2193,7 +2973,6 @@ async function createProfessionalPDF(){
     .length === 0
   ){
 
-
     tableRow(
       [
         "-",
@@ -2207,23 +2986,27 @@ async function createProfessionalPDF(){
 
   }else{
 
-
     currentReport
     .withdrawalDetails
-    .forEach(w=>{
+    .forEach(
+      w=>{
 
+        tableRow(
+          [
+            displayDate(
+              w.date
+            ),
+            w.person || "-",
+            w.reason || "-",
+            money(
+              w.amount
+            )
+          ],
+          withdrawalWidths
+        );
 
-      tableRow(
-        [
-          displayDate(w.date),
-          w.person || "-",
-          w.reason || "-",
-          money(w.amount)
-        ],
-        withdrawalWidths
-      );
-
-    });
+      }
+    );
 
   }
 
@@ -2242,7 +3025,6 @@ async function createProfessionalPDF(){
     page++
   ){
 
-
     pdf.setPage(page);
 
 
@@ -2251,7 +3033,9 @@ async function createProfessionalPDF(){
     );
 
 
-    pdf.setLineWidth(0.3);
+    pdf.setLineWidth(
+      0.3
+    );
 
 
     pdf.line(
@@ -2326,15 +3110,12 @@ if(exportPDF){
   exportPDF.onclick =
     async()=>{
 
-
       try{
-
 
         await createProfessionalPDF();
 
 
       }catch(error){
-
 
         console.error(
           "PDF Error:",
@@ -2365,9 +3146,7 @@ onAuthStateChanged(
   auth,
   async user=>{
 
-
     if(!user){
-
 
       console.log(
         "No authenticated user"
@@ -2386,7 +3165,6 @@ onAuthStateChanged(
 
     try{
 
-
       await loadUserProfile(
         user
       );
@@ -2400,7 +3178,6 @@ onAuthStateChanged(
 
 
     }catch(error){
-
 
       console.error(
         "Report Authentication Error:",
