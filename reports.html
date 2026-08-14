@@ -1,113 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>AL HUDU Reports</title>
 
 <link rel="stylesheet" href="style.css">
 
+
 <style>
 
+/* =========================================
+   AL HUDU REPORTS
+========================================= */
+
 .report-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-top:20px;
 }
 
 .report-box{
-background:#fff;
-padding:18px;
-border-radius:15px;
-box-shadow:0 4px 12px rgba(0,0,0,.07);
-border:1px solid #eee8df;
+    background:#fff;
+    padding:18px;
+    border-radius:15px;
+    box-shadow:0 4px 12px rgba(0,0,0,.07);
+    border:1px solid #eee8df;
 }
 
 .report-box span{
-display:block;
-font-size:14px;
-color:#777;
-margin-bottom:8px;
+    display:block;
+    font-size:14px;
+    color:#777;
+    margin-bottom:8px;
 }
 
 .report-box b{
-font-size:22px;
+    font-size:22px;
+    color:#2d2a26;
 }
 
 .report-section{
-margin-top:25px;
+    margin-top:25px;
 }
 
 .report-actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:15px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:20px;
 }
 
 .detail-card{
-background:#fafafa;
-padding:12px;
-border-radius:10px;
-margin-top:8px;
-border:1px solid #eee;
+    background:#faf8f4;
+    padding:14px;
+    border-radius:12px;
+    margin-top:10px;
+    border:1px solid #eee8df;
+    line-height:1.7;
 }
 
 
-/* ========================================
-   MONTHLY SALES CHART
-======================================== */
+/* =========================================
+   SALES CHART
+========================================= */
 
 .monthly-chart-section{
-display:none;
-margin-top:25px;
+    display:none;
+    margin-top:25px;
 }
 
 .monthly-chart-card{
-background:#fff;
-padding:22px;
-border-radius:15px;
-box-shadow:0 4px 12px rgba(0,0,0,.07);
-border:1px solid #eee8df;
+    background:#ffffff;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 5px 18px rgba(0,0,0,.07);
+    border:1px solid #eee8df;
 }
 
 .monthly-chart-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
 .monthly-chart-header h2{
-margin:0;
+    margin:0 0 5px 0;
+    color:#2d2a26;
 }
 
 .monthly-chart-period{
-font-size:13px;
-color:#8a7a64;
-margin-top:5px;
+    color:#8a8178;
+    font-size:13px;
 }
 
 .chart-container{
-position:relative;
-width:100%;
-height:500px;
-}
-
-#monthlySalesChart{
-width:100% !important;
-height:100% !important;
+    position:relative;
+    width:100%;
+    height:430px;
 }
 
 
-@media(max-width:700px){
+/* =========================================
+   REPORT TYPE CARDS
+========================================= */
 
-.chart-container{
-height:420px;
+.report-selector-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+    margin-top:20px;
 }
+
+.report-selector{
+    background:#fff;
+    border:1px solid #eee8df;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,.05);
+}
+
+.report-selector h2{
+    margin-top:0;
+    font-size:18px;
+    color:#2d2a26;
+}
+
+.report-selector label{
+    display:block;
+    margin-bottom:7px;
+    color:#777;
+    font-size:13px;
+}
+
+.report-selector input{
+    width:100%;
+    box-sizing:border-box;
+    margin-bottom:12px;
+}
+
+
+/* =========================================
+   NET PROFIT
+========================================= */
+
+.report-box.profit-box{
+    background:#b88a48;
+    border-color:#b88a48;
+}
+
+.report-box.profit-box span,
+.report-box.profit-box b{
+    color:#fff;
+}
+
+
+/* =========================================
+   REPORT PERIOD
+========================================= */
+
+#reportPeriod{
+    color:#777;
+    line-height:1.6;
+    margin-bottom:10px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:768px){
+
+    .chart-container{
+        height:360px;
+    }
+
+    .monthly-chart-card{
+        padding:15px;
+    }
+
+    .report-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+
+@media(max-width:520px){
+
+    .report-grid{
+        grid-template-columns:1fr;
+    }
+
+    .chart-container{
+        height:330px;
+    }
 
 }
 
@@ -119,32 +213,58 @@ height:420px;
 <body>
 
 
+<!-- =========================================
+     SIDEBAR
+========================================= -->
+
 <div class="sidebar">
 
 <h2>AL HUDU</h2>
 
-<a href="dashboard.html">🏠 Dashboard</a>
+<a href="dashboard.html">
+🏠 Dashboard
+</a>
 
-<a href="sales.html">💰 Sales</a>
+<a href="sales.html">
+💰 Sales
+</a>
 
-<a href="expenses.html">💸 Expenses (Cost)</a>
+<a href="expenses.html">
+💸 Expenses (Cost)
+</a>
 
-<a href="staff.html">👨‍💼 Staff Payment</a>
+<a href="staff.html">
+👨‍💼 Staff Payment
+</a>
 
-<a href="cashflow.html">💵 Cash Flow</a>
+<a href="cashflow.html">
+💵 Cash Flow
+</a>
 
-<a href="reports.html">📊 Reports</a>
+<a href="reports.html">
+📊 Reports
+</a>
 
-<a href="withdrawals.html">💸 Cash Withdrawal</a>
+<a href="withdrawals.html">
+💸 Cash Withdrawal
+</a>
 
-<a href="settings.html">⚙️ Settings</a>
+<a href="settings.html">
+⚙️ Settings
+</a>
 
 </div>
 
 
 
+<!-- =========================================
+     MAIN
+========================================= -->
+
 <div class="main">
 
+
+<!-- BRAND -->
 
 <div class="brand-header">
 
@@ -157,17 +277,30 @@ Accounting & Management System
 </div>
 
 
-<h1>📊 Reports</h1>
+<h1>
+📊 Reports
+</h1>
 
 
 
-<!-- DAILY REPORT -->
+<!-- =========================================
+     REPORT SELECTION
+========================================= -->
 
-<div class="card">
+<div class="report-selector-grid">
 
-<h2>📅 Daily Report</h2>
 
-<label>Select Date</label>
+<!-- DAILY -->
+
+<div class="report-selector">
+
+<h2>
+📅 Daily Report
+</h2>
+
+<label>
+Select Date
+</label>
 
 <input
 type="date"
@@ -182,13 +315,17 @@ Generate Daily Report
 
 
 
-<!-- MONTHLY REPORT -->
+<!-- MONTHLY -->
 
-<div class="card">
+<div class="report-selector">
 
-<h2>📆 Monthly Report</h2>
+<h2>
+📆 Monthly Report
+</h2>
 
-<label>Select Month</label>
+<label>
+Select Month
+</label>
 
 <input
 type="month"
@@ -203,13 +340,17 @@ Generate Monthly Report
 
 
 
-<!-- YEARLY REPORT -->
+<!-- YEARLY -->
 
-<div class="card">
+<div class="report-selector">
 
-<h2>🗓 Yearly Report</h2>
+<h2>
+🗓 Yearly Report
+</h2>
 
-<label>Select Year</label>
+<label>
+Select Year
+</label>
 
 <input
 type="number"
@@ -227,20 +368,26 @@ Generate Yearly Report
 
 
 
-<!-- CUSTOM RANGE -->
+<!-- CUSTOM -->
 
-<div class="card">
+<div class="report-selector">
 
-<h2>🔎 Custom Date Range</h2>
+<h2>
+🔎 Custom Date Range
+</h2>
 
-<label>From Date</label>
+<label>
+From Date
+</label>
 
 <input
 type="date"
 id="fromDate"
 >
 
-<label>To Date</label>
+<label>
+To Date
+</label>
 
 <input
 type="date"
@@ -254,24 +401,37 @@ Generate Range Report
 </div>
 
 
+</div>
 
-<!-- REPORT SUMMARY -->
+
+
+<!-- =========================================
+     REPORT SUMMARY
+========================================= -->
 
 <div class="card report-section">
 
-<h2>Report Summary</h2>
+<h2>
+Report Summary
+</h2>
+
 
 <p id="reportPeriod">
 Select a report above
 </p>
 
 
+
 <div class="report-grid">
 
 
+<!-- CASH -->
+
 <div class="report-box">
 
-<span>💵 Cash Sales</span>
+<span>
+💵 Cash Sales
+</span>
 
 <b id="reportCash">
 0 AED
@@ -281,9 +441,13 @@ Select a report above
 
 
 
+<!-- CARD -->
+
 <div class="report-box">
 
-<span>💳 Card Sales</span>
+<span>
+💳 Card Sales
+</span>
 
 <b id="reportCard">
 0 AED
@@ -293,9 +457,13 @@ Select a report above
 
 
 
+<!-- TOTAL SALES -->
+
 <div class="report-box">
 
-<span>💰 Total Sales</span>
+<span>
+💰 Total Sales
+</span>
 
 <b id="reportSales">
 0 AED
@@ -305,9 +473,13 @@ Select a report above
 
 
 
+<!-- EXPENSE -->
+
 <div class="report-box">
 
-<span>💸 Expenses (Cost)</span>
+<span>
+💸 Expenses (Cost)
+</span>
 
 <b id="reportExpenses">
 0 AED
@@ -317,9 +489,13 @@ Select a report above
 
 
 
+<!-- STAFF -->
+
 <div class="report-box">
 
-<span>👨‍💼 Staff Payment</span>
+<span>
+👨‍💼 Staff Payment
+</span>
 
 <b id="reportStaff">
 0 AED
@@ -329,9 +505,13 @@ Select a report above
 
 
 
+<!-- WITHDRAWAL -->
+
 <div class="report-box">
 
-<span>🏦 Cash Withdrawal</span>
+<span>
+🏦 Cash Withdrawal
+</span>
 
 <b id="reportWithdrawals">
 0 AED
@@ -341,9 +521,13 @@ Select a report above
 
 
 
-<div class="report-box">
+<!-- PROFIT -->
 
-<span>📈 Net Profit</span>
+<div class="report-box profit-box">
+
+<span>
+📈 Net Profit
+</span>
 
 <b id="reportProfit">
 0 AED
@@ -356,10 +540,12 @@ Select a report above
 
 
 
+<!-- PDF -->
+
 <div class="report-actions">
 
 <button id="exportPDF">
-📄 Export PDF
+📄 Export Full PDF
 </button>
 
 </div>
@@ -369,8 +555,20 @@ Select a report above
 
 
 
-<!-- ========================================
-     MONTHLY DAILY SALES CHART
+<!-- =========================================
+     SALES OVERVIEW CHART
+
+     DAILY:
+     hidden by reports.js
+
+     MONTHLY:
+     days 1-30/31
+
+     YEARLY:
+     Jan-Dec
+
+     CUSTOM:
+     selected dates
 ========================================= -->
 
 <div
@@ -378,32 +576,39 @@ id="monthlyChartSection"
 class="monthly-chart-section"
 >
 
+
 <div class="monthly-chart-card">
 
 
 <div class="monthly-chart-header">
 
+
 <div>
 
 <h2>
-📊 Daily Sales Overview
+📊 Sales Overview
 </h2>
 
 <div
 class="monthly-chart-period"
 id="monthlyChartPeriod"
 >
-Monthly Sales
-</div>
+
+Sales Overview
 
 </div>
 
 </div>
+
+
+</div>
+
 
 
 <div class="chart-container">
 
-<canvas id="monthlySalesChart"></canvas>
+<canvas id="monthlySalesChart">
+</canvas>
 
 </div>
 
@@ -414,66 +619,92 @@ Monthly Sales
 
 
 
-<!-- EXPENSE DETAILS -->
+<!-- =========================================
+     EXPENSE DETAILS
+========================================= -->
 
 <div class="card report-section">
 
-<h2>💸 Expense Details</h2>
+<h2>
+💸 Expense Details
+</h2>
 
 <div id="expenseDetails">
+
 No expense data selected.
-</div>
 
 </div>
 
+</div>
 
 
-<!-- WITHDRAWAL DETAILS -->
+
+<!-- =========================================
+     STAFF DETAILS
+========================================= -->
 
 <div class="card report-section">
 
-<h2>🏦 Cash Withdrawal Details</h2>
-
-<div id="withdrawalDetails">
-No withdrawal data selected.
-</div>
-
-</div>
-
-
-
-<!-- STAFF DETAILS -->
-
-<div class="card report-section">
-
-<h2>👨‍💼 Staff Payment Details</h2>
+<h2>
+👨‍💼 Staff Payment Details
+</h2>
 
 <div id="staffDetails">
+
 No staff payment data selected.
+
+</div>
+
+</div>
+
+
+
+<!-- =========================================
+     WITHDRAWAL DETAILS
+========================================= -->
+
+<div class="card report-section">
+
+<h2>
+🏦 Cash Withdrawal Details
+</h2>
+
+<div id="withdrawalDetails">
+
+No withdrawal data selected.
+
 </div>
 
 </div>
 
 
-
 </div>
 
 
-<!-- CHART.JS -->
+
+<!-- =========================================
+     CHART.JS
+========================================= -->
 
 <script
 src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
 </script>
 
 
-<!-- PDF -->
+
+<!-- =========================================
+     JSPDF
+========================================= -->
 
 <script
 src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 </script>
 
 
-<!-- REPORT SYSTEM -->
+
+<!-- =========================================
+     REPORTS JS
+========================================= -->
 
 <script
 type="module"
