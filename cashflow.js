@@ -43,7 +43,7 @@ const firebaseConfig = {
 
 
 // ========================================
-// FIREBASE START
+// FIREBASE
 // ========================================
 
 const app = initializeApp(firebaseConfig);
@@ -66,7 +66,7 @@ let currentUsername = "";
 
 let cashFlowData = {
 
-  openingCash: 0,
+  previousBalance: 0,
 
   cashSales: 0,
 
@@ -87,21 +87,19 @@ let cashFlowData = {
 
 function number(value){
 
-  const result = Number(value);
+  const n = Number(value);
 
-  if(Number.isNaN(result)){
-    return 0;
-  }
-
-  return result;
+  return Number.isFinite(n)
+    ? n
+    : 0;
 
 }
 
 
 function money(value){
 
-  return number(value).toLocaleString()
-    + " AED";
+  return number(value)
+    .toLocaleString() + " AED";
 
 }
 
@@ -117,6 +115,165 @@ function setMoney(id,value){
       money(value);
 
   }
+
+}
+
+
+// ========================================
+// DATE HELPER
+// ========================================
+
+function normalizeDate(value){
+
+  if(!value){
+    return null;
+  }
+
+
+  // Firestore Timestamp
+
+  if(
+    typeof value === "object" &&
+    typeof value.toDate === "function"
+  ){
+
+    return value.toDate();
+
+  }
+
+
+  // YYYY-MM-DD
+
+  if(typeof value === "string"){
+
+    const parts =
+      value.split("-");
+
+    if(parts.length >= 3){
+
+      const year =
+        Number(parts[0]);
+
+      const month =
+        Number(parts[1]) - 1;
+
+      const day =
+        Number(parts[2]);
+
+
+      const date =
+        new Date(
+          year,
+          month,
+          day
+        );
+
+
+      if(!Number.isNaN(date.getTime())){
+
+        return date;
+
+      }
+
+    }
+
+
+    const date =
+      new Date(value);
+
+
+    if(!Number.isNaN(date.getTime())){
+
+      return date;
+
+    }
+
+  }
+
+
+  // JS Date
+
+  if(value instanceof Date){
+
+    return value;
+
+  }
+
+
+  return null;
+
+}
+
+
+// ========================================
+// CURRENT MONTH CHECK
+// ========================================
+
+function isCurrentMonth(value){
+
+  const date =
+    normalizeDate(value);
+
+
+  if(!date){
+
+    return false;
+
+  }
+
+
+  const now =
+    new Date();
+
+
+  return (
+
+    date.getFullYear() ===
+    now.getFullYear()
+
+    &&
+
+    date.getMonth() ===
+    now.getMonth()
+
+  );
+
+}
+
+
+// ========================================
+// BEFORE CURRENT MONTH
+// ========================================
+
+function isBeforeCurrentMonth(value){
+
+  const date =
+    normalizeDate(value);
+
+
+  if(!date){
+
+    return false;
+
+  }
+
+
+  const now =
+    new Date();
+
+
+  const firstDayThisMonth =
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1
+    );
+
+
+  return (
+    date <
+    firstDayThisMonth
+  );
 
 }
 
@@ -160,7 +317,9 @@ async function loadUserProfile(user){
 
   currentUsername =
     String(
-      data.username || ""
+      data.username ||
+      localStorage.getItem("username") ||
+      ""
     )
     .trim()
     .toLowerCase();
@@ -178,17 +337,9 @@ async function loadUserProfile(user){
   }
 
 
-  // Keep login information synchronized
-
   localStorage.setItem(
     "alhuduLogin",
     "true"
-  );
-
-
-  localStorage.setItem(
-    "username",
-    currentUsername
   );
 
 
@@ -204,16 +355,14 @@ async function loadUserProfile(user){
   );
 
 
-  sessionStorage.setItem(
-    "alhuduUsername",
-    currentUsername
-  );
+  if(currentUsername){
 
+    localStorage.setItem(
+      "username",
+      currentUsername
+    );
 
-  sessionStorage.setItem(
-    "alhuduRole",
-    currentRole
-  );
+  }
 
 
   authReady = true;
@@ -229,63 +378,33 @@ async function loadCashFlow(){
 
   if(!authReady){
 
-    console.log(
-      "Cash Flow waiting for authentication..."
-    );
-
     return;
 
   }
-
-
-  let openingCash = 0;
-
-  let cashSales = 0;
-
-  let expenses = 0;
-
-  let staffPayment = 0;
-
-  let withdrawals = 0;
 
 
   try{
 
 
     // ========================================
-    // OPENING CASH
-    // ========================================
-
-    const openingSnap =
-      await getDoc(
-        doc(
-          db,
-          "settings",
-          "openingBalance"
-        )
-      );
-
-
-    if(openingSnap.exists()){
-
-      openingCash =
-        number(
-          openingSnap.data().amount
-        );
-
-    }
-
-
-    // ========================================
-    // LOAD COLLECTIONS
+    // LOAD ALL REQUIRED DATA
     // ========================================
 
     const [
+      openingSnap,
       salesSnap,
       expenseSnap,
       staffSnap,
       withdrawalSnap
     ] = await Promise.all([
+
+      getDoc(
+        doc(
+          db,
+          "settings",
+          "openingBalance"
+        )
+      ),
 
       getDocs(
         collection(
@@ -319,7 +438,50 @@ async function loadCashFlow(){
 
 
     // ========================================
-    // CASH SALES
+    // ORIGINAL OPENING BALANCE
+    // ========================================
+
+    let originalOpeningBalance = 0;
+
+
+    if(openingSnap.exists()){
+
+      originalOpeningBalance =
+        number(
+          openingSnap.data().amount
+        );
+
+    }
+
+
+    // ========================================
+    // THIS MONTH VALUES
+    // ========================================
+
+    let cashSales = 0;
+
+    let expenses = 0;
+
+    let staffPayment = 0;
+
+    let withdrawals = 0;
+
+
+    // ========================================
+    // PREVIOUS MONTH VALUES
+    // ========================================
+
+    let previousCashSales = 0;
+
+    let previousExpenses = 0;
+
+    let previousStaff = 0;
+
+    let previousWithdrawals = 0;
+
+
+    // ========================================
+    // SALES
     // ========================================
 
     salesSnap.forEach(item=>{
@@ -328,16 +490,38 @@ async function loadCashFlow(){
         item.data();
 
 
-      cashSales +=
-        number(
-          sale.cash
-        );
+      if(
+        isCurrentMonth(
+          sale.date
+        )
+      ){
+
+        cashSales +=
+          number(
+            sale.cash
+          );
+
+      }
+
+
+      if(
+        isBeforeCurrentMonth(
+          sale.date
+        )
+      ){
+
+        previousCashSales +=
+          number(
+            sale.cash
+          );
+
+      }
 
     });
 
 
     // ========================================
-    // EXPENSES
+    // EXPENSES / COST
     // ========================================
 
     expenseSnap.forEach(item=>{
@@ -346,10 +530,32 @@ async function loadCashFlow(){
         item.data();
 
 
-      expenses +=
-        number(
-          expense.amount
-        );
+      if(
+        isCurrentMonth(
+          expense.date
+        )
+      ){
+
+        expenses +=
+          number(
+            expense.amount
+          );
+
+      }
+
+
+      if(
+        isBeforeCurrentMonth(
+          expense.date
+        )
+      ){
+
+        previousExpenses +=
+          number(
+            expense.amount
+          );
+
+      }
 
     });
 
@@ -364,16 +570,38 @@ async function loadCashFlow(){
         item.data();
 
 
-      staffPayment +=
-        number(
-          staff.total
-        );
+      if(
+        isCurrentMonth(
+          staff.date
+        )
+      ){
+
+        staffPayment +=
+          number(
+            staff.total
+          );
+
+      }
+
+
+      if(
+        isBeforeCurrentMonth(
+          staff.date
+        )
+      ){
+
+        previousStaff +=
+          number(
+            staff.total
+          );
+
+      }
 
     });
 
 
     // ========================================
-    // CASH WITHDRAWALS
+    // CASH WITHDRAWAL
     // ========================================
 
     withdrawalSnap.forEach(item=>{
@@ -382,12 +610,57 @@ async function loadCashFlow(){
         item.data();
 
 
-      withdrawals +=
-        number(
-          withdrawal.amount
-        );
+      if(
+        isCurrentMonth(
+          withdrawal.date
+        )
+      ){
+
+        withdrawals +=
+          number(
+            withdrawal.amount
+          );
+
+      }
+
+
+      if(
+        isBeforeCurrentMonth(
+          withdrawal.date
+        )
+      ){
+
+        previousWithdrawals +=
+          number(
+            withdrawal.amount
+          );
+
+      }
 
     });
+
+
+    // ========================================
+    // PREVIOUS MONTHS BALANCE
+    //
+    // Opening balance
+    // + all cash sales before this month
+    // - all expenses before this month
+    // - all staff payments before this month
+    // - all withdrawals before this month
+    // ========================================
+
+    const previousBalance =
+
+      originalOpeningBalance
+      +
+      previousCashSales
+      -
+      previousExpenses
+      -
+      previousStaff
+      -
+      previousWithdrawals;
 
 
     // ========================================
@@ -396,7 +669,7 @@ async function loadCashFlow(){
 
     const balance =
 
-      openingCash
+      previousBalance
       +
       cashSales
       -
@@ -408,12 +681,12 @@ async function loadCashFlow(){
 
 
     // ========================================
-    // SAVE DATA
+    // SAVE DATA FOR PDF
     // ========================================
 
     cashFlowData = {
 
-      openingCash,
+      previousBalance,
 
       cashSales,
 
@@ -429,12 +702,16 @@ async function loadCashFlow(){
 
 
     // ========================================
-    // DISPLAY ON WEBSITE
+    // WEBSITE
     // ========================================
+
+    // IMPORTANT:
+    // HTML ID remains openingCash.
+    // Only the visible label changes.
 
     setMoney(
       "openingCash",
-      openingCash
+      previousBalance
     );
 
 
@@ -483,26 +760,13 @@ async function loadCashFlow(){
     );
 
 
-    if(
-      error.code ===
-      "permission-denied"
-    ){
-
-      alert(
-        "Cash Flow permission denied"
-      );
-
-    }else{
-
-      alert(
-        "Cash Flow error: " +
-        (
-          error.code ||
-          error.message
-        )
-      );
-
-    }
+    alert(
+      "Cash Flow error: " +
+      (
+        error.code ||
+        error.message
+      )
+    );
 
   }
 
@@ -516,18 +780,14 @@ async function loadCashFlow(){
 const PDF_GOLD =
   [184,138,72];
 
-
 const PDF_DARK =
   [45,42,38];
-
 
 const PDF_MUTED =
   [123,116,108];
 
-
 const PDF_CREAM =
   [247,243,236];
-
 
 const PDF_LINE =
   [230,222,210];
@@ -578,21 +838,10 @@ function loadLogo(){
 
 
 // ========================================
-// CREATE CASH FLOW PDF
+// CREATE PDF
 // ========================================
 
 async function createCashFlowPDF(){
-
-  if(!authReady){
-
-    alert(
-      "Please wait. Checking account..."
-    );
-
-    return;
-
-  }
-
 
   if(
     !window.jspdf ||
@@ -834,7 +1083,7 @@ async function createCashFlowPDF(){
 
 
   // ========================================
-  // CASH CARD
+  // CARD FUNCTION
   // ========================================
 
   function cashCard(
@@ -929,14 +1178,14 @@ async function createCashFlowPDF(){
 
 
   // ========================================
-  // OPENING CASH
+  // PREVIOUS MONTHS BALANCE
   // ========================================
 
   cashCard(
 
-    "Opening Cash",
+    "Previous Months Balance",
 
-    cashFlowData.openingCash,
+    cashFlowData.previousBalance,
 
     y
 
@@ -947,7 +1196,7 @@ async function createCashFlowPDF(){
 
 
   // ========================================
-  // CASH SALES
+  // CASH SALES - THIS MONTH
   // ========================================
 
   cashCard(
@@ -965,7 +1214,7 @@ async function createCashFlowPDF(){
 
 
   // ========================================
-  // EXPENSES
+  // EXPENSES - THIS MONTH
   // ========================================
 
   cashCard(
@@ -1164,7 +1413,7 @@ async function createCashFlowPDF(){
 
 
 // ========================================
-// EXPORT PDF BUTTON
+// PDF BUTTON
 // ========================================
 
 const exportButton =
@@ -1191,11 +1440,7 @@ if(exportButton){
 
 
         alert(
-          "Error creating PDF: " +
-          (
-            error.code ||
-            error.message
-          )
+          "Error creating PDF"
         );
 
       }
@@ -1206,23 +1451,14 @@ if(exportButton){
 
 
 // ========================================
-// FIREBASE AUTH START
+// AUTH START
 // ========================================
 
 onAuthStateChanged(
   auth,
   async user=>{
 
-    // ========================================
-    // NOT LOGGED IN
-    // ========================================
-
     if(!user){
-
-      console.log(
-        "Cash Flow: No authenticated user"
-      );
-
 
       localStorage.removeItem(
         "alhuduLogin"
@@ -1239,26 +1475,12 @@ onAuthStateChanged(
     }
 
 
-    // ========================================
-    // AUTHENTICATED
-    // ========================================
-
     try{
 
       await loadUserProfile(
         user
       );
 
-
-      console.log(
-        "Cash Flow authenticated:",
-        currentUsername,
-        currentRole
-      );
-
-
-      // IMPORTANT:
-      // Cash Flow loads only AFTER Firebase Auth is ready.
 
       await loadCashFlow();
 
