@@ -3775,7 +3775,7 @@ function drawCumulativeSalesChart(
 
 
   const values =
-    stats.cumulativeSales;
+  stats.totalSales;
 
 
   if(
@@ -3823,32 +3823,11 @@ function drawCumulativeSalesChart(
     bottomPadding;
 
 
-  const finalTotal =
-    number(
-      report.salesTotal
-    );
-
-
-  // Ensure final cumulative value is exactly Total Sales
-
-  if(
-    values.length > 0
-  ){
-
-    values[
-      values.length - 1
-    ] =
-      finalTotal;
-
-  }
-
-
   let maxValue =
-    Math.max(
-      finalTotal,
-      ...values,
-      1
-    );
+  Math.max(
+    ...values,
+    1
+  );
 
 
   // ====================================================
@@ -4253,7 +4232,7 @@ function drawCumulativeSalesChart(
 
     pdf.text(
       money(
-        finalTotal
+        values[values.length - 1]
       ),
       lastPoint.x,
       Math.max(
