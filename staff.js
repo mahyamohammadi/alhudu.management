@@ -1,463 +1,1316 @@
-import { initializeApp } 
+import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-if(localStorage.getItem("alhuduLogin")!=="true"){
-
-window.location.href="login.html";
-
-}
 
 import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-doc,
-updateDoc
+  getAuth,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
+// ======================================================
+// FIREBASE
+// ======================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
-  authDomain: "al-hudu-management.firebaseapp.com",
-  projectId: "al-hudu-management",
-  storageBucket: "al-hudu-management.firebasestorage.app",
-  messagingSenderId: "1045649803744",
-  appId: "1:1045649803744:web:bc6ead0755d196c020c385"
-};
 
+  apiKey: "AIzaSyDZ-NCetZ4D7QR-wv4JKhKM4JV7JkPeI54",
+
+  authDomain: "al-hudu-management.firebaseapp.com",
+
+  projectId: "al-hudu-management",
+
+  storageBucket: "al-hudu-management.firebasestorage.app",
+
+  messagingSenderId: "1045649803744",
+
+  appId: "1:1045649803744:web:bc6ead0755d196c020c385"
+
+};
 
 
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
+const auth = getAuth(app);
 
+
+// ======================================================
+// VARIABLES
+// ======================================================
 
 let editId = null;
 
 let allStaff = [];
 
+let authReady = false;
 
 
+// ======================================================
+// ELEMENTS
+// ======================================================
 
-const salaryInput=document.getElementById("salary");
-const commissionInput=document.getElementById("commission");
-const carLiftInput=document.getElementById("carLift");
-const totalInput=document.getElementById("total");
+const nameInput =
+  document.getElementById("name");
+
+const salaryInput =
+  document.getElementById("salary");
+
+const commissionInput =
+  document.getElementById("commission");
+
+const carLiftInput =
+  document.getElementById("carLift");
+
+const totalInput =
+  document.getElementById("total");
+
+const dateInput =
+  document.getElementById("date");
+
+const statusInput =
+  document.getElementById("status");
+
+const saveButton =
+  document.getElementById("saveStaff");
+
+const searchInput =
+  document.getElementById("searchStaff");
+
+const staffList =
+  document.getElementById("staffList");
 
 
+// ======================================================
+// HELPERS
+// ======================================================
+
+function number(value){
+
+  const result =
+    Number(value || 0);
+
+  return Number.isFinite(result)
+    ? result
+    : 0;
+
+}
 
 
+function escapeHTML(value){
+
+  return String(value ?? "")
+
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+function money(value){
+
+  return (
+    number(value).toLocaleString()
+    +
+    " AED"
+  );
+
+}
+
+
+// ======================================================
+// CALCULATE TOTAL
+// ======================================================
 
 function calculateTotal(){
 
-
-let salary = Number(salaryInput.value || 0);
-
-let commission = Number(commissionInput.value || 0);
-
-let carLift = Number(carLiftInput.value || 0);
-
-
-
-totalInput.value =
-salary + commission + carLift;
+  const salary =
+    number(
+      salaryInput
+        ? salaryInput.value
+        : 0
+    );
 
 
-}
+  const commission =
+    number(
+      commissionInput
+        ? commissionInput.value
+        : 0
+    );
 
 
-
-salaryInput.oninput=calculateTotal;
-
-commissionInput.oninput=calculateTotal;
-
-carLiftInput.oninput=calculateTotal;
-
-
+  const carLift =
+    number(
+      carLiftInput
+        ? carLiftInput.value
+        : 0
+    );
 
 
+  if(totalInput){
 
+    totalInput.value =
+      salary +
+      commission +
+      carLift;
 
-
-
-document.getElementById("saveStaff").onclick = async()=>{
-
-
-let data={
-
-
-name:document.getElementById("name").value,
-
-
-salary:Number(salaryInput.value || 0),
-
-
-commission:Number(commissionInput.value || 0),
-
-
-carLift:Number(carLiftInput.value || 0),
-
-
-total:Number(totalInput.value || 0),
-
-
-date:document.getElementById("date").value,
-
-
-status:document.getElementById("status").value
-
-
-
-};
-
-
-
-
-
-if(editId){
-
-
-await updateDoc(
-doc(db,"staff",editId),
-data
-);
-
-
-alert("Updated ✅");
-
-
-editId=null;
-
-
-
-}
-
-else{
-
-
-await addDoc(
-collection(db,"staff"),
-data
-);
-
-
-
-alert("Saved ✅");
-
+  }
 
 }
 
 
+if(salaryInput){
+
+  salaryInput.oninput =
+    calculateTotal;
+
+}
 
 
-clearForm();
+if(commissionInput){
 
-loadStaff();
+  commissionInput.oninput =
+    calculateTotal;
 
-
-};
-
-
+}
 
 
+if(carLiftInput){
+
+  carLiftInput.oninput =
+    calculateTotal;
+
+}
 
 
+// ======================================================
+// DEFAULT DATE
+// ======================================================
+
+function setDefaultDate(){
+
+  if(
+    !dateInput ||
+    dateInput.value
+  ){
+
+    return;
+
+  }
+
+
+  const today =
+    new Date();
+
+
+  const year =
+    today.getFullYear();
+
+
+  const month =
+    String(
+      today.getMonth() + 1
+    )
+    .padStart(2,"0");
+
+
+  const day =
+    String(
+      today.getDate()
+    )
+    .padStart(2,"0");
+
+
+  dateInput.value =
+    `${year}-${month}-${day}`;
+
+}
+
+
+// ======================================================
+// CLEAR FORM
+// ======================================================
 
 function clearForm(){
 
+  if(nameInput){
 
-document.getElementById("name").value="";
+    nameInput.value = "";
 
-salaryInput.value="";
-
-commissionInput.value="";
-
-carLiftInput.value="";
-
-totalInput.value="";
-
-document.getElementById("date").value="";
+  }
 
 
+  if(salaryInput){
+
+    salaryInput.value = "";
+
+  }
+
+
+  if(commissionInput){
+
+    commissionInput.value = "";
+
+  }
+
+
+  if(carLiftInput){
+
+    carLiftInput.value = "";
+
+  }
+
+
+  if(totalInput){
+
+    totalInput.value = "";
+
+  }
+
+
+  if(dateInput){
+
+    dateInput.value = "";
+
+  }
+
+
+  editId = null;
+
+
+  if(saveButton){
+
+    saveButton.innerHTML =
+      "Save Payment";
+
+  }
+
+
+  setDefaultDate();
 
 }
 
 
+// ======================================================
+// SAVE / UPDATE STAFF PAYMENT
+// ======================================================
+
+if(saveButton){
+
+  saveButton.onclick =
+    async()=>{
 
 
+      // ================================================
+      // AUTH CHECK
+      // ================================================
+
+      if(!authReady){
+
+        alert(
+          "Please wait. Checking account..."
+        );
+
+        return;
+
+      }
 
 
+      if(!auth.currentUser){
+
+        alert(
+          "Login expired. Please login again."
+        );
+
+
+        window.location.replace(
+          "login.html"
+        );
+
+
+        return;
+
+      }
+
+
+      // ================================================
+      // VALUES
+      // ================================================
+
+      const name =
+        nameInput
+          ? nameInput.value.trim()
+          : "";
+
+
+      const salary =
+        number(
+          salaryInput
+            ? salaryInput.value
+            : 0
+        );
+
+
+      const commission =
+        number(
+          commissionInput
+            ? commissionInput.value
+            : 0
+        );
+
+
+      const carLift =
+        number(
+          carLiftInput
+            ? carLiftInput.value
+            : 0
+        );
+
+
+      const total =
+        salary +
+        commission +
+        carLift;
+
+
+      const date =
+        dateInput
+          ? dateInput.value
+          : "";
+
+
+      const status =
+        statusInput
+          ? statusInput.value
+          : "";
+
+
+      // ================================================
+      // VALIDATION
+      // ================================================
+
+      if(!name){
+
+        alert(
+          "Enter staff name"
+        );
+
+        return;
+
+      }
+
+
+      if(
+        salary <= 0 &&
+        commission <= 0 &&
+        carLift <= 0
+      ){
+
+        alert(
+          "Enter payment amount"
+        );
+
+        return;
+
+      }
+
+
+      if(!date){
+
+        alert(
+          "Select date"
+        );
+
+        return;
+
+      }
+
+
+      const data = {
+
+        name,
+
+        salary,
+
+        commission,
+
+        carLift,
+
+        total,
+
+        date,
+
+        status
+
+      };
+
+
+      // ================================================
+      // BUTTON LOADING
+      // ================================================
+
+      saveButton.disabled =
+        true;
+
+
+      saveButton.innerHTML =
+        editId
+          ? "Updating..."
+          : "Saving...";
+
+
+      try{
+
+
+        // ==============================================
+        // UPDATE
+        // ==============================================
+
+        if(editId){
+
+
+          await updateDoc(
+
+            doc(
+              db,
+              "staff",
+              editId
+            ),
+
+            data
+
+          );
+
+
+          alert(
+            "Staff Payment Updated ✅"
+          );
+
+        }
+
+
+        // ==============================================
+        // ADD NEW
+        // ==============================================
+
+        else{
+
+
+          await addDoc(
+
+            collection(
+              db,
+              "staff"
+            ),
+
+            data
+
+          );
+
+
+          alert(
+            "Staff Payment Saved ✅"
+          );
+
+        }
+
+
+        editId = null;
+
+
+        clearForm();
+
+
+        await loadStaff();
+
+
+      }
+      catch(error){
+
+
+        console.error(
+          "Staff Save Error:",
+          error
+        );
+
+
+        if(
+          error.code ===
+          "permission-denied"
+        ){
+
+          alert(
+            "Permission denied. Your account does not have permission to save Staff Payment."
+          );
+
+        }
+
+        else if(
+          error.code ===
+          "unauthenticated"
+        ){
+
+          alert(
+            "Login expired. Please login again."
+          );
+
+
+          window.location.replace(
+            "login.html"
+          );
+
+        }
+
+        else{
+
+          alert(
+            "Error saving Staff Payment: " +
+            (
+              error.code ||
+              error.message ||
+              "Unknown error"
+            )
+          );
+
+        }
+
+      }
+      finally{
+
+
+        saveButton.disabled =
+          false;
+
+
+        saveButton.innerHTML =
+          editId
+            ? "Update Payment"
+            : "Save Payment";
+
+      }
+
+    };
+
+}
+
+
+// ======================================================
+// LOAD STAFF
+// ======================================================
 
 async function loadStaff(){
 
+  if(!authReady){
 
-allStaff=[];
+    return;
 
-
-
-const snap=await getDocs(
-collection(db,"staff")
-);
+  }
 
 
-
-snap.forEach(item=>{
-
-
-allStaff.push({
-
-id:item.id,
-
-...item.data()
-
-});
+  try{
 
 
-});
+    allStaff = [];
 
 
+    const snap =
+      await getDocs(
 
-displayStaff(allStaff);
+        collection(
+          db,
+          "staff"
+        )
+
+      );
 
 
+    snap.forEach(
+      item=>{
+
+
+        allStaff.push({
+
+          id:
+            item.id,
+
+          ...item.data()
+
+        });
+
+
+      }
+    );
+
+
+    // ================================================
+    // NEWEST FIRST
+    // ================================================
+
+    allStaff.sort(
+      (a,b)=>
+
+        String(
+          b.date || ""
+        )
+        .localeCompare(
+          String(
+            a.date || ""
+          )
+        )
+
+    );
+
+
+    displayStaff(
+      allStaff
+    );
+
+
+  }
+  catch(error){
+
+
+    console.error(
+      "Load Staff Error:",
+      error
+    );
+
+
+    if(
+      error.code ===
+      "permission-denied"
+    ){
+
+      alert(
+        "Permission denied while loading Staff Payments."
+      );
+
+    }
+    else{
+
+      alert(
+        "Error loading Staff Payments: " +
+        (
+          error.code ||
+          error.message ||
+          "Unknown error"
+        )
+      );
+
+    }
+
+  }
 
 }
 
 
-
-
-
-
-
-
+// ======================================================
+// DISPLAY STAFF
+// ======================================================
 
 function displayStaff(list){
 
+  if(!staffList){
 
-let box=document.getElementById("staffList");
+    return;
 
+  }
 
-box.innerHTML="";
 
+  staffList.innerHTML =
+    "";
 
 
-list.reverse().forEach(s=>{
+  if(
+    !list ||
+    list.length === 0
+  ){
 
+    staffList.innerHTML = `
 
-box.innerHTML += `
+      <div class="staff-card">
 
+        No staff payments found
 
-<div class="staff-card">
+      </div>
 
+    `;
 
-<div class="staff-top">
 
-<span>👤 ${s.name}</span>
+    return;
 
-<span>${s.date}</span>
+  }
 
-</div>
 
+  list.forEach(
+    staff=>{
 
 
-<div class="staff-line">
+      staffList.innerHTML += `
 
-<span>💰 Salary</span>
 
-<b>${s.salary} AED</b>
+        <div class="staff-card">
 
-</div>
 
+          <div class="staff-top">
 
-<div class="staff-line">
+            <span>
 
-<span>📈 Commission</span>
+              👤 ${escapeHTML(
+                staff.name ||
+                "-"
+              )}
 
-<b>${s.commission} AED</b>
+            </span>
 
-</div>
 
+            <span>
 
-<div class="staff-line">
+              ${escapeHTML(
+                staff.date ||
+                "-"
+              )}
 
-<span>🚗 Car Lift</span>
+            </span>
 
-<b>${s.carLift} AED</b>
+          </div>
 
-</div>
 
+          <div class="staff-line">
 
+            <span>
+              💰 Salary
+            </span>
 
-<div class="staff-line total">
+            <b>
 
-<span>Total</span>
+              ${money(
+                staff.salary
+              )}
 
-<b>${s.total} AED</b>
+            </b>
 
-</div>
+          </div>
 
 
+          <div class="staff-line">
 
-<div class="staff-line">
+            <span>
+              📈 Commission
+            </span>
 
-<span>Status</span>
+            <b>
 
-<b>${s.status}</b>
+              ${money(
+                staff.commission
+              )}
 
-</div>
+            </b>
 
+          </div>
 
 
-<div class="action">
+          <div class="staff-line">
 
+            <span>
+              🚗 Car Lift
+            </span>
 
-<button class="edit"
-onclick="editStaff('${s.id}')">
+            <b>
 
-✏️ Edit
+              ${money(
+                staff.carLift
+              )}
 
-</button>
+            </b>
 
+          </div>
 
 
-<button class="delete"
-onclick="deleteStaff('${s.id}')">
+          <div class="staff-line total">
 
-🗑 Delete
+            <span>
+              Total
+            </span>
 
-</button>
+            <b>
 
+              ${money(
+                staff.total
+              )}
 
-</div>
+            </b>
 
+          </div>
 
 
-</div>
+          <div class="staff-line">
 
+            <span>
+              Status
+            </span>
 
-`;
+            <b>
 
+              ${escapeHTML(
+                staff.status ||
+                "-"
+              )}
 
+            </b>
 
-});
+          </div>
 
+
+          <div class="action">
+
+
+            <button
+              class="edit"
+              onclick="editStaff('${staff.id}')"
+            >
+
+              ✏️ Edit
+
+            </button>
+
+
+            <button
+              class="delete"
+              onclick="deleteStaff('${staff.id}')"
+            >
+
+              🗑 Delete
+
+            </button>
+
+
+          </div>
+
+
+        </div>
+
+      `;
+
+
+    }
+  );
 
 }
 
 
+// ======================================================
+// SEARCH STAFF
+// ======================================================
 
+if(searchInput){
 
+  searchInput.oninput =
+    function(){
 
 
+      const text =
+        this.value
+          .trim()
+          .toLowerCase();
 
 
+      if(!text){
 
-document.getElementById("searchStaff").oninput=function(){
+        displayStaff(
+          allStaff
+        );
 
+        return;
 
-let text=this.value.toLowerCase();
+      }
 
 
-let result=allStaff.filter(s=>
+      const result =
+        allStaff.filter(
+          staff=>{
 
-s.name.toLowerCase().includes(text)
 
-);
+            return (
 
+              String(
+                staff.name ||
+                ""
+              )
+              .toLowerCase()
+              .includes(
+                text
+              )
 
+              ||
 
-displayStaff(result);
+              String(
+                staff.status ||
+                ""
+              )
+              .toLowerCase()
+              .includes(
+                text
+              )
 
+              ||
 
+              String(
+                staff.date ||
+                ""
+              )
+              .includes(
+                text
+              )
 
-};
+            );
 
+          }
+        );
 
 
+      displayStaff(
+        result
+      );
 
-
-
-
-
-
-window.deleteStaff=async(id)=>{
-
-
-await deleteDoc(
-doc(db,"staff",id)
-);
-
-
-
-alert("Deleted ✅");
-
-
-loadStaff();
-
-
-};
-
-
-
-
-
-
-
-
-
-window.editStaff=async(id)=>{
-
-
-const snap=await getDocs(
-collection(db,"staff")
-);
-
-
-
-snap.forEach(item=>{
-
-
-if(item.id===id){
-
-
-let s=item.data();
-
-
-
-document.getElementById("name").value=s.name;
-
-salaryInput.value=s.salary;
-
-commissionInput.value=s.commission;
-
-carLiftInput.value=s.carLift;
-
-totalInput.value=s.total;
-
-document.getElementById("date").value=s.date;
-
-document.getElementById("status").value=s.status;
-
-
-editId=id;
-
+    };
 
 }
 
 
+// ======================================================
+// EDIT STAFF
+// ======================================================
 
-});
-
-
-};
-
-
-
+window.editStaff =
+  function(id){
 
 
+    const staff =
+      allStaff.find(
+        item=>
+          item.id === id
+      );
 
-loadStaff();
+
+    if(!staff){
+
+      alert(
+        "Staff payment not found"
+      );
+
+      return;
+
+    }
+
+
+    if(nameInput){
+
+      nameInput.value =
+        staff.name ||
+        "";
+
+    }
+
+
+    if(salaryInput){
+
+      salaryInput.value =
+        number(
+          staff.salary
+        );
+
+    }
+
+
+    if(commissionInput){
+
+      commissionInput.value =
+        number(
+          staff.commission
+        );
+
+    }
+
+
+    if(carLiftInput){
+
+      carLiftInput.value =
+        number(
+          staff.carLift
+        );
+
+    }
+
+
+    if(totalInput){
+
+      totalInput.value =
+        number(
+          staff.total
+        );
+
+    }
+
+
+    if(dateInput){
+
+      dateInput.value =
+        staff.date ||
+        "";
+
+    }
+
+
+    if(statusInput){
+
+      statusInput.value =
+        staff.status ||
+        "";
+
+    }
+
+
+    editId =
+      id;
+
+
+    if(saveButton){
+
+      saveButton.innerHTML =
+        "Update Payment";
+
+    }
+
+
+    window.scrollTo({
+
+      top:
+        0,
+
+      behavior:
+        "smooth"
+
+    });
+
+  };
+
+
+// ======================================================
+// DELETE STAFF
+// ======================================================
+
+window.deleteStaff =
+  async function(id){
+
+
+    if(!authReady){
+
+      alert(
+        "Please wait. Checking account..."
+      );
+
+      return;
+
+    }
+
+
+    if(!auth.currentUser){
+
+      alert(
+        "Login expired. Please login again."
+      );
+
+
+      window.location.replace(
+        "login.html"
+      );
+
+
+      return;
+
+    }
+
+
+    if(
+      !confirm(
+        "Delete this Staff Payment?"
+      )
+    ){
+
+      return;
+
+    }
+
+
+    try{
+
+
+      await deleteDoc(
+
+        doc(
+          db,
+          "staff",
+          id
+        )
+
+      );
+
+
+      if(editId === id){
+
+        clearForm();
+
+      }
+
+
+      alert(
+        "Staff Payment Deleted ✅"
+      );
+
+
+      await loadStaff();
+
+
+    }
+    catch(error){
+
+
+      console.error(
+        "Delete Staff Error:",
+        error
+      );
+
+
+      if(
+        error.code ===
+        "permission-denied"
+      ){
+
+        alert(
+          "Permission denied. You cannot delete this Staff Payment."
+        );
+
+      }
+      else{
+
+        alert(
+          "Error deleting Staff Payment: " +
+          (
+            error.code ||
+            error.message ||
+            "Unknown error"
+          )
+        );
+
+      }
+
+    }
+
+  };
+
+
+// ======================================================
+// FIREBASE AUTH START
+// ======================================================
+
+onAuthStateChanged(
+  auth,
+  async user=>{
+
+
+    // ================================================
+    // NOT LOGGED IN
+    // ================================================
+
+    if(!user){
+
+
+      authReady =
+        false;
+
+
+      localStorage.removeItem(
+        "alhuduLogin"
+      );
+
+
+      localStorage.removeItem(
+        "uid"
+      );
+
+
+      sessionStorage.removeItem(
+        "alhuduUsername"
+      );
+
+
+      sessionStorage.removeItem(
+        "alhuduRole"
+      );
+
+
+      window.location.replace(
+        "login.html"
+      );
+
+
+      return;
+
+    }
+
+
+    // ================================================
+    // AUTHENTICATED
+    // ================================================
+
+    authReady =
+      true;
+
+
+    localStorage.setItem(
+      "alhuduLogin",
+      "true"
+    );
+
+
+    localStorage.setItem(
+      "uid",
+      user.uid
+    );
+
+
+    console.log(
+      "Staff authenticated:",
+      user.uid
+    );
+
+
+    setDefaultDate();
+
+
+    await loadStaff();
+
+  }
+);
+
+
+// ======================================================
+// END OF STAFF.JS
+// ======================================================
