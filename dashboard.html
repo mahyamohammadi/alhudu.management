@@ -320,7 +320,7 @@ margin-top:5px;
 
 .quick-grid{
 display:grid;
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(5,1fr);
 gap:12px;
 }
 
@@ -387,12 +387,21 @@ height:260px;
 <h2>AL HUDU</h2>
 
 <a href="dashboard.html">🏠 Dashboard</a>
+
 <a href="sales.html">💰 Sales</a>
+
 <a href="expenses.html">💸 Expenses (Cost)</a>
+
+<a href="advertising.html">📣 Advertising</a>
+
 <a href="staff.html">👨‍💼 Staff Payment</a>
+
 <a href="cashflow.html">💵 Cash Flow</a>
+
 <a href="reports.html">📊 Reports</a>
+
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
+
 <a href="settings.html">⚙️ Settings</a>
 
 </div>
@@ -525,6 +534,21 @@ class="month-select">
 </div>
 
 
+<!-- ADVERTISING -->
+
+<div class="dash-card">
+
+<div class="dash-title">
+📣 Advertising
+</div>
+
+<div class="dash-value" id="totalAdvertising">
+0 AED
+</div>
+
+</div>
+
+
 <div class="dash-card">
 
 <div class="dash-title">
@@ -598,7 +622,9 @@ Monthly Sales Analysis
 </div>
 
 <div class="chart-wrap">
+
 <canvas id="salesChart"></canvas>
+
 </div>
 
 </div>
@@ -710,7 +736,9 @@ Year Overview
 </h2>
 
 <div class="chart-wrap">
+
 <canvas id="yearChart"></canvas>
+
 </div>
 
 </div>
@@ -786,7 +814,9 @@ Current Sales: 0 AED
 <h2>Sales Ratio</h2>
 
 <div class="ratio-wrap">
+
 <canvas id="salesRatioChart"></canvas>
+
 </div>
 
 </div>
@@ -856,6 +886,13 @@ onclick="location.href='sales.html'">
 class="quick-button"
 onclick="location.href='expenses.html'">
 💸 New Expense
+</button>
+
+
+<button
+class="quick-button"
+onclick="location.href='advertising.html'">
+📣 New Advertising
 </button>
 
 
@@ -939,4 +976,5 @@ src="dashboard.js">
 
 
 </body>
+
 </html>
