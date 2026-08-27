@@ -322,7 +322,6 @@ async function loadUserProfile(user){
 
 // ======================================================
 // LOAD FIREBASE DATA
-// SALES + EXPENSES + STAFF + WITHDRAWALS + ADVERTISING
 // ======================================================
 
 async function getData(){
@@ -522,10 +521,6 @@ function calculateReport(
   const advertisingDetails = [];
 
 
-  // ====================================================
-  // SALES
-  // ====================================================
-
   data.sales.forEach(
     sale=>{
 
@@ -555,10 +550,6 @@ function calculateReport(
   );
 
 
-  // ====================================================
-  // EXPENSES
-  // ====================================================
-
   data.expenses.forEach(
     expense=>{
 
@@ -584,10 +575,6 @@ function calculateReport(
     }
   );
 
-
-  // ====================================================
-  // STAFF PAYMENT
-  // ====================================================
 
   data.staff.forEach(
     staffItem=>{
@@ -615,10 +602,6 @@ function calculateReport(
   );
 
 
-  // ====================================================
-  // CASH WITHDRAWALS
-  // ====================================================
-
   data.withdrawals.forEach(
     withdrawal=>{
 
@@ -644,10 +627,6 @@ function calculateReport(
     }
   );
 
-
-  // ====================================================
-  // ADVERTISING
-  // ====================================================
 
   data.advertising.forEach(
     advertisingItem=>{
@@ -678,11 +657,6 @@ function calculateReport(
   const salesTotal =
     cash + card;
 
-
-  // IMPORTANT:
-  // Net Sale Amount stays exactly as before.
-  // Advertising is shown separately and is NOT
-  // deducted here.
 
   const netSalesAmount =
     salesTotal -
@@ -1018,22 +992,6 @@ function getMonthlyStatistics(report){
       : 0;
 
 
-  let runningTotal = 0;
-
-
-  const cumulativeSales =
-    totalSales.map(
-      value=>{
-
-        runningTotal +=
-          number(value);
-
-        return runningTotal;
-
-      }
-    );
-
-
   return {
 
     year:
@@ -1067,9 +1025,7 @@ function getMonthlyStatistics(report){
 
     cashPercent,
 
-    cardPercent,
-
-    cumulativeSales
+    cardPercent
 
   };
 
@@ -1084,7 +1040,6 @@ function showReport(report){
     document.getElementById(
       "reportPeriod"
     );
-
 
   if(periodBox){
 
@@ -1114,42 +1069,35 @@ function showReport(report){
     money(report.cash)
   );
 
-
   setText(
     "reportCard",
     money(report.card)
   );
-
 
   setText(
     "reportSales",
     money(report.salesTotal)
   );
 
-
   setText(
     "reportExpenses",
     money(report.expensesTotal)
   );
-
 
   setText(
     "reportAdvertising",
     money(report.advertisingTotal)
   );
 
-
   setText(
     "reportStaff",
     money(report.staffTotal)
   );
 
-
   setText(
     "reportWithdrawals",
     money(report.withdrawalTotal)
   );
-
 
   setText(
     "reportProfit",
@@ -1161,21 +1109,17 @@ function showReport(report){
     report.expenseDetails
   );
 
-
   showAdvertisingDetails(
     report.advertisingDetails
   );
-
 
   showStaffDetails(
     report.staffDetails
   );
 
-
   showWithdrawalDetails(
     report.withdrawalDetails
   );
-
 
   showReportChart(
     report
@@ -1185,7 +1129,7 @@ function showReport(report){
 
 
 // ======================================================
-// EXPENSE DETAILS ON WEBSITE
+// EXPENSE DETAILS
 // ======================================================
 
 function showExpenseDetails(list){
@@ -1195,13 +1139,9 @@ function showExpenseDetails(list){
       "expenseDetails"
     );
 
-
   if(!box){
-
     return;
-
   }
-
 
   if(
     !list ||
@@ -1212,29 +1152,23 @@ function showExpenseDetails(list){
       "No expenses in this period.";
 
     return;
-
   }
-
 
   box.innerHTML = "";
 
-
   list.forEach(
     expense=>{
-
 
       box.innerHTML += `
 
         <div class="detail-card">
 
           <b dir="ltr">
-
             📅 ${escapeHTML(
               displayDate(
                 expense.date
               )
             )}
-
           </b>
 
           <br><br>
@@ -1277,7 +1211,7 @@ function showExpenseDetails(list){
 
 
 // ======================================================
-// ADVERTISING DETAILS ON WEBSITE
+// ADVERTISING DETAILS
 // ======================================================
 
 function showAdvertisingDetails(list){
@@ -1287,13 +1221,9 @@ function showAdvertisingDetails(list){
       "advertisingDetails"
     );
 
-
   if(!box){
-
     return;
-
   }
-
 
   if(
     !list ||
@@ -1304,29 +1234,23 @@ function showAdvertisingDetails(list){
       "No advertising records in this period.";
 
     return;
-
   }
-
 
   box.innerHTML = "";
 
-
   list.forEach(
     ad=>{
-
 
       box.innerHTML += `
 
         <div class="detail-card">
 
           <b dir="ltr">
-
             📅 ${escapeHTML(
               displayDate(
                 ad.date
               )
             )}
-
           </b>
 
           <br><br>
@@ -1379,7 +1303,7 @@ function showAdvertisingDetails(list){
 
 
 // ======================================================
-// STAFF DETAILS ON WEBSITE
+// STAFF DETAILS
 // ======================================================
 
 function showStaffDetails(list){
@@ -1389,13 +1313,9 @@ function showStaffDetails(list){
       "staffDetails"
     );
 
-
   if(!box){
-
     return;
-
   }
-
 
   if(
     !list ||
@@ -1406,29 +1326,23 @@ function showStaffDetails(list){
       "No staff payments in this period.";
 
     return;
-
   }
-
 
   box.innerHTML = "";
 
-
   list.forEach(
     staffItem=>{
-
 
       box.innerHTML += `
 
         <div class="detail-card">
 
           <b dir="ltr">
-
             📅 ${escapeHTML(
               displayDate(
                 staffItem.date
               )
             )}
-
           </b>
 
           <br><br>
@@ -1498,7 +1412,7 @@ function showStaffDetails(list){
 
 
 // ======================================================
-// CASH WITHDRAWAL DETAILS ON WEBSITE
+// WITHDRAWAL DETAILS
 // ======================================================
 
 function showWithdrawalDetails(list){
@@ -1508,13 +1422,9 @@ function showWithdrawalDetails(list){
       "withdrawalDetails"
     );
 
-
   if(!box){
-
     return;
-
   }
-
 
   if(
     !list ||
@@ -1525,29 +1435,23 @@ function showWithdrawalDetails(list){
       "No cash withdrawals in this period.";
 
     return;
-
   }
-
 
   box.innerHTML = "";
 
-
   list.forEach(
     withdrawal=>{
-
 
       box.innerHTML += `
 
         <div class="detail-card">
 
           <b dir="ltr">
-
             📅 ${escapeHTML(
               displayDate(
                 withdrawal.date
               )
             )}
-
           </b>
 
           <br><br>
@@ -1600,25 +1504,19 @@ function showReportChart(report){
       "monthlyChartSection"
     );
 
-
   const canvas =
     document.getElementById(
       "monthlySalesChart"
     );
-
 
   if(
     !section ||
     !canvas ||
     !window.Chart
   ){
-
     return;
-
   }
 
-
-  // DAILY: NO CHART
 
   if(
     report.reportType ===
@@ -1628,7 +1526,6 @@ function showReportChart(report){
     section.style.display =
       "none";
 
-
     if(reportChart){
 
       reportChart.destroy();
@@ -1637,9 +1534,7 @@ function showReportChart(report){
 
     }
 
-
     return;
-
   }
 
 
@@ -1665,7 +1560,6 @@ function showReportChart(report){
       getMonthlyStatistics(
         report
       );
-
 
     labels =
       Array.from(
@@ -1729,7 +1623,6 @@ function showReportChart(report){
   ){
 
     labels = [
-
       "Jan",
       "Feb",
       "Mar",
@@ -1742,7 +1635,6 @@ function showReportChart(report){
       "Oct",
       "Nov",
       "Dec"
-
     ];
 
 
@@ -1754,15 +1646,12 @@ function showReportChart(report){
     report.salesDetails.forEach(
       sale=>{
 
-
         if(
           !validDate(
             sale.date
           )
         ){
-
           return;
-
         }
 
 
@@ -1780,9 +1669,7 @@ function showReportChart(report){
           month < 0 ||
           month > 11
         ){
-
           return;
-
         }
 
 
@@ -1887,7 +1774,6 @@ function showReportChart(report){
     report.salesDetails.forEach(
       sale=>{
 
-
         if(
           Object.prototype
           .hasOwnProperty.call(
@@ -1920,7 +1806,6 @@ function showReportChart(report){
     .sort()
     .forEach(
       date=>{
-
 
         labels.push(
           displayDate(
@@ -1969,7 +1854,6 @@ function showReportChart(report){
 
         type:
           "bar",
-
 
         data:{
 
@@ -2041,17 +1925,7 @@ function showReportChart(report){
                 "top",
 
               align:
-                "end",
-
-              labels:{
-
-                font:{
-
-                  size: 14
-
-                }
-
-              }
+                "end"
 
             },
 
@@ -2083,39 +1957,7 @@ function showReportChart(report){
             x:{
 
               grid:{
-
-                display:
-                  false
-
-              },
-
-
-              ticks:{
-
-                autoSkip:
-                  true,
-
-                maxTicksLimit:
-                  report.reportType ===
-                  "monthly"
-                    ? 16
-                    : 12,
-
-                maxRotation:
-                  report.reportType ===
-                  "custom"
-                    ? 45
-                    : 0,
-
-                minRotation:
-                  0,
-
-                font:{
-
-                  size: 13
-
-                }
-
+                display:false
               }
 
             },
@@ -2126,42 +1968,17 @@ function showReportChart(report){
               beginAtZero:
                 true,
 
-
-              grid:{
-
-                color:
-                  "#eee8df"
-
-              },
-
-
               title:{
 
                 display:
                   true,
 
                 text:
-                  "Sales (AED)",
-
-                font:{
-
-                  size: 14,
-
-                  weight:
-                    "bold"
-
-                }
+                  "Sales (AED)"
 
               },
 
-
               ticks:{
-
-                font:{
-
-                  size: 12
-
-                },
 
                 callback(value){
 
@@ -2259,7 +2076,6 @@ async function generate(
       currentReport
     );
 
-
   }
   catch(error){
 
@@ -2269,28 +2085,14 @@ async function generate(
     );
 
 
-    if(
-      error.code ===
-      "permission-denied"
-    ){
-
-      alert(
-        "Permission denied while loading report"
-      );
-
-    }
-    else{
-
-      alert(
-        "Report error: " +
-        (
-          error.code ||
-          error.message ||
-          "Unknown error"
-        )
-      );
-
-    }
+    alert(
+      "Report error: " +
+      (
+        error.code ||
+        error.message ||
+        "Unknown error"
+      )
+    );
 
   }
 
@@ -2298,7 +2100,7 @@ async function generate(
 
 
 // ======================================================
-// DAILY REPORT
+// REPORT BUTTONS
 // ======================================================
 
 const generateDaily =
@@ -2311,7 +2113,6 @@ if(generateDaily){
 
   generateDaily.onclick =
     async()=>{
-
 
       const date =
         document
@@ -2344,10 +2145,6 @@ if(generateDaily){
 }
 
 
-// ======================================================
-// MONTHLY REPORT
-// ======================================================
-
 const generateMonthly =
   document.getElementById(
     "generateMonthly"
@@ -2358,7 +2155,6 @@ if(generateMonthly){
 
   generateMonthly.onclick =
     async()=>{
-
 
       const value =
         document
@@ -2384,15 +2180,11 @@ if(generateMonthly){
 
 
       const year =
-        Number(
-          parts[0]
-        );
+        Number(parts[0]);
 
 
       const month =
-        Number(
-          parts[1]
-        );
+        Number(parts[1]);
 
 
       const lastDay =
@@ -2420,29 +2212,22 @@ if(generateMonthly){
         );
 
 
-      const from =
-        `${year}-${monthText}-01`;
-
-
-      const to =
-        `${year}-${monthText}-${lastDayText}`;
-
-
       await generate(
-        from,
-        to,
+
+        `${year}-${monthText}-01`,
+
+        `${year}-${monthText}-${lastDayText}`,
+
         "Monthly Report",
+
         "monthly"
+
       );
 
     };
 
 }
 
-
-// ======================================================
-// YEARLY REPORT
-// ======================================================
 
 const generateYearly =
   document.getElementById(
@@ -2454,7 +2239,6 @@ if(generateYearly){
 
   generateYearly.onclick =
     async()=>{
-
 
       const year =
         document
@@ -2492,10 +2276,6 @@ if(generateYearly){
 }
 
 
-// ======================================================
-// CUSTOM RANGE REPORT
-// ======================================================
-
 const generateRange =
   document.getElementById(
     "generateRange"
@@ -2506,7 +2286,6 @@ if(generateRange){
 
   generateRange.onclick =
     async()=>{
-
 
       const from =
         document
@@ -2552,26 +2331,13 @@ if(generateRange){
 // PDF DESIGN SETTINGS
 // ======================================================
 
-const PDF_GOLD =
-  [184,138,72];
-
-const PDF_DARK =
-  [45,42,38];
-
-const PDF_MUTED =
-  [105,98,90];
-
-const PDF_CREAM =
-  [247,243,236];
-
-const PDF_LIGHT =
-  [252,250,247];
-
-const PDF_LINE =
-  [230,222,210];
-
-const PDF_WHITE =
-  [255,255,255];
+const PDF_GOLD = [184,138,72];
+const PDF_DARK = [45,42,38];
+const PDF_MUTED = [105,98,90];
+const PDF_CREAM = [247,243,236];
+const PDF_LIGHT = [252,250,247];
+const PDF_LINE = [230,222,210];
+const PDF_WHITE = [255,255,255];
 
 
 // ======================================================
@@ -2594,10 +2360,8 @@ function loadLogo(){
       const img =
         new Image();
 
-
       img.onload =
         ()=>resolve(img);
-
 
       img.onerror =
         ()=>reject(
@@ -2605,7 +2369,6 @@ function loadLogo(){
             "Logo could not be loaded"
           )
         );
-
 
       img.src =
         LOGO_PATH +
@@ -2625,37 +2388,24 @@ function loadLogo(){
 async function addPDFHeader(
   pdf,
   title,
-  period,
-  pageNumber = null,
-  totalPages = null
+  period
 ){
 
   let y = 8;
-
-
-  // ====================================================
-  // LOGO
-  // ====================================================
 
   try{
 
     const logo =
       await loadLogo();
 
-
-    const logoWidth =
-      18;
-
+    const logoWidth = 18;
 
     const ratio =
       logo.naturalHeight /
       logo.naturalWidth;
 
-
     const logoHeight =
-      logoWidth *
-      ratio;
-
+      logoWidth * ratio;
 
     pdf.addImage(
       logo,
@@ -2665,7 +2415,6 @@ async function addPDFHeader(
       logoWidth,
       logoHeight
     );
-
 
     y +=
       logoHeight + 2;
@@ -2678,42 +2427,30 @@ async function addPDFHeader(
       error
     );
 
-
     y = 12;
 
   }
 
-
-  // ====================================================
-  // BRAND
-  // ====================================================
 
   pdf.setFont(
     "helvetica",
     "bold"
   );
 
-
-  pdf.setFontSize(
-    16
-  );
-
+  pdf.setFontSize(16);
 
   pdf.setTextColor(
     ...PDF_DARK
   );
-
 
   pdf.text(
     "AL HUDU",
     105,
     y,
     {
-      align:
-        "center"
+      align:"center"
     }
   );
-
 
   y += 6;
 
@@ -2723,44 +2460,29 @@ async function addPDFHeader(
     "normal"
   );
 
-
-  pdf.setFontSize(
-    8
-  );
-
+  pdf.setFontSize(8);
 
   pdf.setTextColor(
     ...PDF_MUTED
   );
-
 
   pdf.text(
     "Accounting & Management System",
     105,
     y,
     {
-      align:
-        "center"
+      align:"center"
     }
   );
 
-
   y += 8;
 
-
-  // ====================================================
-  // GOLD LINE
-  // ====================================================
 
   pdf.setDrawColor(
     ...PDF_GOLD
   );
 
-
-  pdf.setLineWidth(
-    0.5
-  );
-
+  pdf.setLineWidth(0.5);
 
   pdf.line(
     10,
@@ -2769,60 +2491,40 @@ async function addPDFHeader(
     y
   );
 
-
   y += 8;
 
-
-  // ====================================================
-  // REPORT TITLE
-  // ====================================================
 
   pdf.setFont(
     "helvetica",
     "bold"
   );
 
-
-  pdf.setFontSize(
-    13
-  );
-
+  pdf.setFontSize(13);
 
   pdf.setTextColor(
     ...PDF_DARK
   );
 
-
   pdf.text(
     String(
       title ||
       "REPORT"
-    )
-    .toUpperCase(),
+    ).toUpperCase(),
     10,
     y
   );
 
-
-  // ====================================================
-  // PERIOD
-  // ====================================================
 
   pdf.setFont(
     "helvetica",
     "normal"
   );
 
-
-  pdf.setFontSize(
-    8
-  );
-
+  pdf.setFontSize(8);
 
   pdf.setTextColor(
     ...PDF_MUTED
   );
-
 
   pdf.text(
     String(
@@ -2832,14 +2534,11 @@ async function addPDFHeader(
     200,
     y,
     {
-      align:
-        "right"
+      align:"right"
     }
   );
 
-
   y += 9;
-
 
   return y;
 
@@ -2855,27 +2554,19 @@ function addPDFFooters(pdf){
   const pageCount =
     pdf.getNumberOfPages();
 
-
   for(
     let page = 1;
     page <= pageCount;
     page++
   ){
 
-    pdf.setPage(
-      page
-    );
-
+    pdf.setPage(page);
 
     pdf.setDrawColor(
       ...PDF_LINE
     );
 
-
-    pdf.setLineWidth(
-      0.3
-    );
-
+    pdf.setLineWidth(0.3);
 
     pdf.line(
       10,
@@ -2884,22 +2575,16 @@ function addPDFFooters(pdf){
       284
     );
 
-
     pdf.setFont(
       "helvetica",
       "normal"
     );
 
-
-    pdf.setFontSize(
-      7.5
-    );
-
+    pdf.setFontSize(7.5);
 
     pdf.setTextColor(
       ...PDF_MUTED
     );
-
 
     pdf.text(
       "AL HUDU - Financial Report",
@@ -2907,14 +2592,12 @@ function addPDFFooters(pdf){
       290
     );
 
-
     pdf.text(
       `Page ${page} of ${pageCount}`,
       200,
       290,
       {
-        align:
-          "right"
+        align:"right"
       }
     );
 
@@ -2938,39 +2621,26 @@ function addPDFSectionTitle(
     "bold"
   );
 
-
-  pdf.setFontSize(
-    10.5
-  );
-
+  pdf.setFontSize(10.5);
 
   pdf.setTextColor(
     ...PDF_DARK
   );
 
-
   pdf.text(
-    String(
-      title
-    )
-    .toUpperCase(),
+    String(title)
+      .toUpperCase(),
     10,
     y
   );
 
-
   y += 4;
-
 
   pdf.setDrawColor(
     ...PDF_GOLD
   );
 
-
-  pdf.setLineWidth(
-    0.35
-  );
-
+  pdf.setLineWidth(0.35);
 
   pdf.line(
     10,
@@ -2978,7 +2648,6 @@ function addPDFSectionTitle(
     200,
     y
   );
-
 
   return y + 6;
 
@@ -3001,16 +2670,11 @@ function addPDFCard(
   highlight = false
 ){
 
-  // ====================================================
-  // BACKGROUND
-  // ====================================================
-
   if(highlight){
 
     pdf.setFillColor(
       ...PDF_GOLD
     );
-
 
     pdf.roundedRect(
       x,
@@ -3029,11 +2693,9 @@ function addPDFCard(
       ...PDF_LIGHT
     );
 
-
     pdf.setDrawColor(
       ...PDF_LINE
     );
-
 
     pdf.roundedRect(
       x,
@@ -3048,20 +2710,16 @@ function addPDFCard(
   }
 
 
-  // ====================================================
-  // LABEL
-  // ====================================================
-
   pdf.setFont(
     "helvetica",
     "bold"
   );
 
+  let labelFontSize = 7.6;
 
   pdf.setFontSize(
-    7.6
+    labelFontSize
   );
-
 
   pdf.setTextColor(
     ...(
@@ -3071,39 +2729,23 @@ function addPDFCard(
     )
   );
 
-
-  let labelText =
+  const labelText =
     String(
-      label ||
-      ""
-    )
-    .toUpperCase();
-
-
-  let labelFontSize =
-    7.6;
-
+      label || ""
+    ).toUpperCase();
 
   const labelWidth =
     width - 10;
 
 
-  pdf.setFontSize(
-    labelFontSize
-  );
-
-
   while(
     pdf.getTextWidth(
       labelText
-    ) >
-    labelWidth &&
+    ) > labelWidth &&
     labelFontSize > 6
   ){
 
-    labelFontSize -=
-      0.25;
-
+    labelFontSize -= 0.25;
 
     pdf.setFontSize(
       labelFontSize
@@ -3119,26 +2761,19 @@ function addPDFCard(
   );
 
 
-  // ====================================================
-  // MAIN VALUE
-  // ====================================================
-
   pdf.setFont(
     "helvetica",
     "bold"
   );
-
 
   let valueFontSize =
     highlight
       ? 15
       : 11.5;
 
-
   pdf.setFontSize(
     valueFontSize
   );
-
 
   pdf.setTextColor(
     ...(
@@ -3148,13 +2783,10 @@ function addPDFCard(
     )
   );
 
-
   const valueText =
     String(
-      value ??
-      "-"
+      value ?? "-"
     );
-
 
   const availableWidth =
     width - 10;
@@ -3163,14 +2795,11 @@ function addPDFCard(
   while(
     pdf.getTextWidth(
       valueText
-    ) >
-    availableWidth &&
+    ) > availableWidth &&
     valueFontSize > 7.5
   ){
 
-    valueFontSize -=
-      0.5;
-
+    valueFontSize -= 0.5;
 
     pdf.setFontSize(
       valueFontSize
@@ -3186,10 +2815,6 @@ function addPDFCard(
   );
 
 
-  // ====================================================
-  // SUBTITLE
-  // ====================================================
-
   if(subtitle){
 
     pdf.setFont(
@@ -3197,15 +2822,11 @@ function addPDFCard(
       "normal"
     );
 
-
-    let subtitleFontSize =
-      7;
-
+    let subtitleFontSize = 7;
 
     pdf.setFontSize(
       subtitleFontSize
     );
-
 
     pdf.setTextColor(
       ...(
@@ -3215,12 +2836,8 @@ function addPDFCard(
       )
     );
 
-
     let subtitleText =
-      String(
-        subtitle
-      );
-
+      String(subtitle);
 
     const subtitleWidth =
       width - 10;
@@ -3229,14 +2846,11 @@ function addPDFCard(
     while(
       pdf.getTextWidth(
         subtitleText
-      ) >
-      subtitleWidth &&
+      ) > subtitleWidth &&
       subtitleFontSize > 5.8
     ){
 
-      subtitleFontSize -=
-        0.2;
-
+      subtitleFontSize -= 0.2;
 
       pdf.setFontSize(
         subtitleFontSize
@@ -3248,8 +2862,7 @@ function addPDFCard(
     while(
       pdf.getTextWidth(
         subtitleText
-      ) >
-      subtitleWidth &&
+      ) > subtitleWidth &&
       subtitleText.length > 4
     ){
 
@@ -3286,8 +2899,7 @@ function drawPDFTable(
   startY
 ){
 
-  let y =
-    startY;
+  let y = startY;
 
 
   if(title){
@@ -3297,16 +2909,11 @@ function drawPDFTable(
       "bold"
     );
 
-
-    pdf.setFontSize(
-      10
-    );
-
+    pdf.setFontSize(10);
 
     pdf.setTextColor(
       ...PDF_DARK
     );
-
 
     pdf.text(
       String(title),
@@ -3314,25 +2921,18 @@ function drawPDFTable(
       y
     );
 
-
     y += 6;
 
   }
 
 
-  // ====================================================
-  // TABLE HEADER
-  // ====================================================
-
   function drawHeader(){
 
     let x = 10;
 
-
     pdf.setFillColor(
       ...PDF_CREAM
     );
-
 
     pdf.rect(
       10,
@@ -3342,17 +2942,12 @@ function drawPDFTable(
       "F"
     );
 
-
     pdf.setFont(
       "helvetica",
       "bold"
     );
 
-
-    pdf.setFontSize(
-      7.2
-    );
-
+    pdf.setFontSize(7.2);
 
     pdf.setTextColor(
       ...PDF_DARK
@@ -3365,20 +2960,13 @@ function drawPDFTable(
         index
       )=>{
 
-
         let headerText =
-          String(
-            header
-          );
+          String(header);
 
-
-        let headerSize =
-          7.2;
-
+        let headerSize = 7.2;
 
         const maxHeaderWidth =
           widths[index] - 4;
-
 
         pdf.setFontSize(
           headerSize
@@ -3388,14 +2976,11 @@ function drawPDFTable(
         while(
           pdf.getTextWidth(
             headerText
-          ) >
-          maxHeaderWidth &&
+          ) > maxHeaderWidth &&
           headerSize > 5.5
         ){
 
-          headerSize -=
-            0.25;
-
+          headerSize -= 0.25;
 
           pdf.setFontSize(
             headerSize
@@ -3410,13 +2995,10 @@ function drawPDFTable(
           y + 5.8
         );
 
-
-        x +=
-          widths[index];
+        x += widths[index];
 
       }
     );
-
 
     y += 9;
 
@@ -3426,23 +3008,14 @@ function drawPDFTable(
   drawHeader();
 
 
-  // ====================================================
-  // TABLE ROWS
-  // ====================================================
-
   rows.forEach(
     row=>{
 
-
-      if(
-        y > 270
-      ){
+      if(y > 270){
 
         pdf.addPage();
 
-
         y = 18;
-
 
         drawHeader();
 
@@ -3451,17 +3024,12 @@ function drawPDFTable(
 
       let x = 10;
 
-
       pdf.setFont(
         "helvetica",
         "normal"
       );
 
-
-      pdf.setFontSize(
-        7
-      );
-
+      pdf.setFontSize(7);
 
       pdf.setTextColor(
         ...PDF_DARK
@@ -3474,22 +3042,15 @@ function drawPDFTable(
           index
         )=>{
 
-
           let text =
             String(
-              value ??
-              "-"
+              value ?? "-"
             );
 
-
           const maxWidth =
-            widths[index] -
-            4;
+            widths[index] - 4;
 
-
-          let cellFontSize =
-            7;
-
+          let cellFontSize = 7;
 
           pdf.setFontSize(
             cellFontSize
@@ -3499,14 +3060,11 @@ function drawPDFTable(
           while(
             pdf.getTextWidth(
               text
-            ) >
-            maxWidth &&
+            ) > maxWidth &&
             cellFontSize > 5.8
           ){
 
-            cellFontSize -=
-              0.2;
-
+            cellFontSize -= 0.2;
 
             pdf.setFontSize(
               cellFontSize
@@ -3518,8 +3076,7 @@ function drawPDFTable(
           while(
             pdf.getTextWidth(
               text
-            ) >
-            maxWidth &&
+            ) > maxWidth &&
             text.length > 4
           ){
 
@@ -3538,9 +3095,7 @@ function drawPDFTable(
             y + 6
           );
 
-
-          x +=
-            widths[index];
+          x += widths[index];
 
         }
       );
@@ -3550,11 +3105,7 @@ function drawPDFTable(
         ...PDF_LINE
       );
 
-
-      pdf.setLineWidth(
-        0.2
-      );
-
+      pdf.setLineWidth(0.2);
 
       pdf.line(
         10,
@@ -3562,7 +3113,6 @@ function drawPDFTable(
         200,
         y + 8
       );
-
 
       y += 9;
 
@@ -3576,448 +3126,8 @@ function drawPDFTable(
 
 
 // ======================================================
-// PDF DAILY TOTAL SALES CHART
-// ======================================================
-
-function drawDailyTotalSalesChart(
-  pdf,
-  report,
-  x,
-  y,
-  width,
-  height
-){
-
-  const stats =
-    getMonthlyStatistics(
-      report
-    );
-
-
-  const values =
-    stats.totalSales;
-
-
-  if(
-    !values.length
-  ){
-
-    return;
-
-  }
-
-
-  const leftPadding =
-    29;
-
-
-  const rightPadding =
-    5;
-
-
-  const topPadding =
-    11;
-
-
-  const bottomPadding =
-    19;
-
-
-  const chartX =
-    x + leftPadding;
-
-
-  const chartY =
-    y + topPadding;
-
-
-  const chartWidth =
-    width -
-    leftPadding -
-    rightPadding;
-
-
-  const chartHeight =
-    height -
-    topPadding -
-    bottomPadding;
-
-
-  let maxValue =
-    Math.max(
-      ...values,
-      1
-    );
-
-
-  // ====================================================
-  // NICE MAX VALUE
-  // ====================================================
-
-  const magnitude =
-    Math.pow(
-      10,
-      Math.floor(
-        Math.log10(
-          maxValue
-        )
-      )
-    );
-
-
-  let normalized =
-    maxValue /
-    magnitude;
-
-
-  let niceNormalized;
-
-
-  if(
-    normalized <= 1
-  ){
-
-    niceNormalized = 1;
-
-  }
-  else if(
-    normalized <= 2
-  ){
-
-    niceNormalized = 2;
-
-  }
-  else if(
-    normalized <= 5
-  ){
-
-    niceNormalized = 5;
-
-  }
-  else{
-
-    niceNormalized = 10;
-
-  }
-
-
-  const chartMax =
-    niceNormalized *
-    magnitude;
-
-
-  // ====================================================
-  // BACKGROUND
-  // ====================================================
-
-  pdf.setFillColor(
-    253,
-    252,
-    249
-  );
-
-
-  pdf.setDrawColor(
-    ...PDF_LINE
-  );
-
-
-  pdf.roundedRect(
-    x,
-    y,
-    width,
-    height,
-    3,
-    3,
-    "FD"
-  );
-
-
-  // ====================================================
-  // GRID + Y AXIS
-  // ====================================================
-
-  const gridLines =
-    5;
-
-
-  for(
-    let i = 0;
-    i <= gridLines;
-    i++
-  ){
-
-    const lineY =
-      chartY +
-      (
-        chartHeight /
-        gridLines
-      ) *
-      i;
-
-
-    pdf.setDrawColor(
-      238,
-      233,
-      225
-    );
-
-
-    pdf.setLineWidth(
-      0.2
-    );
-
-
-    pdf.line(
-      chartX,
-      lineY,
-      chartX + chartWidth,
-      lineY
-    );
-
-
-    const value =
-      chartMax -
-      (
-        chartMax /
-        gridLines
-      ) *
-      i;
-
-
-    pdf.setFont(
-      "helvetica",
-      "normal"
-    );
-
-
-    pdf.setFontSize(
-      6.8
-    );
-
-
-    pdf.setTextColor(
-      ...PDF_MUTED
-    );
-
-
-    pdf.text(
-      Math.round(
-        value
-      )
-      .toLocaleString(),
-      chartX - 3,
-      lineY + 1.7,
-      {
-        align:
-          "right"
-      }
-    );
-
-  }
-
-
-  // ====================================================
-  // BARS
-  // ====================================================
-
-  const slotWidth =
-    chartWidth /
-    values.length;
-
-
-  const barWidth =
-    Math.max(
-      1.2,
-      slotWidth * 0.55
-    );
-
-
-  values.forEach(
-    (
-      value,
-      index
-    )=>{
-
-
-      const cleanValue =
-        number(
-          value
-        );
-
-
-      const barHeight =
-        chartMax > 0
-          ? (
-              cleanValue /
-              chartMax
-            ) *
-            chartHeight
-          : 0;
-
-
-      const barX =
-        chartX +
-        (
-          index *
-          slotWidth
-        ) +
-        (
-          slotWidth -
-          barWidth
-        ) /
-        2;
-
-
-      const barY =
-        chartY +
-        chartHeight -
-        barHeight;
-
-
-      pdf.setFillColor(
-        ...PDF_GOLD
-      );
-
-
-      if(barHeight > 0){
-
-        pdf.roundedRect(
-          barX,
-          barY,
-          barWidth,
-          barHeight,
-          0.7,
-          0.7,
-          "F"
-        );
-
-      }
-
-    }
-  );
-
-
-  // ====================================================
-  // X AXIS DAYS
-  // ====================================================
-
-  const labelEvery =
-    values.length > 20
-      ? 2
-      : 1;
-
-
-  values.forEach(
-    (
-      value,
-      index
-    )=>{
-
-
-      const day =
-        index + 1;
-
-
-      if(
-        day !== 1 &&
-        day !== values.length &&
-        day % labelEvery !== 0
-      ){
-
-        return;
-
-      }
-
-
-      const labelX =
-        chartX +
-        (
-          index *
-          slotWidth
-        ) +
-        slotWidth / 2;
-
-
-      pdf.setFont(
-        "helvetica",
-        "normal"
-      );
-
-
-      pdf.setFontSize(
-        6.2
-      );
-
-
-      pdf.setTextColor(
-        ...PDF_MUTED
-      );
-
-
-      pdf.text(
-        String(day),
-        labelX,
-        chartY +
-        chartHeight +
-        5.5,
-        {
-          align:
-            "center"
-        }
-      );
-
-    }
-  );
-
-
-  // ====================================================
-  // AXIS TITLES
-  // ====================================================
-
-  pdf.setFont(
-    "helvetica",
-    "bold"
-  );
-
-
-  pdf.setFontSize(
-    7
-  );
-
-
-  pdf.setTextColor(
-    ...PDF_MUTED
-  );
-
-
-  pdf.text(
-    "DAY",
-    chartX +
-    chartWidth / 2,
-    y + height - 4,
-    {
-      align:
-        "center"
-    }
-  );
-
-
-  pdf.text(
-    "SALES (AED)",
-    x + 4,
-    chartY - 3
-  );
-
-}
-// ======================================================
-// PART 4
-// PDF CHARTS + TOP SALES + MONTHLY PDF
-// ======================================================
-
-
-// ======================================================
 // DAILY TOTAL SALES BAR CHART
+// فقط یک نسخه — تکراری حذف شده
 // ======================================================
 
 function drawDailyTotalSalesChart(
@@ -4034,18 +3144,14 @@ function drawDailyTotalSalesChart(
       report
     );
 
-
   const values =
     stats.totalSales;
-
 
   if(
     !values ||
     !values.length
   ){
-
     return;
-
   }
 
 
@@ -4054,20 +3160,16 @@ function drawDailyTotalSalesChart(
   const topPadding = 11;
   const bottomPadding = 19;
 
-
   const chartX =
     x + leftPadding;
 
-
   const chartY =
     y + topPadding;
-
 
   const chartWidth =
     width -
     leftPadding -
     rightPadding;
-
 
   const chartHeight =
     height -
@@ -4104,30 +3206,21 @@ function drawDailyTotalSalesChart(
   let niceNormalized;
 
 
-  if(
-    normalized <= 1
-  ){
+  if(normalized <= 1){
 
     niceNormalized = 1;
 
   }
-
-  else if(
-    normalized <= 2
-  ){
+  else if(normalized <= 2){
 
     niceNormalized = 2;
 
   }
-
-  else if(
-    normalized <= 5
-  ){
+  else if(normalized <= 5){
 
     niceNormalized = 5;
 
   }
-
   else{
 
     niceNormalized = 10;
@@ -4140,21 +3233,15 @@ function drawDailyTotalSalesChart(
     magnitude;
 
 
-  // ====================================================
-  // BACKGROUND
-  // ====================================================
-
   pdf.setFillColor(
     253,
     252,
     249
   );
 
-
   pdf.setDrawColor(
     ...PDF_LINE
   );
-
 
   pdf.roundedRect(
     x,
@@ -4166,10 +3253,6 @@ function drawDailyTotalSalesChart(
     "FD"
   );
 
-
-  // ====================================================
-  // GRID
-  // ====================================================
 
   const gridLines = 5;
 
@@ -4185,8 +3268,7 @@ function drawDailyTotalSalesChart(
       (
         chartHeight /
         gridLines
-      ) *
-      i;
+      ) * i;
 
 
     pdf.setDrawColor(
@@ -4195,11 +3277,7 @@ function drawDailyTotalSalesChart(
       225
     );
 
-
-    pdf.setLineWidth(
-      0.2
-    );
-
+    pdf.setLineWidth(0.2);
 
     pdf.line(
       chartX,
@@ -4214,8 +3292,7 @@ function drawDailyTotalSalesChart(
       (
         chartMax /
         gridLines
-      ) *
-      i;
+      ) * i;
 
 
     pdf.setFont(
@@ -4223,16 +3300,11 @@ function drawDailyTotalSalesChart(
       "normal"
     );
 
-
-    pdf.setFontSize(
-      6.8
-    );
-
+    pdf.setFontSize(6.8);
 
     pdf.setTextColor(
       ...PDF_MUTED
     );
-
 
     pdf.text(
       Math.round(
@@ -4241,17 +3313,12 @@ function drawDailyTotalSalesChart(
       chartX - 3,
       lineY + 1.7,
       {
-        align:
-          "right"
+        align:"right"
       }
     );
 
   }
 
-
-  // ====================================================
-  // BARS
-  // ====================================================
 
   const slotWidth =
     chartWidth /
@@ -4271,21 +3338,18 @@ function drawDailyTotalSalesChart(
       index
     )=>{
 
-
       const cleanValue =
         number(value);
 
 
       const barHeight =
         chartMax > 0
-          ?
-          (
-            cleanValue /
-            chartMax
-          ) *
-          chartHeight
-          :
-          0;
+          ? (
+              cleanValue /
+              chartMax
+            ) *
+            chartHeight
+          : 0;
 
 
       const barX =
@@ -4297,8 +3361,7 @@ function drawDailyTotalSalesChart(
         (
           slotWidth -
           barWidth
-        ) /
-        2;
+        ) / 2;
 
 
       const barY =
@@ -4312,9 +3375,7 @@ function drawDailyTotalSalesChart(
       );
 
 
-      if(
-        barHeight > 0
-      ){
+      if(barHeight > 0){
 
         pdf.roundedRect(
           barX,
@@ -4332,10 +3393,6 @@ function drawDailyTotalSalesChart(
   );
 
 
-  // ====================================================
-  // DAYS
-  // ====================================================
-
   const labelEvery =
     values.length > 20
       ? 2
@@ -4348,7 +3405,6 @@ function drawDailyTotalSalesChart(
       index
     )=>{
 
-
       const day =
         index + 1;
 
@@ -4358,9 +3414,7 @@ function drawDailyTotalSalesChart(
         day !== values.length &&
         day % labelEvery !== 0
       ){
-
         return;
-
       }
 
 
@@ -4378,16 +3432,11 @@ function drawDailyTotalSalesChart(
         "normal"
       );
 
-
-      pdf.setFontSize(
-        6.2
-      );
-
+      pdf.setFontSize(6.2);
 
       pdf.setTextColor(
         ...PDF_MUTED
       );
-
 
       pdf.text(
         String(day),
@@ -4396,8 +3445,7 @@ function drawDailyTotalSalesChart(
         chartHeight +
         5.5,
         {
-          align:
-            "center"
+          align:"center"
         }
       );
 
@@ -4405,25 +3453,16 @@ function drawDailyTotalSalesChart(
   );
 
 
-  // ====================================================
-  // AXIS TITLES
-  // ====================================================
-
   pdf.setFont(
     "helvetica",
     "bold"
   );
 
-
-  pdf.setFontSize(
-    7
-  );
-
+  pdf.setFontSize(7);
 
   pdf.setTextColor(
     ...PDF_MUTED
   );
-
 
   pdf.text(
     "DAY",
@@ -4431,11 +3470,9 @@ function drawDailyTotalSalesChart(
     chartWidth / 2,
     y + height - 4,
     {
-      align:
-        "center"
+      align:"center"
     }
   );
-
 
   pdf.text(
     "SALES (AED)",
@@ -4444,11 +3481,9 @@ function drawDailyTotalSalesChart(
   );
 
 }
-
-
 // ======================================================
 // DAILY SALES LINE CHART
-// EACH DATE SHOWS ONLY THAT DATE'S SALES
+// EACH DATE = SALES OF THAT DATE ONLY
 // NOT CUMULATIVE
 // ======================================================
 
@@ -4466,10 +3501,6 @@ function drawCumulativeSalesChart(
       report
     );
 
-
-  // IMPORTANT:
-  // totalSales = sales of each individual day
-  // cumulativeSales is NOT used here.
 
   const values =
     stats.totalSales;
@@ -4521,10 +3552,6 @@ function drawCumulativeSalesChart(
     );
 
 
-  // ====================================================
-  // NICE Y AXIS
-  // ====================================================
-
   const roughStep =
     maxValue / 5;
 
@@ -4556,8 +3583,7 @@ function drawCumulativeSalesChart(
   ){
 
     niceStep =
-      1 *
-      magnitude;
+      1 * magnitude;
 
   }
 
@@ -4566,8 +3592,7 @@ function drawCumulativeSalesChart(
   ){
 
     niceStep =
-      2 *
-      magnitude;
+      2 * magnitude;
 
   }
 
@@ -4576,16 +3601,14 @@ function drawCumulativeSalesChart(
   ){
 
     niceStep =
-      5 *
-      magnitude;
+      5 * magnitude;
 
   }
 
   else{
 
     niceStep =
-      10 *
-      magnitude;
+      10 * magnitude;
 
   }
 
@@ -4649,17 +3672,13 @@ function drawCumulativeSalesChart(
   ){
 
     const value =
-      i *
-      niceStep;
+      i * niceStep;
 
 
     const ratio =
       chartMax > 0
-        ?
-        value /
-        chartMax
-        :
-        0;
+        ? value / chartMax
+        : 0;
 
 
     const lineY =
@@ -4723,7 +3742,7 @@ function drawCumulativeSalesChart(
 
 
   // ====================================================
-  // CREATE DAILY POINTS
+  // POINTS
   // ====================================================
 
   const points = [];
@@ -4742,17 +3761,17 @@ function drawCumulativeSalesChart(
 
       const pointX =
         values.length === 1
-          ?
-          chartX
-          :
-          chartX +
-          (
-            index /
+
+          ? chartX
+
+          : chartX +
             (
-              values.length - 1
-            )
-          ) *
-          chartWidth;
+              index /
+              (
+                values.length - 1
+              )
+            ) *
+            chartWidth;
 
 
       const pointY =
@@ -4816,7 +3835,7 @@ function drawCumulativeSalesChart(
 
 
   // ====================================================
-  // POINTS
+  // POINT CIRCLES
   // ====================================================
 
   points.forEach(
@@ -4842,7 +3861,7 @@ function drawCumulativeSalesChart(
 
 
   // ====================================================
-  // SHOW SALES AMOUNT ABOVE EACH SALES DATE
+  // SALES VALUE ABOVE EACH DATE
   // ====================================================
 
   points.forEach(
@@ -5394,19 +4413,16 @@ async function createMonthlyPDF(
   else{
 
 
-    const cardGap =
-      3;
+    const cardGap = 3;
 
 
     const cardWidth =
       (
         190 -
         (
-          cardGap *
-          4
+          cardGap * 4
         )
-      ) /
-      5;
+      ) / 5;
 
 
     topSales.forEach(
@@ -5466,8 +4482,7 @@ async function createMonthlyPDF(
 
   // ====================================================
   // PAGE 3
-  // DAILY SALES TREND
-  // EACH POINT = THAT DATE'S SALES
+  // SALES BY DATE — NOT CUMULATIVE
   // ====================================================
 
   pdf.addPage();
@@ -5599,15 +4614,10 @@ async function createMonthlyPDF(
       : [
 
           [
-
             "-",
-
             "No expenses",
-
             "-",
-
             "0 AED"
-
           ]
 
         ];
@@ -5711,17 +4721,11 @@ async function createMonthlyPDF(
       : [
 
           [
-
             "-",
-
             "No advertising",
-
             "-",
-
             "-",
-
             "0 AED"
-
           ]
 
         ];
@@ -5828,15 +4832,10 @@ async function createMonthlyPDF(
       : [
 
           [
-
             "-",
-
             "No withdrawals",
-
             "0 AED",
-
             "-"
-
           ]
 
         ];
@@ -6018,21 +5017,13 @@ async function createMonthlyPDF(
       : [
 
           [
-
             "-",
-
             "No payments",
-
             "0 AED",
-
             "0 AED",
-
             "0 AED",
-
             "0 AED",
-
             "-"
-
           ]
 
         ];
@@ -6077,7 +5068,6 @@ async function createMonthlyPDF(
 
 // ======================================================
 // DAILY PDF
-// ADVERTISING ONLY APPEARS IF THAT DAY HAS ADVERTISING
 // ======================================================
 
 async function createDailyPDF(
@@ -6108,9 +5098,7 @@ async function createDailyPDF(
     61,
     27,
     "Cash Sales",
-    money(
-      report.cash
-    )
+    money(report.cash)
   );
 
 
@@ -6121,9 +5109,7 @@ async function createDailyPDF(
     61,
     27,
     "Card Sales",
-    money(
-      report.card
-    )
+    money(report.card)
   );
 
 
@@ -6134,9 +5120,7 @@ async function createDailyPDF(
     61,
     27,
     "Total Sales",
-    money(
-      report.salesTotal
-    )
+    money(report.salesTotal)
   );
 
 
@@ -6154,9 +5138,7 @@ async function createDailyPDF(
     61,
     27,
     "Expenses (Cost)",
-    money(
-      report.expensesTotal
-    )
+    money(report.expensesTotal)
   );
 
 
@@ -6167,9 +5149,7 @@ async function createDailyPDF(
     61,
     27,
     "Staff Payment",
-    money(
-      report.staffTotal
-    )
+    money(report.staffTotal)
   );
 
 
@@ -6180,9 +5160,7 @@ async function createDailyPDF(
     61,
     27,
     "Cash Withdrawal",
-    money(
-      report.withdrawalTotal
-    )
+    money(report.withdrawalTotal)
   );
 
 
@@ -6191,7 +5169,6 @@ async function createDailyPDF(
 
   // ====================================================
   // ADVERTISING
-  // ONLY IF THAT DAY HAS ADVERTISING
   // ====================================================
 
   if(
@@ -6218,9 +5195,7 @@ async function createDailyPDF(
 
 
   // ====================================================
-  // NET SALE AMOUNT
-  // IMPORTANT:
-  // Advertising does NOT reduce this number
+  // NET SALE
   // ====================================================
 
   addPDFCard(
@@ -6242,7 +5217,7 @@ async function createDailyPDF(
 
 
   // ====================================================
-  // DAILY EXPENSE DETAILS
+  // EXPENSE DETAILS
   // ====================================================
 
   y =
@@ -6279,15 +5254,10 @@ async function createDailyPDF(
       : [
 
           [
-
             "-",
-
             "No expenses",
-
             "-",
-
             "0 AED"
-
           ]
 
         ];
@@ -6315,8 +5285,7 @@ async function createDailyPDF(
 
 
   // ====================================================
-  // DAILY ADVERTISING DETAILS
-  // ONLY IF THAT DAY HAS ADVERTISING
+  // ADVERTISING DETAILS
   // ====================================================
 
   if(
@@ -6339,6 +5308,7 @@ async function createDailyPDF(
         );
 
     }
+
     else{
 
       y += 9;
@@ -6405,7 +5375,7 @@ async function createDailyPDF(
 
 
   // ====================================================
-  // DAILY WITHDRAWAL DETAILS
+  // WITHDRAWAL DETAILS
   // ====================================================
 
   if(
@@ -6427,6 +5397,7 @@ async function createDailyPDF(
         );
 
     }
+
     else{
 
       y += 9;
@@ -6488,7 +5459,7 @@ async function createDailyPDF(
 
 
   // ====================================================
-  // DAILY STAFF DETAILS
+  // STAFF DETAILS
   // ====================================================
 
   if(
@@ -6510,6 +5481,7 @@ async function createDailyPDF(
         );
 
     }
+
     else{
 
       y += 9;
@@ -6605,7 +5577,6 @@ async function createGeneralPDF(
 
   // ====================================================
   // PAGE 1
-  // OVERVIEW
   // ====================================================
 
   let y =
@@ -6641,9 +5612,7 @@ async function createGeneralPDF(
     92,
     27,
     "Cash Sales",
-    money(
-      report.cash
-    )
+    money(report.cash)
   );
 
 
@@ -6654,18 +5623,12 @@ async function createGeneralPDF(
     92,
     27,
     "Card Sales",
-    money(
-      report.card
-    )
+    money(report.card)
   );
 
 
   y += 36;
 
-
-  // ====================================================
-  // FINANCIAL SUMMARY
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -6722,10 +5685,6 @@ async function createGeneralPDF(
   y += 36;
 
 
-  // ====================================================
-  // NET SALE
-  // ====================================================
-
   addPDFCard(
     pdf,
     10,
@@ -6742,8 +5701,7 @@ async function createGeneralPDF(
 
 
   // ====================================================
-  // PAGE 2
-  // EXPENSE DETAILS
+  // PAGE 2 - EXPENSES
   // ====================================================
 
   pdf.addPage();
@@ -6812,15 +5770,10 @@ async function createGeneralPDF(
       : [
 
           [
-
             "-",
-
             "No expenses",
-
             "-",
-
             "0 AED"
-
           ]
 
         ];
@@ -6847,8 +5800,7 @@ async function createGeneralPDF(
 
 
   // ====================================================
-  // PAGE 3
-  // ADVERTISING DETAILS
+  // PAGE 3 - ADVERTISING
   // ====================================================
 
   pdf.addPage();
@@ -6920,17 +5872,11 @@ async function createGeneralPDF(
       : [
 
           [
-
             "-",
-
             "No advertising",
-
             "-",
-
             "-",
-
             "0 AED"
-
           ]
 
         ];
@@ -6959,8 +5905,7 @@ async function createGeneralPDF(
 
 
   // ====================================================
-  // PAGE 4
-  // CASH WITHDRAWAL
+  // PAGE 4 - WITHDRAWALS
   // ====================================================
 
   pdf.addPage();
@@ -7029,15 +5974,10 @@ async function createGeneralPDF(
       : [
 
           [
-
             "-",
-
             "No withdrawals",
-
             "0 AED",
-
             "-"
-
           ]
 
         ];
@@ -7064,8 +6004,7 @@ async function createGeneralPDF(
 
 
   // ====================================================
-  // PAGE 5
-  // STAFF PAYMENT
+  // PAGE 5 - STAFF
   // ====================================================
 
   pdf.addPage();
@@ -7118,9 +6057,7 @@ async function createGeneralPDF(
     45,
     27,
     "Salary",
-    money(
-      totalSalary
-    )
+    money(totalSalary)
   );
 
 
@@ -7131,9 +6068,7 @@ async function createGeneralPDF(
     45,
     27,
     "Commission",
-    money(
-      totalCommission
-    )
+    money(totalCommission)
   );
 
 
@@ -7144,9 +6079,7 @@ async function createGeneralPDF(
     45,
     27,
     "Car Lift",
-    money(
-      totalCarLift
-    )
+    money(totalCarLift)
   );
 
 
@@ -7204,21 +6137,13 @@ async function createGeneralPDF(
       : [
 
           [
-
             "-",
-
             "No payments",
-
             "0 AED",
-
             "0 AED",
-
             "0 AED",
-
             "0 AED",
-
             "-"
-
           ]
 
         ];
@@ -7304,10 +6229,6 @@ async function createProfessionalPDF(){
     });
 
 
-  // ====================================================
-  // DAILY
-  // ====================================================
-
   if(
     currentReport.reportType ===
     "daily"
@@ -7319,11 +6240,6 @@ async function createProfessionalPDF(){
     );
 
   }
-
-
-  // ====================================================
-  // MONTHLY
-  // ====================================================
 
   else if(
     currentReport.reportType ===
@@ -7337,11 +6253,6 @@ async function createProfessionalPDF(){
 
   }
 
-
-  // ====================================================
-  // YEARLY / CUSTOM
-  // ====================================================
-
   else{
 
     await createGeneralPDF(
@@ -7352,18 +6263,10 @@ async function createProfessionalPDF(){
   }
 
 
-  // ====================================================
-  // FOOTERS
-  // ====================================================
-
   addPDFFooters(
     pdf
   );
 
-
-  // ====================================================
-  // FILE NAME
-  // ====================================================
 
   const safeTitle =
     String(
@@ -7438,6 +6341,7 @@ if(exportPDF){
         await createProfessionalPDF();
 
       }
+
       catch(error){
 
         console.error(
@@ -7456,6 +6360,7 @@ if(exportPDF){
         );
 
       }
+
       finally{
 
         exportPDF.disabled =
@@ -7510,8 +6415,6 @@ function setDefaultReportDates(){
     `${year}-${month}-${day}`;
 
 
-  // DAILY
-
   const dailyInput =
     document.getElementById(
       "dailyDate"
@@ -7528,8 +6431,6 @@ function setDefaultReportDates(){
 
   }
 
-
-  // MONTHLY
 
   const monthlyInput =
     document.getElementById(
@@ -7548,8 +6449,6 @@ function setDefaultReportDates(){
   }
 
 
-  // YEARLY
-
   const yearlyInput =
     document.getElementById(
       "yearlyDate"
@@ -7567,8 +6466,6 @@ function setDefaultReportDates(){
   }
 
 
-  // CUSTOM FROM
-
   const fromInput =
     document.getElementById(
       "fromDate"
@@ -7585,8 +6482,6 @@ function setDefaultReportDates(){
 
   }
 
-
-  // CUSTOM TO
 
   const toInput =
     document.getElementById(
@@ -7615,7 +6510,7 @@ setDefaultReportDates();
 
 
 // ======================================================
-// FIREBASE AUTH START
+// FIREBASE AUTH
 // ======================================================
 
 onAuthStateChanged(
@@ -7623,16 +6518,7 @@ onAuthStateChanged(
   async user=>{
 
 
-    // ==================================================
-    // NOT LOGGED IN
-    // ==================================================
-
     if(!user){
-
-      console.log(
-        "No authenticated user"
-      );
-
 
       localStorage.removeItem(
         "alhuduLogin"
@@ -7659,10 +6545,6 @@ onAuthStateChanged(
     }
 
 
-    // ==================================================
-    // LOGGED IN
-    // ==================================================
-
     try{
 
       await loadUserProfile(
@@ -7677,6 +6559,7 @@ onAuthStateChanged(
       );
 
     }
+
     catch(error){
 
       console.error(
