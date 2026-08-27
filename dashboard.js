@@ -70,6 +70,8 @@ let allSales = [];
 
 let allExpenses = [];
 
+let allAdvertising = [];
+
 let allStaff = [];
 
 let allWithdrawals = [];
@@ -91,7 +93,12 @@ let ratioChart = null;
 
 function number(value) {
 
-  return Number(value || 0);
+  const result =
+    Number(value || 0);
+
+  return Number.isFinite(result)
+    ? result
+    : 0;
 
 }
 
@@ -308,8 +315,6 @@ function applyViewerMode() {
   );
 
 
-  // Hide Edit Target
-
   const editTarget =
     document.getElementById(
       "editTarget"
@@ -323,8 +328,6 @@ function applyViewerMode() {
 
   }
 
-
-  // Hide write quick actions
 
   document
     .querySelectorAll(
@@ -344,11 +347,15 @@ function applyViewerMode() {
         ||
         text.includes("new expense")
         ||
+        text.includes("new advertising")
+        ||
         text.includes("cash withdrawal")
         ||
         text.includes("add sale")
         ||
         text.includes("add expense")
+        ||
+        text.includes("advertising")
       ) {
 
         button.style.display =
@@ -363,6 +370,7 @@ function applyViewerMode() {
 
 // ========================================
 // LOAD ALL DATA
+// INCLUDING ADVERTISING
 // ========================================
 
 async function loadData() {
@@ -375,6 +383,8 @@ async function loadData() {
     salesSnap,
 
     expensesSnap,
+
+    advertisingSnap,
 
     staffSnap,
 
@@ -408,6 +418,16 @@ async function loadData() {
     ),
 
 
+    // ADVERTISING
+
+    getDocs(
+      collection(
+        db,
+        "advertising"
+      )
+    ),
+
+
     getDocs(
       collection(
         db,
@@ -427,7 +447,9 @@ async function loadData() {
   ]);
 
 
+  // ========================================
   // OPENING CASH
+  // ========================================
 
   if (openingSnap.exists()) {
 
@@ -438,10 +460,16 @@ async function loadData() {
           .amount
       );
 
+  } else {
+
+    openingCash = 0;
+
   }
 
 
+  // ========================================
   // SALES
+  // ========================================
 
   allSales = [];
 
@@ -459,7 +487,9 @@ async function loadData() {
   });
 
 
+  // ========================================
   // EXPENSES
+  // ========================================
 
   allExpenses = [];
 
@@ -477,7 +507,29 @@ async function loadData() {
   });
 
 
+  // ========================================
+  // ADVERTISING
+  // ========================================
+
+  allAdvertising = [];
+
+
+  advertisingSnap.forEach(item => {
+
+    allAdvertising.push({
+
+      id: item.id,
+
+      ...item.data()
+
+    });
+
+  });
+
+
+  // ========================================
   // STAFF
+  // ========================================
 
   allStaff = [];
 
@@ -495,7 +547,9 @@ async function loadData() {
   });
 
 
+  // ========================================
   // WITHDRAWALS
+  // ========================================
 
   allWithdrawals = [];
 
@@ -517,6 +571,7 @@ async function loadData() {
 
 // ========================================
 // CURRENT CASH BALANCE
+// ADVERTISING IS SUBTRACTED ONLY HERE
 // ========================================
 
 function calculateCurrentCashBalance() {
@@ -526,10 +581,14 @@ function calculateCurrentCashBalance() {
 
   let expenses = 0;
 
+  let advertising = 0;
+
   let staff = 0;
 
   let withdrawals = 0;
 
+
+  // CASH SALES
 
   allSales.forEach(s => {
 
@@ -541,6 +600,8 @@ function calculateCurrentCashBalance() {
   });
 
 
+  // EXPENSES
+
   allExpenses.forEach(e => {
 
     expenses +=
@@ -551,6 +612,22 @@ function calculateCurrentCashBalance() {
   });
 
 
+  // ADVERTISING
+  // DOES NOT CHANGE SALES
+  // ONLY REDUCES CASH BALANCE
+
+  allAdvertising.forEach(ad => {
+
+    advertising +=
+      number(
+        ad.amount
+      );
+
+  });
+
+
+  // STAFF
+
   allStaff.forEach(s => {
 
     staff +=
@@ -560,6 +637,8 @@ function calculateCurrentCashBalance() {
 
   });
 
+
+  // CASH WITHDRAWALS
 
   allWithdrawals.forEach(w => {
 
@@ -582,6 +661,10 @@ function calculateCurrentCashBalance() {
     -
 
     expenses
+
+    -
+
+    advertising
 
     -
 
@@ -722,6 +805,8 @@ function calculateMonth(month) {
 
   let totalCost = 0;
 
+  let totalAdvertising = 0;
+
   let totalStaff = 0;
 
   let totalWithdraw = 0;
@@ -734,7 +819,9 @@ function calculateMonth(month) {
   const salesByDay = {};
 
 
+  // ========================================
   // SALES
+  // ========================================
 
   allSales.forEach(s => {
 
@@ -815,7 +902,9 @@ function calculateMonth(month) {
   });
 
 
+  // ========================================
   // EXPENSES
+  // ========================================
 
   allExpenses.forEach(e => {
 
@@ -838,7 +927,35 @@ function calculateMonth(month) {
   });
 
 
+  // ========================================
+  // ADVERTISING
+  // SEPARATE FROM EXPENSES / SALES
+  // ========================================
+
+  allAdvertising.forEach(ad => {
+
+
+    if (
+      ad.date
+      &&
+      ad.date.startsWith(
+        month
+      )
+    ) {
+
+      totalAdvertising +=
+        number(
+          ad.amount
+        );
+
+    }
+
+  });
+
+
+  // ========================================
   // STAFF
+  // ========================================
 
   allStaff.forEach(s => {
 
@@ -861,7 +978,9 @@ function calculateMonth(month) {
   });
 
 
+  // ========================================
   // WITHDRAWALS
+  // ========================================
 
   allWithdrawals.forEach(w => {
 
@@ -884,7 +1003,12 @@ function calculateMonth(month) {
   });
 
 
-  // NET SALES = SALES - EXPENSES
+  // ========================================
+  // NET SALES
+  //
+  // IMPORTANT:
+  // ADVERTISING IS NOT SUBTRACTED HERE
+  // ========================================
 
   const netSalesAmount =
 
@@ -905,6 +1029,8 @@ function calculateMonth(month) {
 
     totalCost,
 
+    totalAdvertising,
+
     totalStaff,
 
     totalWithdraw,
@@ -920,38 +1046,28 @@ function calculateMonth(month) {
   };
 
 }
-
-
 // ========================================
 // TARGET
 // ========================================
 
 async function getTarget(month) {
 
-
   try {
-
 
     const snap =
       await getDoc(
-
         doc(
           db,
           "monthlyTargets",
           month
         )
-
       );
 
 
-    if (
-      snap.exists()
-    ) {
+    if (snap.exists()) {
 
       return number(
-        snap
-          .data()
-          .amount
+        snap.data().amount
       );
 
     }
@@ -962,12 +1078,10 @@ async function getTarget(month) {
 
   } catch (error) {
 
-
     console.error(
       "Target Load Error:",
       error
     );
-
 
     return 0;
 
@@ -986,7 +1100,6 @@ async function saveTarget(
   amount
 ) {
 
-
   if (currentRole !== "admin") {
 
     alert(
@@ -999,13 +1112,11 @@ async function saveTarget(
 
 
   await setDoc(
-
     doc(
       db,
       "monthlyTargets",
       month
     ),
-
     {
 
       month: month,
@@ -1018,11 +1129,9 @@ async function saveTarget(
           .toISOString()
 
     },
-
     {
       merge: true
     }
-
   );
 
 }
@@ -1036,7 +1145,6 @@ async function renderTarget(
   month,
   sales
 ) {
-
 
   const target =
     await getTarget(
@@ -1143,7 +1251,6 @@ async function renderTarget(
 
 function setupTargetModal() {
 
-
   const modal =
     document.getElementById(
       "targetModal"
@@ -1193,8 +1300,6 @@ function setupTargetModal() {
   }
 
 
-  // VIEWER = NO EDIT
-
   if (currentRole !== "admin") {
 
     editButton.style.display =
@@ -1205,11 +1310,10 @@ function setupTargetModal() {
   }
 
 
-  // OPEN
+  // OPEN MODAL
 
   editButton.onclick =
     async () => {
-
 
       const target =
         await getTarget(
@@ -1277,7 +1381,6 @@ function setupTargetModal() {
   modal.onclick =
     event => {
 
-
       if (
         event.target === modal
       ) {
@@ -1295,7 +1398,6 @@ function setupTargetModal() {
 
   saveButton.onclick =
     async () => {
-
 
       if (
         currentRole !== "admin"
@@ -1333,7 +1435,6 @@ function setupTargetModal() {
 
       try {
 
-
         saveButton.disabled =
           true;
 
@@ -1367,7 +1468,6 @@ function setupTargetModal() {
 
       } catch (error) {
 
-
         console.error(
           error
         );
@@ -1379,7 +1479,6 @@ function setupTargetModal() {
 
 
       } finally {
-
 
         saveButton.disabled =
           false;
@@ -1403,7 +1502,6 @@ function renderMonthlyChart(
   month,
   salesByDay
 ) {
-
 
   const canvas =
     document.getElementById(
@@ -1438,7 +1536,6 @@ function renderMonthlyChart(
     day <= totalDays;
     day++
   ) {
-
 
     labels.push(
       day
@@ -1586,7 +1683,6 @@ function renderMonthlyChart(
 
 function renderYearChart(month) {
 
-
   const canvas =
     document.getElementById(
       "yearChart"
@@ -1617,7 +1713,6 @@ function renderYearChart(month) {
 
 
   allSales.forEach(s => {
-
 
     if (!s.date) {
 
@@ -1658,7 +1753,6 @@ function renderYearChart(month) {
       &&
       saleMonth <= 12
     ) {
-
 
       values[
         saleMonth - 1
@@ -1818,7 +1912,6 @@ function renderSalesRatio(
   card
 ) {
 
-
   const canvas =
     document.getElementById(
       "salesRatioChart"
@@ -1945,14 +2038,12 @@ function renderSalesRatio(
 
 function renderRecords() {
 
-
   const monthlyTotals = {};
 
   const dailyTotals = {};
 
 
   allSales.forEach(s => {
-
 
     if (!s.date) {
 
@@ -2030,12 +2121,10 @@ function renderRecords() {
     .forEach(
       ([month, amount]) => {
 
-
         if (
           amount >
           highestMonthAmount
         ) {
-
 
           highestMonth =
             month;
@@ -2063,12 +2152,10 @@ function renderRecords() {
     .forEach(
       ([date, amount]) => {
 
-
         if (
           amount >
           highestDayAmount
         ) {
-
 
           highestDay =
             date;
@@ -2097,7 +2184,6 @@ function renderRecords() {
 
   if (monthBox) {
 
-
     monthBox.textContent =
 
       highestMonth
@@ -2119,7 +2205,6 @@ function renderRecords() {
 
   if (dayBox) {
 
-
     dayBox.textContent =
 
       highestDay
@@ -2139,8 +2224,6 @@ function renderRecords() {
   }
 
 }
-
-
 // ========================================
 // MONTH OVERVIEW
 // ========================================
@@ -2149,7 +2232,6 @@ function renderMonthOverview(
   month,
   report
 ) {
-
 
   const title =
     document.getElementById(
@@ -2172,7 +2254,9 @@ function renderMonthOverview(
   }
 
 
-  // Safe helper for dashboard elements
+  // ========================================
+  // SAFE TEXT HELPER
+  // ========================================
 
   function setText(
     id,
@@ -2194,6 +2278,10 @@ function renderMonthOverview(
 
   }
 
+
+  // ========================================
+  // MAIN MONTH CARDS
+  // ========================================
 
   setText(
     "totalSales",
@@ -2243,6 +2331,28 @@ function renderMonthOverview(
   );
 
 
+  // ========================================
+  // ADVERTISING
+  // ========================================
+
+  setText(
+    "totalAdvertising",
+    money(
+      report.totalAdvertising
+    )
+  );
+
+
+  // ========================================
+  // NET SALES
+  //
+  // IMPORTANT:
+  // Advertising does NOT reduce Net Sales.
+  //
+  // Net Sales =
+  // Total Sales - Expenses
+  // ========================================
+
   setText(
     "netSalesAmount",
     money(
@@ -2266,6 +2376,10 @@ function renderMonthOverview(
   );
 
 
+  // ========================================
+  // MONTHLY OVERVIEW
+  // ========================================
+
   setText(
     "thisMonthSales",
     money(
@@ -2282,7 +2396,9 @@ function renderMonthOverview(
   );
 
 
+  // ========================================
   // MONTH CHANGE
+  // ========================================
 
   let change = 0;
 
@@ -2290,7 +2406,6 @@ function renderMonthOverview(
   if (
     report.previousSales > 0
   ) {
-
 
     change =
 
@@ -2306,11 +2421,11 @@ function renderMonthOverview(
       *
       100;
 
+  }
 
-  } else if (
+  else if (
     report.totalSales > 0
   ) {
-
 
     change =
       100;
@@ -2326,9 +2441,7 @@ function renderMonthOverview(
 
   if (changeBox) {
 
-
     if (change > 0) {
-
 
       changeBox.textContent =
 
@@ -2346,11 +2459,11 @@ function renderMonthOverview(
       changeBox.className =
         "insight-value positive";
 
+    }
 
-    } else if (
+    else if (
       change < 0
     ) {
-
 
       changeBox.textContent =
 
@@ -2358,7 +2471,9 @@ function renderMonthOverview(
 
         +
 
-        Math.abs(change)
+        Math.abs(
+          change
+        )
           .toFixed(1)
 
         +
@@ -2369,9 +2484,9 @@ function renderMonthOverview(
       changeBox.className =
         "insight-value negative";
 
+    }
 
-    } else {
-
+    else {
 
       changeBox.textContent =
         "0%";
@@ -2385,7 +2500,9 @@ function renderMonthOverview(
   }
 
 
+  // ========================================
   // BEST SALES DAY
+  // ========================================
 
   let bestDate = null;
 
@@ -2398,12 +2515,10 @@ function renderMonthOverview(
     .forEach(
       ([date, amount]) => {
 
-
         if (
           amount >
           bestAmount
         ) {
-
 
           bestDate =
             date;
@@ -2419,7 +2534,6 @@ function renderMonthOverview(
 
 
   setText(
-
     "bestSalesDay",
 
     bestDate
@@ -2429,22 +2543,21 @@ function renderMonthOverview(
       )
       :
       "--"
-
   );
 
 
   setText(
-
     "bestDayAmount",
 
     money(
       bestAmount
     )
-
   );
 
 
+  // ========================================
   // AVERAGE DAILY SALES
+  // ========================================
 
   const parts =
     month.split("-");
@@ -2472,14 +2585,18 @@ function renderMonthOverview(
     );
 
 
+  // CURRENT MONTH:
+  // calculate only until today's date
+
   if (
     selectedYear ===
     now.getFullYear()
+
     &&
+
     selectedMonthNumber ===
     now.getMonth() + 1
   ) {
-
 
     divisor =
       now.getDate();
@@ -2503,13 +2620,11 @@ function renderMonthOverview(
 
 
   setText(
-
     "averageDailySales",
 
     money(
       average
     )
-
   );
 
 }
@@ -2523,18 +2638,31 @@ async function renderDashboard(
   month
 ) {
 
-
   const report =
     calculateMonth(
       month
     );
 
 
+  // ========================================
+  // MONTH DATA
+  // ========================================
+
   renderMonthOverview(
     month,
     report
   );
 
+
+  // ========================================
+  // CURRENT CASH BALANCE
+  //
+  // IMPORTANT:
+  // Advertising is already deducted inside
+  // calculateCurrentCashBalance()
+  //
+  // Cash Sales itself stays unchanged.
+  // ========================================
 
   const currentCash =
     calculateCurrentCashBalance();
@@ -2556,16 +2684,30 @@ async function renderDashboard(
   }
 
 
+  // ========================================
+  // MONTH CHART
+  // ========================================
+
   renderMonthlyChart(
     month,
     report.salesByDay
   );
 
 
+  // ========================================
+  // YEAR CHART
+  // ========================================
+
   renderYearChart(
     month
   );
 
+
+  // ========================================
+  // CASH / CARD SALES RATIO
+  //
+  // Advertising does NOT affect this chart.
+  // ========================================
 
   renderSalesRatio(
     report.totalCash,
@@ -2573,8 +2715,17 @@ async function renderDashboard(
   );
 
 
+  // ========================================
+  // RECORDS
+  // ========================================
+
   renderRecords();
 
+
+  // ========================================
+  // TARGET
+  // Advertising does NOT affect sales target.
+  // ========================================
 
   await renderTarget(
     month,
@@ -2590,9 +2741,7 @@ async function renderDashboard(
 
 async function startDashboard() {
 
-
   try {
-
 
     await loadData();
 
@@ -2610,9 +2759,9 @@ async function startDashboard() {
       selectedMonth
     );
 
+  }
 
-  } catch (error) {
-
+  catch (error) {
 
     console.error(
       "Dashboard Error:",
@@ -2627,6 +2776,8 @@ async function startDashboard() {
         error.code
         ||
         error.message
+        ||
+        "Unknown error"
       )
     );
 
@@ -2650,9 +2801,23 @@ onAuthStateChanged(
 
     if (!user) {
 
-
       console.log(
         "No authenticated user"
+      );
+
+
+      localStorage.removeItem(
+        "alhuduLogin"
+      );
+
+
+      sessionStorage.removeItem(
+        "alhuduUsername"
+      );
+
+
+      sessionStorage.removeItem(
+        "alhuduRole"
       );
 
 
@@ -2676,25 +2841,22 @@ onAuthStateChanged(
 
 
       // ========================================
-      // GET FIRESTORE PROFILE
+      // GET USER PROFILE
       // ========================================
 
       const userSnap =
         await getDoc(
-
           doc(
             db,
             "user",
             user.uid
           )
-
         );
 
 
       if (
         !userSnap.exists()
       ) {
-
 
         console.error(
           "User profile not found:",
@@ -2761,7 +2923,6 @@ onAuthStateChanged(
         &&
         currentRole !== "viewer"
       ) {
-
 
         console.error(
           "Invalid role:",
@@ -2842,19 +3003,15 @@ onAuthStateChanged(
 
       await startDashboard();
 
+  }
 
-    } catch (error) {
-
+    catch (error) {
 
       console.error(
         "Dashboard Authentication Error:",
         error
       );
 
-
-      // IMPORTANT:
-      // Do NOT automatically send user back to login.
-      // Show the actual error.
 
       alert(
         "Dashboard authentication error: "
@@ -2863,6 +3020,8 @@ onAuthStateChanged(
           error.code
           ||
           error.message
+          ||
+          "Unknown error"
         )
       );
 
@@ -2870,3 +3029,8 @@ onAuthStateChanged(
 
   }
 );
+
+
+// ========================================
+// END OF DASHBOARD.JS
+// ========================================
