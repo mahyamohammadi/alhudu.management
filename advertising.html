@@ -1,1 +1,640 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>AL HUDU Advertising</title>
+
+<link
+rel="stylesheet"
+href="style.css">
+
+<style>
+
+/* ======================================== */
+/* ADVERTISING PAGE */
+/* ======================================== */
+
+.advertising-container{
+max-width:1100px;
+margin:0 auto;
+}
+
+
+/* ======================================== */
+/* SUMMARY */
+/* ======================================== */
+
+.ad-summary{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:20px;
+margin-bottom:25px;
+}
+
+
+.ad-summary-card{
+background:white;
+padding:20px;
+border-radius:18px;
+border:1px solid #eee8df;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
+
+
+.ad-summary-title{
+font-size:13px;
+color:#777;
+}
+
+
+.ad-summary-value{
+font-size:24px;
+font-weight:700;
+color:#2d2a26;
+margin-top:8px;
+}
+
+
+/* ======================================== */
+/* FORM */
+/* ======================================== */
+
+.ad-form-card{
+background:white;
+padding:22px;
+border-radius:18px;
+border:1px solid #eee8df;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+margin-bottom:25px;
+}
+
+
+.ad-form-card h2{
+margin-top:0;
+font-size:19px;
+}
+
+
+.ad-form-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+
+.ad-field{
+display:flex;
+flex-direction:column;
+gap:7px;
+}
+
+
+.ad-field.full{
+grid-column:1 / -1;
+}
+
+
+.ad-field label{
+font-size:13px;
+font-weight:600;
+color:#555;
+}
+
+
+.ad-field input,
+.ad-field select,
+.ad-field textarea{
+width:100%;
+box-sizing:border-box;
+padding:12px 13px;
+border:1px solid #ddd4c7;
+border-radius:11px;
+background:white;
+font-size:15px;
+outline:none;
+}
+
+
+.ad-field textarea{
+resize:vertical;
+min-height:90px;
+}
+
+
+.ad-field input:focus,
+.ad-field select:focus,
+.ad-field textarea:focus{
+border-color:#b48a48;
+}
+
+
+.save-ad{
+width:100%;
+margin-top:18px;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#8b6b39;
+color:white;
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+}
+
+
+.save-ad:hover{
+opacity:.92;
+}
+
+
+/* ======================================== */
+/* SEARCH */
+/* ======================================== */
+
+.ad-search{
+width:100%;
+box-sizing:border-box;
+padding:12px 14px;
+border:1px solid #ddd4c7;
+border-radius:11px;
+background:white;
+font-size:14px;
+margin-bottom:15px;
+outline:none;
+}
+
+
+/* ======================================== */
+/* RECORDS */
+/* ======================================== */
+
+.ad-records{
+background:white;
+padding:20px;
+border-radius:18px;
+border:1px solid #eee8df;
+box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
+
+
+.ad-records h2{
+margin-top:0;
+font-size:19px;
+}
+
+
+.ad-list{
+display:grid;
+gap:12px;
+}
+
+
+.ad-card{
+border:1px solid #eee8df;
+border-radius:14px;
+padding:16px;
+background:#fffdfa;
+}
+
+
+.ad-card-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+padding-bottom:11px;
+margin-bottom:11px;
+border-bottom:1px solid #eee8df;
+}
+
+
+.ad-platform{
+font-weight:700;
+font-size:16px;
+}
+
+
+.ad-date{
+font-size:13px;
+color:#777;
+}
+
+
+.ad-line{
+display:flex;
+justify-content:space-between;
+gap:15px;
+padding:5px 0;
+font-size:14px;
+}
+
+
+.ad-line span{
+color:#777;
+}
+
+
+.ad-line b{
+color:#2d2a26;
+text-align:right;
+}
+
+
+.ad-actions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:9px;
+margin-top:14px;
+}
+
+
+.ad-edit,
+.ad-delete{
+padding:10px;
+border-radius:9px;
+cursor:pointer;
+font-weight:600;
+}
+
+
+.ad-edit{
+background:white;
+border:1px solid #d8c7aa;
+color:#5e472a;
+}
+
+
+.ad-delete{
+background:#fff5f5;
+border:1px solid #eccaca;
+color:#b33a3a;
+}
+
+
+/* ======================================== */
+/* VIEWER */
+/* ======================================== */
+
+body.viewer-mode .admin-only{
+display:none !important;
+}
+
+
+/* ======================================== */
+/* MOBILE */
+/* ======================================== */
+
+@media(max-width:800px){
+
+.ad-summary{
+grid-template-columns:1fr;
+}
+
+.ad-form-grid{
+grid-template-columns:1fr;
+}
+
+.ad-field.full{
+grid-column:auto;
+}
+
+.ad-card-top{
+align-items:flex-start;
+flex-direction:column;
+}
+
+}
+
+
+/* ======================================== */
+/* SMALL MOBILE */
+/* ======================================== */
+
+@media(max-width:500px){
+
+.ad-summary-value{
+font-size:21px;
+}
+
+.ad-form-card,
+.ad-records{
+padding:16px;
+}
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ======================================== -->
+<!-- SIDEBAR -->
+<!-- ======================================== -->
+
+<div class="sidebar">
+
+<h2>AL HUDU</h2>
+
+<a href="dashboard.html">
+🏠 Dashboard
+</a>
+
+<a href="sales.html">
+💰 Sales
+</a>
+
+<a href="expenses.html">
+💸 Expenses (Cost)
+</a>
+
+<a href="staff.html">
+👨‍💼 Staff Payment
+</a>
+
+<a href="advertising.html">
+📣 Advertising
+</a>
+
+<a href="cashflow.html">
+💵 Cash Flow
+</a>
+
+<a href="reports.html">
+📊 Reports
+</a>
+
+<a href="withdrawals.html">
+💸 Cash Withdrawal
+</a>
+
+<a href="settings.html">
+⚙️ Settings
+</a>
+
+</div>
+
+
+<!-- ======================================== -->
+<!-- MAIN -->
+<!-- ======================================== -->
+
+<div class="main">
+
+<div class="brand-header">
+
+AL HUDU
+
+<span>
+Accounting & Management System
+</span>
+
+</div>
+
+
+<div class="advertising-container">
+
+
+<h1>
+📣 Advertising
+</h1>
+
+
+<!-- ======================================== -->
+<!-- SUMMARY -->
+<!-- ======================================== -->
+
+<div class="ad-summary">
+
+
+<div class="ad-summary-card">
+
+<div class="ad-summary-title">
+TODAY ADVERTISING
+</div>
+
+<div
+class="ad-summary-value"
+id="todayAdvertising">
+0 AED
+</div>
+
+</div>
+
+
+<div class="ad-summary-card">
+
+<div class="ad-summary-title">
+CURRENT MONTH ADVERTISING
+</div>
+
+<div
+class="ad-summary-value"
+id="monthAdvertising">
+0 AED
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- ======================================== -->
+<!-- ADD ADVERTISING -->
+<!-- ======================================== -->
+
+<div class="ad-form-card admin-only">
+
+<h2>
+Add Advertising
+</h2>
+
+
+<div class="ad-form-grid">
+
+
+<!-- DATE -->
+
+<div class="ad-field">
+
+<label>
+Date
+</label>
+
+<input
+type="date"
+id="adDate">
+
+</div>
+
+
+<!-- AMOUNT -->
+
+<div class="ad-field">
+
+<label>
+Amount (AED)
+</label>
+
+<input
+type="number"
+id="adAmount"
+min="0"
+step="0.01"
+placeholder="Example: 500">
+
+</div>
+
+
+<!-- PLATFORM -->
+
+<div class="ad-field">
+
+<label>
+Platform
+</label>
+
+<select id="adPlatform">
+
+<option value="">
+Select Platform
+</option>
+
+<option value="Instagram">
+Instagram
+</option>
+
+<option value="TikTok">
+TikTok
+</option>
+
+<option value="Snapchat">
+Snapchat
+</option>
+
+<option value="Facebook">
+Facebook
+</option>
+
+<option value="Google">
+Google
+</option>
+
+<option value="WhatsApp">
+WhatsApp
+</option>
+
+<option value="Other">
+Other
+</option>
+
+</select>
+
+</div>
+
+
+<!-- CAMPAIGN -->
+
+<div class="ad-field">
+
+<label>
+Campaign / Name
+</label>
+
+<input
+type="text"
+id="adCampaign"
+placeholder="Example: August Campaign">
+
+</div>
+
+
+<!-- NOTE -->
+
+<div class="ad-field full">
+
+<label>
+Note
+</label>
+
+<textarea
+id="adNote"
+placeholder="Optional note"></textarea>
+
+</div>
+
+
+</div>
+
+
+<button
+class="save-ad"
+id="saveAdvertising">
+
+Save Advertising
+
+</button>
+
+</div>
+
+
+<!-- ======================================== -->
+<!-- RECORDS -->
+<!-- ======================================== -->
+
+<div class="ad-records">
+
+<h2>
+Advertising Records
+</h2>
+
+
+<input
+type="text"
+id="searchAdvertising"
+class="ad-search"
+placeholder="Search platform, campaign, note or date...">
+
+
+<div
+id="advertisingList"
+class="ad-list">
+
+Loading...
+
+</div>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ======================================== -->
+<!-- JAVASCRIPT -->
+<!-- ======================================== -->
+
+<script
+type="module"
+src="advertising.js">
+</script>
+
+
+</body>
+
+</html>
