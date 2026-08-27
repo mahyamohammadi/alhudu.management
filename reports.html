@@ -20,7 +20,7 @@
 
 .report-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
     gap:15px;
     margin-top:20px;
 }
@@ -147,7 +147,7 @@
 
 
 /* =========================================
-   NET PROFIT
+   NET SALE
 ========================================= */
 
 .report-box.profit-box{
@@ -158,6 +158,16 @@
 .report-box.profit-box span,
 .report-box.profit-box b{
     color:#fff;
+}
+
+
+/* =========================================
+   ADVERTISING
+========================================= */
+
+.report-box.advertising-box{
+    background:#fffaf2;
+    border:1px solid #e7d5b7;
 }
 
 
@@ -247,6 +257,10 @@
 
 <a href="withdrawals.html">
 💸 Cash Withdrawal
+</a>
+
+<a href="advertising.html">
+📣 Advertising
 </a>
 
 <a href="settings.html">
@@ -489,6 +503,22 @@ Select a report above
 
 
 
+<!-- ADVERTISING -->
+
+<div class="report-box advertising-box">
+
+<span>
+📣 Advertising Cost
+</span>
+
+<b id="reportAdvertising">
+0 AED
+</b>
+
+</div>
+
+
+
 <!-- STAFF -->
 
 <div class="report-box">
@@ -521,12 +551,12 @@ Select a report above
 
 
 
-<!-- PROFIT -->
+<!-- NET SALE -->
 
 <div class="report-box profit-box">
 
 <span>
-📈 Net Profit
+📈 Net Sale Amount
 </span>
 
 <b id="reportProfit">
@@ -557,18 +587,6 @@ Select a report above
 
 <!-- =========================================
      SALES OVERVIEW CHART
-
-     DAILY:
-     hidden by reports.js
-
-     MONTHLY:
-     days 1-30/31
-
-     YEARLY:
-     Jan-Dec
-
-     CUSTOM:
-     selected dates
 ========================================= -->
 
 <div
@@ -632,6 +650,29 @@ Sales Overview
 <div id="expenseDetails">
 
 No expense data selected.
+
+</div>
+
+</div>
+
+
+
+<!-- =========================================
+     ADVERTISING DETAILS
+========================================= -->
+
+<div
+class="card report-section"
+id="advertisingDetailsSection"
+>
+
+<h2>
+📣 Advertising Details
+</h2>
+
+<div id="advertisingDetails">
+
+No advertising data selected.
 
 </div>
 
