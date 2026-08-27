@@ -76,6 +76,8 @@ let cashFlowData = {
 
   withdrawals: 0,
 
+  advertising: 0,
+
   balance: 0
 
 };
@@ -190,8 +192,6 @@ function normalizeDate(value){
 
   }
 
-
-  // JS Date
 
   if(value instanceof Date){
 
@@ -395,7 +395,8 @@ async function loadCashFlow(){
       salesSnap,
       expenseSnap,
       staffSnap,
-      withdrawalSnap
+      withdrawalSnap,
+      advertisingSnap
     ] = await Promise.all([
 
       getDoc(
@@ -432,6 +433,13 @@ async function loadCashFlow(){
           db,
           "withdrawals"
         )
+      ),
+
+      getDocs(
+        collection(
+          db,
+          "advertising"
+        )
       )
 
     ]);
@@ -466,9 +474,11 @@ async function loadCashFlow(){
 
     let withdrawals = 0;
 
+    let advertising = 0;
+
 
     // ========================================
-    // PREVIOUS MONTH VALUES
+    // PREVIOUS VALUES
     // ========================================
 
     let previousCashSales = 0;
@@ -478,6 +488,8 @@ async function loadCashFlow(){
     let previousStaff = 0;
 
     let previousWithdrawals = 0;
+
+    let previousAdvertising = 0;
 
 
     // ========================================
@@ -521,7 +533,7 @@ async function loadCashFlow(){
 
 
     // ========================================
-    // EXPENSES / COST
+    // EXPENSES
     // ========================================
 
     expenseSnap.forEach(item=>{
@@ -641,13 +653,47 @@ async function loadCashFlow(){
 
 
     // ========================================
+    // ADVERTISING
+    // ========================================
+
+    advertisingSnap.forEach(item=>{
+
+      const advertisingItem =
+        item.data();
+
+
+      if(
+        isCurrentMonth(
+          advertisingItem.date
+        )
+      ){
+
+        advertising +=
+          number(
+            advertisingItem.amount
+          );
+
+      }
+
+
+      if(
+        isBeforeCurrentMonth(
+          advertisingItem.date
+        )
+      ){
+
+        previousAdvertising +=
+          number(
+            advertisingItem.amount
+          );
+
+      }
+
+    });
+
+
+    // ========================================
     // PREVIOUS MONTHS BALANCE
-    //
-    // Opening balance
-    // + all cash sales before this month
-    // - all expenses before this month
-    // - all staff payments before this month
-    // - all withdrawals before this month
     // ========================================
 
     const previousBalance =
@@ -660,7 +706,9 @@ async function loadCashFlow(){
       -
       previousStaff
       -
-      previousWithdrawals;
+      previousWithdrawals
+      -
+      previousAdvertising;
 
 
     // ========================================
@@ -677,11 +725,13 @@ async function loadCashFlow(){
       -
       staffPayment
       -
-      withdrawals;
+      withdrawals
+      -
+      advertising;
 
 
     // ========================================
-    // SAVE DATA FOR PDF
+    // SAVE DATA
     // ========================================
 
     cashFlowData = {
@@ -696,6 +746,8 @@ async function loadCashFlow(){
 
       withdrawals,
 
+      advertising,
+
       balance
 
     };
@@ -704,10 +756,6 @@ async function loadCashFlow(){
     // ========================================
     // WEBSITE
     // ========================================
-
-    // IMPORTANT:
-    // HTML ID remains openingCash.
-    // Only the visible label changes.
 
     setMoney(
       "openingCash",
@@ -736,6 +784,12 @@ async function loadCashFlow(){
     setMoney(
       "totalWithdrawals",
       withdrawals
+    );
+
+
+    setMoney(
+      "totalAdvertising",
+      advertising
     );
 
 
@@ -1079,7 +1133,7 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 14;
+  y += 12;
 
 
   // ========================================
@@ -1110,7 +1164,7 @@ async function createCashFlowPDF(){
 
       180,
 
-      24,
+      21,
 
       2,
 
@@ -1141,7 +1195,7 @@ async function createCashFlowPDF(){
 
       22,
 
-      cardY + 9
+      cardY + 8
 
     );
 
@@ -1152,7 +1206,7 @@ async function createCashFlowPDF(){
     );
 
 
-    pdf.setFontSize(13);
+    pdf.setFontSize(12);
 
 
     pdf.setTextColor(
@@ -1166,7 +1220,7 @@ async function createCashFlowPDF(){
 
       188,
 
-      cardY + 15,
+      cardY + 14,
 
       {
         align:"right"
@@ -1178,7 +1232,7 @@ async function createCashFlowPDF(){
 
 
   // ========================================
-  // PREVIOUS MONTHS BALANCE
+  // PREVIOUS BALANCE
   // ========================================
 
   cashCard(
@@ -1192,11 +1246,11 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 29;
+  y += 25;
 
 
   // ========================================
-  // CASH SALES - THIS MONTH
+  // CASH SALES
   // ========================================
 
   cashCard(
@@ -1210,11 +1264,11 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 29;
+  y += 25;
 
 
   // ========================================
-  // EXPENSES - THIS MONTH
+  // EXPENSES
   // ========================================
 
   cashCard(
@@ -1228,7 +1282,7 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 29;
+  y += 25;
 
 
   // ========================================
@@ -1246,7 +1300,7 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 29;
+  y += 25;
 
 
   // ========================================
@@ -1264,7 +1318,25 @@ async function createCashFlowPDF(){
   );
 
 
-  y += 31;
+  y += 25;
+
+
+  // ========================================
+  // ADVERTISING
+  // ========================================
+
+  cashCard(
+
+    "Advertising",
+
+    cashFlowData.advertising,
+
+    y
+
+  );
+
+
+  y += 27;
 
 
   // ========================================
