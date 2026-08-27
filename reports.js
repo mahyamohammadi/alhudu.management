@@ -322,6 +322,7 @@ async function loadUserProfile(user){
 
 // ======================================================
 // LOAD FIREBASE DATA
+// SALES + EXPENSES + STAFF + WITHDRAWALS + ADVERTISING
 // ======================================================
 
 async function getData(){
@@ -339,7 +340,8 @@ async function getData(){
     salesSnap,
     expenseSnap,
     staffSnap,
-    withdrawalSnap
+    withdrawalSnap,
+    advertisingSnap
   ] =
     await Promise.all([
 
@@ -369,6 +371,13 @@ async function getData(){
           db,
           "withdrawals"
         )
+      ),
+
+      getDocs(
+        collection(
+          db,
+          "advertising"
+        )
       )
 
     ]);
@@ -381,6 +390,8 @@ async function getData(){
   const staff = [];
 
   const withdrawals = [];
+
+  const advertising = [];
 
 
   salesSnap.forEach(
@@ -443,6 +454,21 @@ async function getData(){
   );
 
 
+  advertisingSnap.forEach(
+    item=>{
+
+      advertising.push({
+
+        id:item.id,
+
+        ...item.data()
+
+      });
+
+    }
+  );
+
+
   return {
 
     sales,
@@ -451,7 +477,9 @@ async function getData(){
 
     staff,
 
-    withdrawals
+    withdrawals,
+
+    advertising
 
   };
 
@@ -480,6 +508,8 @@ function calculateReport(
 
   let withdrawalTotal = 0;
 
+  let advertisingTotal = 0;
+
 
   const salesDetails = [];
 
@@ -489,6 +519,12 @@ function calculateReport(
 
   const withdrawalDetails = [];
 
+  const advertisingDetails = [];
+
+
+  // ====================================================
+  // SALES
+  // ====================================================
 
   data.sales.forEach(
     sale=>{
@@ -501,17 +537,27 @@ function calculateReport(
         )
       ){
 
-        cash += number(sale.cash);
+        cash += number(
+          sale.cash
+        );
 
-        card += number(sale.card);
+        card += number(
+          sale.card
+        );
 
-        salesDetails.push(sale);
+        salesDetails.push(
+          sale
+        );
 
       }
 
     }
   );
 
+
+  // ====================================================
+  // EXPENSES
+  // ====================================================
 
   data.expenses.forEach(
     expense=>{
@@ -525,7 +571,9 @@ function calculateReport(
       ){
 
         expensesTotal +=
-          number(expense.amount);
+          number(
+            expense.amount
+          );
 
         expenseDetails.push(
           expense
@@ -536,6 +584,10 @@ function calculateReport(
     }
   );
 
+
+  // ====================================================
+  // STAFF PAYMENT
+  // ====================================================
 
   data.staff.forEach(
     staffItem=>{
@@ -549,7 +601,9 @@ function calculateReport(
       ){
 
         staffTotal +=
-          number(staffItem.total);
+          number(
+            staffItem.total
+          );
 
         staffDetails.push(
           staffItem
@@ -560,6 +614,10 @@ function calculateReport(
     }
   );
 
+
+  // ====================================================
+  // CASH WITHDRAWALS
+  // ====================================================
 
   data.withdrawals.forEach(
     withdrawal=>{
@@ -587,9 +645,44 @@ function calculateReport(
   );
 
 
+  // ====================================================
+  // ADVERTISING
+  // ====================================================
+
+  data.advertising.forEach(
+    advertisingItem=>{
+
+      if(
+        isBetween(
+          advertisingItem.date,
+          from,
+          to
+        )
+      ){
+
+        advertisingTotal +=
+          number(
+            advertisingItem.amount
+          );
+
+        advertisingDetails.push(
+          advertisingItem
+        );
+
+      }
+
+    }
+  );
+
+
   const salesTotal =
     cash + card;
 
+
+  // IMPORTANT:
+  // Net Sale Amount stays exactly as before.
+  // Advertising is shown separately and is NOT
+  // deducted here.
 
   const netSalesAmount =
     salesTotal -
@@ -618,6 +711,8 @@ function calculateReport(
 
     withdrawalTotal,
 
+    advertisingTotal,
+
     netSalesAmount,
 
     salesDetails:
@@ -638,6 +733,11 @@ function calculateReport(
     withdrawalDetails:
       sortNewest(
         withdrawalDetails
+      ),
+
+    advertisingDetails:
+      sortNewest(
+        advertisingDetails
       )
 
   };
@@ -752,16 +852,24 @@ function getMonthlySalesData(report){
 
 
       const cash =
-        number(sale.cash);
+        number(
+          sale.cash
+        );
 
 
       const card =
-        number(sale.card);
+        number(
+          sale.card
+        );
 
 
-      cashSales[index] += cash;
+      cashSales[index] +=
+        cash;
 
-      cardSales[index] += card;
+
+      cardSales[index] +=
+        card;
+
 
       totalSales[index] +=
         cash + card;
@@ -873,11 +981,14 @@ function getMonthlyStatistics(report){
     highestSale =
       highest.value;
 
+
     bestDay =
       highest.day;
 
+
     lowestSale =
       lowest.value;
+
 
     lowestDay =
       lowest.day;
@@ -1023,6 +1134,12 @@ function showReport(report){
 
 
   setText(
+    "reportAdvertising",
+    money(report.advertisingTotal)
+  );
+
+
+  setText(
     "reportStaff",
     money(report.staffTotal)
   );
@@ -1042,6 +1159,11 @@ function showReport(report){
 
   showExpenseDetails(
     report.expenseDetails
+  );
+
+
+  showAdvertisingDetails(
+    report.advertisingDetails
   );
 
 
@@ -1140,6 +1262,108 @@ function showExpenseDetails(list){
           <b>
             ${escapeHTML(
               expense.note ||
+              "-"
+            )}
+          </b>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+}
+
+
+// ======================================================
+// ADVERTISING DETAILS ON WEBSITE
+// ======================================================
+
+function showAdvertisingDetails(list){
+
+  const box =
+    document.getElementById(
+      "advertisingDetails"
+    );
+
+
+  if(!box){
+
+    return;
+
+  }
+
+
+  if(
+    !list ||
+    list.length === 0
+  ){
+
+    box.innerHTML =
+      "No advertising records in this period.";
+
+    return;
+
+  }
+
+
+  box.innerHTML = "";
+
+
+  list.forEach(
+    ad=>{
+
+
+      box.innerHTML += `
+
+        <div class="detail-card">
+
+          <b dir="ltr">
+
+            📅 ${escapeHTML(
+              displayDate(
+                ad.date
+              )
+            )}
+
+          </b>
+
+          <br><br>
+
+          📣 Platform:
+          <b>
+            ${escapeHTML(
+              ad.platform ||
+              "-"
+            )}
+          </b>
+
+          <br>
+
+          💰 Amount:
+          <b>
+            ${money(
+              ad.amount
+            )}
+          </b>
+
+          <br>
+
+          🎯 Campaign:
+          <b>
+            ${escapeHTML(
+              ad.campaign ||
+              "-"
+            )}
+          </b>
+
+          <br>
+
+          📝 Note:
+          <b>
+            ${escapeHTML(
+              ad.note ||
               "-"
             )}
           </b>
@@ -2036,7 +2260,8 @@ async function generate(
     );
 
 
-  }catch(error){
+  }
+  catch(error){
 
     console.error(
       "Report Error:",
@@ -2053,7 +2278,8 @@ async function generate(
         "Permission denied while loading report"
       );
 
-    }else{
+    }
+    else{
 
       alert(
         "Report error: " +
@@ -2394,7 +2620,6 @@ function loadLogo(){
 
 // ======================================================
 // PDF HEADER
-// BIGGER + MORE READABLE
 // ======================================================
 
 async function addPDFHeader(
@@ -2623,7 +2848,6 @@ async function addPDFHeader(
 
 // ======================================================
 // PDF FOOTER
-// BIGGER + READABLE
 // ======================================================
 
 function addPDFFooters(pdf){
@@ -2763,7 +2987,6 @@ function addPDFSectionTitle(
 
 // ======================================================
 // PDF CARD
-// BIGGER LABELS + VALUES + SUBTITLES
 // ======================================================
 
 function addPDFCard(
@@ -3052,7 +3275,6 @@ function addPDFCard(
 
 // ======================================================
 // PDF TABLE
-// BIGGER + MORE READABLE
 // ======================================================
 
 function drawPDFTable(
@@ -3067,10 +3289,6 @@ function drawPDFTable(
   let y =
     startY;
 
-
-  // ====================================================
-  // TABLE TITLE
-  // ====================================================
 
   if(title){
 
@@ -3103,7 +3321,7 @@ function drawPDFTable(
 
 
   // ====================================================
-  // HEADER FUNCTION
+  // TABLE HEADER
   // ====================================================
 
   function drawHeader(){
@@ -3209,7 +3427,7 @@ function drawPDFTable(
 
 
   // ====================================================
-  // ROWS
+  // TABLE ROWS
   // ====================================================
 
   rows.forEach(
@@ -3358,8 +3576,7 @@ function drawPDFTable(
 
 
 // ======================================================
-// PDF TOTAL SALES CHART
-// BIGGER LABELS + READABLE AXIS
+// PDF DAILY TOTAL SALES CHART
 // ======================================================
 
 function drawDailyTotalSalesChart(
@@ -3793,14 +4010,17 @@ function drawDailyTotalSalesChart(
   );
 
 }
+// ======================================================
+// PART 4
+// PDF CHARTS + TOP SALES + MONTHLY PDF
+// ======================================================
 
 
 // ======================================================
-// CUMULATIVE SALES CHART
-// READABLE VERSION
+// DAILY TOTAL SALES BAR CHART
 // ======================================================
 
-function drawCumulativeSalesChart(
+function drawDailyTotalSalesChart(
   pdf,
   report,
   x,
@@ -3815,15 +4035,12 @@ function drawCumulativeSalesChart(
     );
 
 
-  // IMPORTANT:
-  // cumulative chart must use cumulativeSales,
-  // not daily totalSales.
-
   const values =
-    stats.cumulativeSales;
+    stats.totalSales;
 
 
   if(
+    !values ||
     !values.length
   ){
 
@@ -3832,20 +4049,10 @@ function drawCumulativeSalesChart(
   }
 
 
-  const leftPadding =
-    30;
-
-
-  const rightPadding =
-    8;
-
-
-  const topPadding =
-    13;
-
-
-  const bottomPadding =
-    20;
+  const leftPadding = 29;
+  const rightPadding = 5;
+  const topPadding = 11;
+  const bottomPadding = 19;
 
 
   const chartX =
@@ -3868,9 +4075,448 @@ function drawCumulativeSalesChart(
     bottomPadding;
 
 
-  let maxValue =
+  const maxValue =
     Math.max(
-      ...values,
+      ...values.map(
+        value =>
+          number(value)
+      ),
+      1
+    );
+
+
+  const magnitude =
+    Math.pow(
+      10,
+      Math.floor(
+        Math.log10(
+          maxValue
+        )
+      )
+    );
+
+
+  const normalized =
+    maxValue /
+    magnitude;
+
+
+  let niceNormalized;
+
+
+  if(
+    normalized <= 1
+  ){
+
+    niceNormalized = 1;
+
+  }
+
+  else if(
+    normalized <= 2
+  ){
+
+    niceNormalized = 2;
+
+  }
+
+  else if(
+    normalized <= 5
+  ){
+
+    niceNormalized = 5;
+
+  }
+
+  else{
+
+    niceNormalized = 10;
+
+  }
+
+
+  const chartMax =
+    niceNormalized *
+    magnitude;
+
+
+  // ====================================================
+  // BACKGROUND
+  // ====================================================
+
+  pdf.setFillColor(
+    253,
+    252,
+    249
+  );
+
+
+  pdf.setDrawColor(
+    ...PDF_LINE
+  );
+
+
+  pdf.roundedRect(
+    x,
+    y,
+    width,
+    height,
+    3,
+    3,
+    "FD"
+  );
+
+
+  // ====================================================
+  // GRID
+  // ====================================================
+
+  const gridLines = 5;
+
+
+  for(
+    let i = 0;
+    i <= gridLines;
+    i++
+  ){
+
+    const lineY =
+      chartY +
+      (
+        chartHeight /
+        gridLines
+      ) *
+      i;
+
+
+    pdf.setDrawColor(
+      238,
+      233,
+      225
+    );
+
+
+    pdf.setLineWidth(
+      0.2
+    );
+
+
+    pdf.line(
+      chartX,
+      lineY,
+      chartX + chartWidth,
+      lineY
+    );
+
+
+    const value =
+      chartMax -
+      (
+        chartMax /
+        gridLines
+      ) *
+      i;
+
+
+    pdf.setFont(
+      "helvetica",
+      "normal"
+    );
+
+
+    pdf.setFontSize(
+      6.8
+    );
+
+
+    pdf.setTextColor(
+      ...PDF_MUTED
+    );
+
+
+    pdf.text(
+      Math.round(
+        value
+      ).toLocaleString(),
+      chartX - 3,
+      lineY + 1.7,
+      {
+        align:
+          "right"
+      }
+    );
+
+  }
+
+
+  // ====================================================
+  // BARS
+  // ====================================================
+
+  const slotWidth =
+    chartWidth /
+    values.length;
+
+
+  const barWidth =
+    Math.max(
+      1.2,
+      slotWidth * 0.55
+    );
+
+
+  values.forEach(
+    (
+      value,
+      index
+    )=>{
+
+
+      const cleanValue =
+        number(value);
+
+
+      const barHeight =
+        chartMax > 0
+          ?
+          (
+            cleanValue /
+            chartMax
+          ) *
+          chartHeight
+          :
+          0;
+
+
+      const barX =
+        chartX +
+        (
+          index *
+          slotWidth
+        ) +
+        (
+          slotWidth -
+          barWidth
+        ) /
+        2;
+
+
+      const barY =
+        chartY +
+        chartHeight -
+        barHeight;
+
+
+      pdf.setFillColor(
+        ...PDF_GOLD
+      );
+
+
+      if(
+        barHeight > 0
+      ){
+
+        pdf.roundedRect(
+          barX,
+          barY,
+          barWidth,
+          barHeight,
+          0.7,
+          0.7,
+          "F"
+        );
+
+      }
+
+    }
+  );
+
+
+  // ====================================================
+  // DAYS
+  // ====================================================
+
+  const labelEvery =
+    values.length > 20
+      ? 2
+      : 1;
+
+
+  values.forEach(
+    (
+      value,
+      index
+    )=>{
+
+
+      const day =
+        index + 1;
+
+
+      if(
+        day !== 1 &&
+        day !== values.length &&
+        day % labelEvery !== 0
+      ){
+
+        return;
+
+      }
+
+
+      const labelX =
+        chartX +
+        (
+          index *
+          slotWidth
+        ) +
+        slotWidth / 2;
+
+
+      pdf.setFont(
+        "helvetica",
+        "normal"
+      );
+
+
+      pdf.setFontSize(
+        6.2
+      );
+
+
+      pdf.setTextColor(
+        ...PDF_MUTED
+      );
+
+
+      pdf.text(
+        String(day),
+        labelX,
+        chartY +
+        chartHeight +
+        5.5,
+        {
+          align:
+            "center"
+        }
+      );
+
+    }
+  );
+
+
+  // ====================================================
+  // AXIS TITLES
+  // ====================================================
+
+  pdf.setFont(
+    "helvetica",
+    "bold"
+  );
+
+
+  pdf.setFontSize(
+    7
+  );
+
+
+  pdf.setTextColor(
+    ...PDF_MUTED
+  );
+
+
+  pdf.text(
+    "DAY",
+    chartX +
+    chartWidth / 2,
+    y + height - 4,
+    {
+      align:
+        "center"
+    }
+  );
+
+
+  pdf.text(
+    "SALES (AED)",
+    x + 4,
+    chartY - 3
+  );
+
+}
+
+
+// ======================================================
+// DAILY SALES LINE CHART
+// EACH DATE SHOWS ONLY THAT DATE'S SALES
+// NOT CUMULATIVE
+// ======================================================
+
+function drawCumulativeSalesChart(
+  pdf,
+  report,
+  x,
+  y,
+  width,
+  height
+){
+
+  const stats =
+    getMonthlyStatistics(
+      report
+    );
+
+
+  // IMPORTANT:
+  // totalSales = sales of each individual day
+  // cumulativeSales is NOT used here.
+
+  const values =
+    stats.totalSales;
+
+
+  if(
+    !values ||
+    !values.length
+  ){
+
+    return;
+
+  }
+
+
+  const leftPadding = 30;
+  const rightPadding = 10;
+  const topPadding = 18;
+  const bottomPadding = 22;
+
+
+  const chartX =
+    x + leftPadding;
+
+
+  const chartY =
+    y + topPadding;
+
+
+  const chartWidth =
+    width -
+    leftPadding -
+    rightPadding;
+
+
+  const chartHeight =
+    height -
+    topPadding -
+    bottomPadding;
+
+
+  const maxValue =
+    Math.max(
+      ...values.map(
+        value =>
+          number(value)
+      ),
       1
     );
 
@@ -3914,6 +4560,7 @@ function drawCumulativeSalesChart(
       magnitude;
 
   }
+
   else if(
     normalized <= 2
   ){
@@ -3923,6 +4570,7 @@ function drawCumulativeSalesChart(
       magnitude;
 
   }
+
   else if(
     normalized <= 5
   ){
@@ -3932,6 +4580,7 @@ function drawCumulativeSalesChart(
       magnitude;
 
   }
+
   else{
 
     niceStep =
@@ -4006,9 +4655,11 @@ function drawCumulativeSalesChart(
 
     const ratio =
       chartMax > 0
-        ? value /
-          chartMax
-        : 0;
+        ?
+        value /
+        chartMax
+        :
+        0;
 
 
     const lineY =
@@ -4059,8 +4710,7 @@ function drawCumulativeSalesChart(
     pdf.text(
       Math.round(
         value
-      )
-      .toLocaleString(),
+      ).toLocaleString(),
       chartX - 3,
       lineY + 1.7,
       {
@@ -4073,7 +4723,7 @@ function drawCumulativeSalesChart(
 
 
   // ====================================================
-  // LINE POINTS
+  // CREATE DAILY POINTS
   // ====================================================
 
   const points = [];
@@ -4086,24 +4736,30 @@ function drawCumulativeSalesChart(
     )=>{
 
 
+      const cleanValue =
+        number(value);
+
+
       const pointX =
         values.length === 1
-          ? chartX
-          : chartX +
+          ?
+          chartX
+          :
+          chartX +
+          (
+            index /
             (
-              index /
-              (
-                values.length - 1
-              )
-            ) *
-            chartWidth;
+              values.length - 1
+            )
+          ) *
+          chartWidth;
 
 
       const pointY =
         chartY +
         chartHeight -
         (
-          number(value) /
+          cleanValue /
           chartMax
         ) *
         chartHeight;
@@ -4115,7 +4771,13 @@ function drawCumulativeSalesChart(
           pointX,
 
         y:
-          pointY
+          pointY,
+
+        value:
+          cleanValue,
+
+        day:
+          index + 1
 
       });
 
@@ -4124,7 +4786,7 @@ function drawCumulativeSalesChart(
 
 
   // ====================================================
-  // DRAW LINE
+  // LINE
   // ====================================================
 
   pdf.setDrawColor(
@@ -4144,8 +4806,8 @@ function drawCumulativeSalesChart(
   ){
 
     pdf.line(
-      points[i-1].x,
-      points[i-1].y,
+      points[i - 1].x,
+      points[i - 1].y,
       points[i].x,
       points[i].y
     );
@@ -4169,8 +4831,74 @@ function drawCumulativeSalesChart(
       pdf.circle(
         point.x,
         point.y,
-        0.8,
+        point.value > 0
+          ? 1
+          : 0.45,
         "F"
+      );
+
+    }
+  );
+
+
+  // ====================================================
+  // SHOW SALES AMOUNT ABOVE EACH SALES DATE
+  // ====================================================
+
+  points.forEach(
+    point=>{
+
+
+      if(
+        point.value <= 0
+      ){
+
+        return;
+
+      }
+
+
+      pdf.setFont(
+        "helvetica",
+        "bold"
+      );
+
+
+      pdf.setFontSize(
+        5.8
+      );
+
+
+      pdf.setTextColor(
+        ...PDF_DARK
+      );
+
+
+      let valueY =
+        point.y - 3.5;
+
+
+      if(
+        valueY <
+        chartY + 4
+      ){
+
+        valueY =
+          point.y + 6;
+
+      }
+
+
+      pdf.text(
+        Math.round(
+          point.value
+        ).toLocaleString(),
+        point.x,
+        valueY,
+        {
+          align:
+            "center"
+        }
       );
 
     }
@@ -4181,39 +4909,23 @@ function drawCumulativeSalesChart(
   // X AXIS DAYS
   // ====================================================
 
-  values.forEach(
-    (
-      value,
-      index
-    )=>{
+  points.forEach(
+    point=>{
 
 
       const day =
-        index + 1;
+        point.day;
 
 
       if(
         day !== 1 &&
-        day !== values.length &&
+        day !== points.length &&
         day % 2 !== 0
       ){
 
         return;
 
       }
-
-
-      const pointX =
-        values.length === 1
-          ? chartX
-          : chartX +
-            (
-              index /
-              (
-                values.length - 1
-              )
-            ) *
-            chartWidth;
 
 
       pdf.setFont(
@@ -4234,7 +4946,7 @@ function drawCumulativeSalesChart(
 
       pdf.text(
         String(day),
-        pointX,
+        point.x,
         chartY +
         chartHeight +
         5.5,
@@ -4246,56 +4958,6 @@ function drawCumulativeSalesChart(
 
     }
   );
-
-
-  // ====================================================
-  // FINAL TOTAL LABEL
-  // ====================================================
-
-  if(
-    points.length > 0
-  ){
-
-    const lastPoint =
-      points[
-        points.length - 1
-      ];
-
-
-    pdf.setFont(
-      "helvetica",
-      "bold"
-    );
-
-
-    pdf.setFontSize(
-      7
-    );
-
-
-    pdf.setTextColor(
-      ...PDF_DARK
-    );
-
-
-    pdf.text(
-      money(
-        values[
-          values.length - 1
-        ]
-      ),
-      lastPoint.x,
-      Math.max(
-        chartY + 5,
-        lastPoint.y - 4
-      ),
-      {
-        align:
-          "right"
-      }
-    );
-
-  }
 
 
   // ====================================================
@@ -4331,15 +4993,16 @@ function drawCumulativeSalesChart(
 
 
   pdf.text(
-    "TOTAL SALES (AED)",
+    "DAILY SALES (AED)",
     x + 4,
-    chartY - 4
+    chartY - 5
   );
 
 }
+
+
 // ======================================================
 // TOP SALES DAYS
-// ONLY ONE TOP SALES SECTION
 // ======================================================
 
 function getTopSalesDays(
@@ -4371,12 +5034,12 @@ function getTopSalesDays(
     )
 
     .filter(
-      item=>
+      item =>
         item.value > 0
     )
 
     .sort(
-      (a,b)=>
+      (a,b) =>
         b.value -
         a.value
     )
@@ -4436,7 +5099,6 @@ function getReportMonthName(
 
 // ======================================================
 // CREATE MONTHLY PDF
-// 5 MAIN PAGES
 // ======================================================
 
 async function createMonthlyPDF(
@@ -4476,15 +5138,9 @@ async function createMonthlyPDF(
     await addPDFHeader(
       pdf,
       "Monthly Sales Report",
-      monthName,
-      1,
-      5
+      monthName
     );
 
-
-  // ====================================================
-  // TOTAL SALES HERO
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4503,10 +5159,6 @@ async function createMonthlyPDF(
 
   y += 41;
 
-
-  // ====================================================
-  // CASH + CARD
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4538,10 +5190,6 @@ async function createMonthlyPDF(
 
   y += 36;
 
-
-  // ====================================================
-  // SALES STATISTICS
-  // ====================================================
 
   y =
     addPDFSectionTitle(
@@ -4580,10 +5228,6 @@ async function createMonthlyPDF(
   y += 38;
 
 
-  // ====================================================
-  // FINANCIAL SUMMARY
-  // ====================================================
-
   y =
     addPDFSectionTitle(
       pdf,
@@ -4596,9 +5240,9 @@ async function createMonthlyPDF(
     pdf,
     10,
     y,
-    61,
+    45,
     27,
-    "Expenses (Cost)",
+    "Expenses",
     money(
       report.expensesTotal
     )
@@ -4607,9 +5251,22 @@ async function createMonthlyPDF(
 
   addPDFCard(
     pdf,
-    74,
+    58,
     y,
-    61,
+    45,
+    27,
+    "Advertising",
+    money(
+      report.advertisingTotal || 0
+    )
+  );
+
+
+  addPDFCard(
+    pdf,
+    106,
+    y,
+    45,
     27,
     "Staff Payment",
     money(
@@ -4620,11 +5277,11 @@ async function createMonthlyPDF(
 
   addPDFCard(
     pdf,
-    138,
+    154,
     y,
-    61,
+    46,
     27,
-    "Cash Withdrawal",
+    "Withdrawal",
     money(
       report.withdrawalTotal
     )
@@ -4633,10 +5290,6 @@ async function createMonthlyPDF(
 
   y += 36;
 
-
-  // ====================================================
-  // NET SALE AMOUNT
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4665,15 +5318,9 @@ async function createMonthlyPDF(
     await addPDFHeader(
       pdf,
       "Sales Performance",
-      period,
-      2,
-      5
+      period
     );
 
-
-  // ====================================================
-  // SUMMARY CARDS
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4717,10 +5364,6 @@ async function createMonthlyPDF(
   y += 37;
 
 
-  // ====================================================
-  // TOP SALES DAYS
-  // ====================================================
-
   y =
     addPDFSectionTitle(
       pdf,
@@ -4747,6 +5390,7 @@ async function createMonthlyPDF(
     y += 34;
 
   }
+
   else{
 
 
@@ -4802,10 +5446,6 @@ async function createMonthlyPDF(
   }
 
 
-  // ====================================================
-  // DAILY TOTAL SALES CHART
-  // ====================================================
-
   y =
     addPDFSectionTitle(
       pdf,
@@ -4826,7 +5466,8 @@ async function createMonthlyPDF(
 
   // ====================================================
   // PAGE 3
-  // CUMULATIVE SALES
+  // DAILY SALES TREND
+  // EACH POINT = THAT DATE'S SALES
   // ====================================================
 
   pdf.addPage();
@@ -4835,16 +5476,10 @@ async function createMonthlyPDF(
   y =
     await addPDFHeader(
       pdf,
-      "Cumulative Sales",
-      period,
-      3,
-      5
+      "Daily Sales Trend",
+      period
     );
 
-
-  // ====================================================
-  // CUMULATIVE SUMMARY
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4856,7 +5491,7 @@ async function createMonthlyPDF(
     money(
       report.salesTotal
     ),
-    "Final cumulative sales amount"
+    "Total sales for selected month"
   );
 
 
@@ -4878,7 +5513,7 @@ async function createMonthlyPDF(
   y =
     addPDFSectionTitle(
       pdf,
-      "Cumulative Total Sales",
+      "Sales by Date",
       y
     );
 
@@ -4905,15 +5540,9 @@ async function createMonthlyPDF(
     await addPDFHeader(
       pdf,
       "Expense Details",
-      period,
-      4,
-      5
+      period
     );
 
-
-  // ====================================================
-  // EXPENSE SUMMARY
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -4943,10 +5572,6 @@ async function createMonthlyPDF(
 
   y += 37;
 
-
-  // ====================================================
-  // EXPENSE TABLE
-  // ====================================================
 
   const expenseRows =
     report.expenseDetails.length
@@ -5010,6 +5635,122 @@ async function createMonthlyPDF(
 
   // ====================================================
   // PAGE 5
+  // ADVERTISING DETAILS
+  // ====================================================
+
+  pdf.addPage();
+
+
+  y =
+    await addPDFHeader(
+      pdf,
+      "Advertising Details",
+      period
+    );
+
+
+  addPDFCard(
+    pdf,
+    10,
+    y,
+    92,
+    27,
+    "Advertising Cost",
+    money(
+      report.advertisingTotal || 0
+    )
+  );
+
+
+  addPDFCard(
+    pdf,
+    108,
+    y,
+    92,
+    27,
+    "Advertising Entries",
+    String(
+      (
+        report.advertisingDetails ||
+        []
+      ).length
+    )
+  );
+
+
+  y += 37;
+
+
+  const advertisingRows =
+    report.advertisingDetails &&
+    report.advertisingDetails.length
+
+      ? report.advertisingDetails.map(
+          ad=>[
+
+            displayDate(
+              ad.date
+            ),
+
+            ad.platform ||
+            "-",
+
+            ad.campaign ||
+            "-",
+
+            ad.note ||
+            "-",
+
+            money(
+              ad.amount
+            )
+
+          ]
+        )
+
+      : [
+
+          [
+
+            "-",
+
+            "No advertising",
+
+            "-",
+
+            "-",
+
+            "0 AED"
+
+          ]
+
+        ];
+
+
+  drawPDFTable(
+    pdf,
+    "Advertising Records",
+    [
+      "Date",
+      "Platform",
+      "Campaign",
+      "Note",
+      "Amount"
+    ],
+    advertisingRows,
+    [
+      31,
+      35,
+      40,
+      51,
+      33
+    ],
+    y
+  );
+
+
+  // ====================================================
+  // PAGE 6
   // CASH WITHDRAWAL + STAFF PAYMENT
   // ====================================================
 
@@ -5020,15 +5761,9 @@ async function createMonthlyPDF(
     await addPDFHeader(
       pdf,
       "Payment Details",
-      period,
-      5,
-      5
+      period
     );
 
-
-  // ====================================================
-  // CASH WITHDRAWAL SECTION
-  // ====================================================
 
   y =
     addPDFSectionTitle(
@@ -5128,10 +5863,6 @@ async function createMonthlyPDF(
     );
 
 
-  // ====================================================
-  // SEPARATOR
-  // ====================================================
-
   y += 10;
 
 
@@ -5156,10 +5887,6 @@ async function createMonthlyPDF(
   y += 10;
 
 
-  // ====================================================
-  // STAFF PAYMENT SECTION
-  // ====================================================
-
   y =
     addPDFSectionTitle(
       pdf,
@@ -5168,16 +5895,9 @@ async function createMonthlyPDF(
     );
 
 
-  let totalSalary =
-    0;
-
-
-  let totalCommission =
-    0;
-
-
-  let totalCarLift =
-    0;
+  let totalSalary = 0;
+  let totalCommission = 0;
+  let totalCarLift = 0;
 
 
   report.staffDetails.forEach(
@@ -5204,10 +5924,6 @@ async function createMonthlyPDF(
     }
   );
 
-
-  // ====================================================
-  // STAFF SUMMARY
-  // ====================================================
 
   addPDFCard(
     pdf,
@@ -5263,10 +5979,6 @@ async function createMonthlyPDF(
 
   y += 34;
 
-
-  // ====================================================
-  // STAFF TABLE
-  // ====================================================
 
   const staffRows =
     report.staffDetails.length
@@ -5352,9 +6064,20 @@ async function createMonthlyPDF(
   );
 
 }
+
+
+// ======================================================
+// END OF PART 4
+// ======================================================
+// ======================================================
+// PART 5
+// DAILY PDF + GENERAL PDF + EXPORT + DEFAULT DATES + AUTH
+// ======================================================
+
+
 // ======================================================
 // DAILY PDF
-// KEEP DAILY REPORT SIMPLE + READABLE
+// ADVERTISING ONLY APPEARS IF THAT DAY HAS ADVERTISING
 // ======================================================
 
 async function createDailyPDF(
@@ -5420,6 +6143,10 @@ async function createDailyPDF(
   y += 36;
 
 
+  // ====================================================
+  // SECOND ROW
+  // ====================================================
+
   addPDFCard(
     pdf,
     10,
@@ -5461,6 +6188,40 @@ async function createDailyPDF(
 
   y += 36;
 
+
+  // ====================================================
+  // ADVERTISING
+  // ONLY IF THAT DAY HAS ADVERTISING
+  // ====================================================
+
+  if(
+    report.advertisingTotal > 0
+  ){
+
+    addPDFCard(
+      pdf,
+      10,
+      y,
+      190,
+      27,
+      "Advertising Cost",
+      money(
+        report.advertisingTotal
+      ),
+      "Advertising registered on this date"
+    );
+
+
+    y += 36;
+
+  }
+
+
+  // ====================================================
+  // NET SALE AMOUNT
+  // IMPORTANT:
+  // Advertising does NOT reduce this number
+  // ====================================================
 
   addPDFCard(
     pdf,
@@ -5554,15 +6315,123 @@ async function createDailyPDF(
 
 
   // ====================================================
+  // DAILY ADVERTISING DETAILS
+  // ONLY IF THAT DAY HAS ADVERTISING
+  // ====================================================
+
+  if(
+    report.advertisingDetails &&
+    report.advertisingDetails.length > 0
+  ){
+
+    if(
+      y > 205
+    ){
+
+      pdf.addPage();
+
+
+      y =
+        await addPDFHeader(
+          pdf,
+          "Daily Advertising Details",
+          period
+        );
+
+    }
+    else{
+
+      y += 9;
+
+    }
+
+
+    y =
+      addPDFSectionTitle(
+        pdf,
+        "Advertising Details",
+        y
+      );
+
+
+    const advertisingRows =
+      report.advertisingDetails.map(
+        ad=>[
+
+          displayDate(
+            ad.date
+          ),
+
+          ad.platform ||
+          "-",
+
+          ad.campaign ||
+          "-",
+
+          ad.note ||
+          "-",
+
+          money(
+            ad.amount
+          )
+
+        ]
+      );
+
+
+    y =
+      drawPDFTable(
+        pdf,
+        "",
+        [
+          "Date",
+          "Platform",
+          "Campaign",
+          "Note",
+          "Amount"
+        ],
+        advertisingRows,
+        [
+          31,
+          35,
+          40,
+          51,
+          33
+        ],
+        y
+      );
+
+  }
+
+
+  // ====================================================
   // DAILY WITHDRAWAL DETAILS
   // ====================================================
 
   if(
-    report.withdrawalDetails.length > 0 &&
-    y < 215
+    report.withdrawalDetails.length > 0
   ){
 
-    y += 9;
+    if(
+      y > 205
+    ){
+
+      pdf.addPage();
+
+
+      y =
+        await addPDFHeader(
+          pdf,
+          "Daily Payment Details",
+          period
+        );
+
+    }
+    else{
+
+      y += 9;
+
+    }
 
 
     y =
@@ -5623,11 +6492,29 @@ async function createDailyPDF(
   // ====================================================
 
   if(
-    report.staffDetails.length > 0 &&
-    y < 215
+    report.staffDetails.length > 0
   ){
 
-    y += 9;
+    if(
+      y > 200
+    ){
+
+      pdf.addPage();
+
+
+      y =
+        await addPDFHeader(
+          pdf,
+          "Daily Staff Payment Details",
+          period
+        );
+
+    }
+    else{
+
+      y += 9;
+
+    }
 
 
     y =
@@ -5776,13 +6663,17 @@ async function createGeneralPDF(
   y += 36;
 
 
+  // ====================================================
+  // FINANCIAL SUMMARY
+  // ====================================================
+
   addPDFCard(
     pdf,
     10,
     y,
-    61,
+    45,
     27,
-    "Expenses (Cost)",
+    "Expenses",
     money(
       report.expensesTotal
     )
@@ -5791,9 +6682,22 @@ async function createGeneralPDF(
 
   addPDFCard(
     pdf,
-    74,
+    58,
     y,
-    61,
+    45,
+    27,
+    "Advertising",
+    money(
+      report.advertisingTotal
+    )
+  );
+
+
+  addPDFCard(
+    pdf,
+    106,
+    y,
+    45,
     27,
     "Staff Payment",
     money(
@@ -5804,11 +6708,11 @@ async function createGeneralPDF(
 
   addPDFCard(
     pdf,
-    138,
+    154,
     y,
-    61,
+    46,
     27,
-    "Cash Withdrawal",
+    "Withdrawal",
     money(
       report.withdrawalTotal
     )
@@ -5817,6 +6721,10 @@ async function createGeneralPDF(
 
   y += 36;
 
+
+  // ====================================================
+  // NET SALE
+  // ====================================================
 
   addPDFCard(
     pdf,
@@ -5940,6 +6848,118 @@ async function createGeneralPDF(
 
   // ====================================================
   // PAGE 3
+  // ADVERTISING DETAILS
+  // ====================================================
+
+  pdf.addPage();
+
+
+  y =
+    await addPDFHeader(
+      pdf,
+      "Advertising Details",
+      period
+    );
+
+
+  addPDFCard(
+    pdf,
+    10,
+    y,
+    92,
+    27,
+    "Advertising Cost",
+    money(
+      report.advertisingTotal
+    )
+  );
+
+
+  addPDFCard(
+    pdf,
+    108,
+    y,
+    92,
+    27,
+    "Advertising Entries",
+    String(
+      report.advertisingDetails.length
+    )
+  );
+
+
+  y += 37;
+
+
+  const advertisingRows =
+    report.advertisingDetails.length
+
+      ? report.advertisingDetails.map(
+          ad=>[
+
+            displayDate(
+              ad.date
+            ),
+
+            ad.platform ||
+            "-",
+
+            ad.campaign ||
+            "-",
+
+            ad.note ||
+            "-",
+
+            money(
+              ad.amount
+            )
+
+          ]
+        )
+
+      : [
+
+          [
+
+            "-",
+
+            "No advertising",
+
+            "-",
+
+            "-",
+
+            "0 AED"
+
+          ]
+
+        ];
+
+
+  drawPDFTable(
+    pdf,
+    "Advertising Records",
+    [
+      "Date",
+      "Platform",
+      "Campaign",
+      "Note",
+      "Amount"
+    ],
+    advertisingRows,
+    [
+      31,
+      35,
+      40,
+      51,
+      33
+    ],
+    y
+  );
+
+
+  // ====================================================
+  // PAGE 4
   // CASH WITHDRAWAL
   // ====================================================
 
@@ -6044,7 +7064,7 @@ async function createGeneralPDF(
 
 
   // ====================================================
-  // PAGE 4
+  // PAGE 5
   // STAFF PAYMENT
   // ====================================================
 
@@ -6059,16 +7079,11 @@ async function createGeneralPDF(
     );
 
 
-  let totalSalary =
-    0;
+  let totalSalary = 0;
 
+  let totalCommission = 0;
 
-  let totalCommission =
-    0;
-
-
-  let totalCarLift =
-    0;
+  let totalCarLift = 0;
 
 
   report.staffDetails.forEach(
@@ -6338,7 +7353,7 @@ async function createProfessionalPDF(){
 
 
   // ====================================================
-  // FOOTER ALL PAGES
+  // FOOTERS
   // ====================================================
 
   addPDFFooters(
@@ -6371,10 +7386,6 @@ async function createProfessionalPDF(){
 
     `AL_HUDU_${safeTitle}_${currentReport.from}_${currentReport.to}.pdf`;
 
-
-  // ====================================================
-  // SAVE PDF
-  // ====================================================
 
   pdf.save(
     filename
