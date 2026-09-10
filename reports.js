@@ -5161,7 +5161,22 @@ async function createDailyPDF(
 
 
   y += 36;
+  addPDFCard(
+    pdf,
+    10,
+    y,
+    190,
+    33,
+    "Total Sales",
+    money(
+      report.salesTotal
+    ),
+    "Cash Sales + Card Sales",
+    true
+  );
 
+
+  y += 42;
 
   if(
     report.advertisingTotal > 0
