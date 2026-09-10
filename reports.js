@@ -654,13 +654,14 @@ function calculateReport(
   );
 
 
+  // ====================================================
+  // TOTAL SALES
+  // فقط فروش نقدی + کارت
+  // هیچ هزینه‌ای از فروش کم نمی‌شود
+  // ====================================================
+
   const salesTotal =
     cash + card;
-
-
-  const netSalesAmount =
-    salesTotal -
-    expensesTotal;
 
 
   return {
@@ -686,8 +687,6 @@ function calculateReport(
     withdrawalTotal,
 
     advertisingTotal,
-
-    netSalesAmount,
 
     salesDetails:
       sortNewest(
@@ -869,8 +868,6 @@ function getMonthlySalesData(report){
   };
 
 }
-
-
 // ======================================================
 // MONTHLY STATISTICS
 // ======================================================
@@ -1030,6 +1027,8 @@ function getMonthlyStatistics(report){
   };
 
 }
+
+
 // ======================================================
 // SHOW REPORT
 // ======================================================
@@ -1040,6 +1039,7 @@ function showReport(report){
     document.getElementById(
       "reportPeriod"
     );
+
 
   if(periodBox){
 
@@ -1069,57 +1069,65 @@ function showReport(report){
     money(report.cash)
   );
 
+
   setText(
     "reportCard",
     money(report.card)
   );
+
 
   setText(
     "reportSales",
     money(report.salesTotal)
   );
 
+
   setText(
     "reportExpenses",
     money(report.expensesTotal)
   );
+
 
   setText(
     "reportAdvertising",
     money(report.advertisingTotal)
   );
 
+
   setText(
     "reportStaff",
     money(report.staffTotal)
   );
+
 
   setText(
     "reportWithdrawals",
     money(report.withdrawalTotal)
   );
 
-  setText(
-    "reportProfit",
-    money(report.netSalesAmount)
-  );
+
+  // Net Sale Amount کلاً حذف شده
 
 
   showExpenseDetails(
     report.expenseDetails
   );
 
+
   showAdvertisingDetails(
     report.advertisingDetails
   );
+
 
   showStaffDetails(
     report.staffDetails
   );
 
+
   showWithdrawalDetails(
     report.withdrawalDetails
   );
+
 
   showReportChart(
     report
@@ -1139,9 +1147,11 @@ function showExpenseDetails(list){
       "expenseDetails"
     );
 
+
   if(!box){
     return;
   }
+
 
   if(
     !list ||
@@ -1152,9 +1162,12 @@ function showExpenseDetails(list){
       "No expenses in this period.";
 
     return;
+
   }
 
+
   box.innerHTML = "";
+
 
   list.forEach(
     expense=>{
@@ -1221,9 +1234,11 @@ function showAdvertisingDetails(list){
       "advertisingDetails"
     );
 
+
   if(!box){
     return;
   }
+
 
   if(
     !list ||
@@ -1234,9 +1249,12 @@ function showAdvertisingDetails(list){
       "No advertising records in this period.";
 
     return;
+
   }
 
+
   box.innerHTML = "";
+
 
   list.forEach(
     ad=>{
@@ -1313,9 +1331,11 @@ function showStaffDetails(list){
       "staffDetails"
     );
 
+
   if(!box){
     return;
   }
+
 
   if(
     !list ||
@@ -1326,9 +1346,12 @@ function showStaffDetails(list){
       "No staff payments in this period.";
 
     return;
+
   }
 
+
   box.innerHTML = "";
+
 
   list.forEach(
     staffItem=>{
@@ -1422,9 +1445,11 @@ function showWithdrawalDetails(list){
       "withdrawalDetails"
     );
 
+
   if(!box){
     return;
   }
+
 
   if(
     !list ||
@@ -1435,9 +1460,12 @@ function showWithdrawalDetails(list){
       "No cash withdrawals in this period.";
 
     return;
+
   }
 
+
   box.innerHTML = "";
+
 
   list.forEach(
     withdrawal=>{
@@ -1504,10 +1532,12 @@ function showReportChart(report){
       "monthlyChartSection"
     );
 
+
   const canvas =
     document.getElementById(
       "monthlySalesChart"
     );
+
 
   if(
     !section ||
@@ -1526,6 +1556,7 @@ function showReportChart(report){
     section.style.display =
       "none";
 
+
     if(reportChart){
 
       reportChart.destroy();
@@ -1534,7 +1565,9 @@ function showReportChart(report){
 
     }
 
+
     return;
+
   }
 
 
@@ -1560,6 +1593,7 @@ function showReportChart(report){
       getMonthlyStatistics(
         report
       );
+
 
     labels =
       Array.from(
@@ -2005,8 +2039,6 @@ function showReportChart(report){
     );
 
 }
-
-
 // ======================================================
 // GENERATE REPORT
 // ======================================================
@@ -2327,6 +2359,8 @@ if(generateRange){
     };
 
 }
+
+
 // ======================================================
 // PDF DESIGN SETTINGS
 // ======================================================
@@ -3127,7 +3161,6 @@ function drawPDFTable(
 
 // ======================================================
 // DAILY TOTAL SALES BAR CHART
-// فقط یک نسخه — تکراری حذف شده
 // ======================================================
 
 function drawDailyTotalSalesChart(
@@ -3144,8 +3177,10 @@ function drawDailyTotalSalesChart(
       report
     );
 
+
   const values =
     stats.totalSales;
+
 
   if(
     !values ||
@@ -3160,16 +3195,20 @@ function drawDailyTotalSalesChart(
   const topPadding = 11;
   const bottomPadding = 19;
 
+
   const chartX =
     x + leftPadding;
 
+
   const chartY =
     y + topPadding;
+
 
   const chartWidth =
     width -
     leftPadding -
     rightPadding;
+
 
   const chartHeight =
     height -
@@ -3239,9 +3278,11 @@ function drawDailyTotalSalesChart(
     249
   );
 
+
   pdf.setDrawColor(
     ...PDF_LINE
   );
+
 
   pdf.roundedRect(
     x,
@@ -3277,7 +3318,9 @@ function drawDailyTotalSalesChart(
       225
     );
 
+
     pdf.setLineWidth(0.2);
+
 
     pdf.line(
       chartX,
@@ -3300,11 +3343,14 @@ function drawDailyTotalSalesChart(
       "normal"
     );
 
+
     pdf.setFontSize(6.8);
+
 
     pdf.setTextColor(
       ...PDF_MUTED
     );
+
 
     pdf.text(
       Math.round(
@@ -3432,11 +3478,14 @@ function drawDailyTotalSalesChart(
         "normal"
       );
 
+
       pdf.setFontSize(6.2);
+
 
       pdf.setTextColor(
         ...PDF_MUTED
       );
+
 
       pdf.text(
         String(day),
@@ -3458,11 +3507,14 @@ function drawDailyTotalSalesChart(
     "bold"
   );
 
+
   pdf.setFontSize(7);
+
 
   pdf.setTextColor(
     ...PDF_MUTED
   );
+
 
   pdf.text(
     "DAY",
@@ -3473,6 +3525,7 @@ function drawDailyTotalSalesChart(
       align:"center"
     }
   );
+
 
   pdf.text(
     "SALES (AED)",
@@ -3624,10 +3677,6 @@ function drawCumulativeSalesChart(
     );
 
 
-  // ====================================================
-  // BACKGROUND
-  // ====================================================
-
   pdf.setFillColor(
     253,
     252,
@@ -3650,10 +3699,6 @@ function drawCumulativeSalesChart(
     "FD"
   );
 
-
-  // ====================================================
-  // GRID + Y VALUES
-  // ====================================================
 
   const gridLines =
     Math.max(
@@ -3733,17 +3778,12 @@ function drawCumulativeSalesChart(
       chartX - 3,
       lineY + 1.7,
       {
-        align:
-          "right"
+        align:"right"
       }
     );
 
   }
 
-
-  // ====================================================
-  // POINTS
-  // ====================================================
 
   const points = [];
 
@@ -3753,7 +3793,6 @@ function drawCumulativeSalesChart(
       value,
       index
     )=>{
-
 
       const cleanValue =
         number(value);
@@ -3804,10 +3843,6 @@ function drawCumulativeSalesChart(
   );
 
 
-  // ====================================================
-  // LINE
-  // ====================================================
-
   pdf.setDrawColor(
     ...PDF_GOLD
   );
@@ -3834,13 +3869,8 @@ function drawCumulativeSalesChart(
   }
 
 
-  // ====================================================
-  // POINT CIRCLES
-  // ====================================================
-
   points.forEach(
     point=>{
-
 
       pdf.setFillColor(
         ...PDF_GOLD
@@ -3860,13 +3890,8 @@ function drawCumulativeSalesChart(
   );
 
 
-  // ====================================================
-  // SALES VALUE ABOVE EACH DATE
-  // ====================================================
-
   points.forEach(
     point=>{
-
 
       if(
         point.value <= 0
@@ -3915,8 +3940,7 @@ function drawCumulativeSalesChart(
         point.x,
         valueY,
         {
-          align:
-            "center"
+          align:"center"
         }
       );
 
@@ -3924,13 +3948,8 @@ function drawCumulativeSalesChart(
   );
 
 
-  // ====================================================
-  // X AXIS DAYS
-  // ====================================================
-
   points.forEach(
     point=>{
-
 
       const day =
         point.day;
@@ -3970,18 +3989,13 @@ function drawCumulativeSalesChart(
         chartHeight +
         5.5,
         {
-          align:
-            "center"
+          align:"center"
         }
       );
 
     }
   );
 
-
-  // ====================================================
-  // AXIS TITLES
-  // ====================================================
 
   pdf.setFont(
     "helvetica",
@@ -4005,8 +4019,7 @@ function drawCumulativeSalesChart(
     chartWidth / 2,
     y + height - 4,
     {
-      align:
-        "center"
+      align:"center"
     }
   );
 
@@ -4307,22 +4320,10 @@ async function createMonthlyPDF(
   );
 
 
-  y += 36;
-
-
-  addPDFCard(
-    pdf,
-    10,
-    y,
-    190,
-    29,
-    "Net Sale Amount",
-    money(
-      report.netSalesAmount
-    ),
-    "Total Sales - Expenses (Cost)",
-    true
-  );
+  // ====================================================
+  // NET SALE AMOUNT REMOVED
+  // هیچ هزینه‌ای از Total Sales کم نمی‌شود
+  // ====================================================
 
 
   // ====================================================
@@ -4482,7 +4483,7 @@ async function createMonthlyPDF(
 
   // ====================================================
   // PAGE 3
-  // SALES BY DATE — NOT CUMULATIVE
+  // SALES BY DATE
   // ====================================================
 
   pdf.addPage();
@@ -4506,7 +4507,7 @@ async function createMonthlyPDF(
     money(
       report.salesTotal
     ),
-    "Total sales for selected month"
+    "Cash Sales + Card Sales"
   );
 
 
@@ -4883,190 +4884,8 @@ async function createMonthlyPDF(
   );
 
 
-  y += 10;
-
-
-  y =
-    addPDFSectionTitle(
-      pdf,
-      "Staff Payment Details",
-      y
-    );
-
-
-  let totalSalary = 0;
-  let totalCommission = 0;
-  let totalCarLift = 0;
-
-
-  report.staffDetails.forEach(
-    staffItem=>{
-
-
-      totalSalary +=
-        number(
-          staffItem.salary
-        );
-
-
-      totalCommission +=
-        number(
-          staffItem.commission
-        );
-
-
-      totalCarLift +=
-        number(
-          staffItem.carLift
-        );
-
-    }
-  );
-
-
-  addPDFCard(
-    pdf,
-    10,
-    y,
-    45,
-    25,
-    "Salary",
-    money(
-      totalSalary
-    )
-  );
-
-
-  addPDFCard(
-    pdf,
-    58,
-    y,
-    45,
-    25,
-    "Commission",
-    money(
-      totalCommission
-    )
-  );
-
-
-  addPDFCard(
-    pdf,
-    106,
-    y,
-    45,
-    25,
-    "Car Lift",
-    money(
-      totalCarLift
-    )
-  );
-
-
-  addPDFCard(
-    pdf,
-    154,
-    y,
-    46,
-    25,
-    "Total Payment",
-    money(
-      report.staffTotal
-    )
-  );
-
-
-  y += 34;
-
-
-  const staffRows =
-    report.staffDetails.length
-
-      ? report.staffDetails.map(
-          staffItem=>[
-
-            displayDate(
-              staffItem.date
-            ),
-
-            staffItem.name ||
-            "-",
-
-            money(
-              staffItem.salary
-            ),
-
-            money(
-              staffItem.commission
-            ),
-
-            money(
-              staffItem.carLift
-            ),
-
-            money(
-              staffItem.total
-            ),
-
-            staffItem.status ||
-            "-"
-
-          ]
-        )
-
-      : [
-
-          [
-            "-",
-            "No payments",
-            "0 AED",
-            "0 AED",
-            "0 AED",
-            "0 AED",
-            "-"
-          ]
-
-        ];
-
-
-  drawPDFTable(
-    pdf,
-    "Staff Records",
-    [
-      "Date",
-      "Staff",
-      "Salary",
-      "Commission",
-      "Car Lift",
-      "Total",
-      "Status"
-    ],
-    staffRows,
-    [
-      26,
-      30,
-      27,
-      29,
-      24,
-      28,
-      26
-    ],
-    y
-  );
-
-}
-
-
-// ======================================================
-// END OF PART 4
-// ======================================================
-// ======================================================
-// PART 5
-// DAILY PDF + GENERAL PDF + EXPORT + DEFAULT DATES + AUTH
-// ======================================================
-
-
-// ======================================================
+  y += 10
+ // ======================================================
 // DAILY PDF
 // ======================================================
 
@@ -5192,28 +5011,6 @@ async function createDailyPDF(
     y += 36;
 
   }
-
-
-  // ====================================================
-  // NET SALE
-  // ====================================================
-
-  addPDFCard(
-    pdf,
-    10,
-    y,
-    190,
-    30,
-    "Net Sale Amount",
-    money(
-      report.netSalesAmount
-    ),
-    "Total Sales - Expenses (Cost)",
-    true
-  );
-
-
-  y += 40;
 
 
   // ====================================================
@@ -5575,10 +5372,6 @@ async function createGeneralPDF(
     `${displayDate(report.from)} - ${displayDate(report.to)}`;
 
 
-  // ====================================================
-  // PAGE 1
-  // ====================================================
-
   let y =
     await addPDFHeader(
       pdf,
@@ -5679,24 +5472,6 @@ async function createGeneralPDF(
     money(
       report.withdrawalTotal
     )
-  );
-
-
-  y += 36;
-
-
-  addPDFCard(
-    pdf,
-    10,
-    y,
-    190,
-    30,
-    "Net Sale Amount",
-    money(
-      report.netSalesAmount
-    ),
-    "Total Sales - Expenses (Cost)",
-    true
   );
 
 
@@ -6027,7 +5802,6 @@ async function createGeneralPDF(
 
   report.staffDetails.forEach(
     staffItem=>{
-
 
       totalSalary +=
         number(
@@ -6589,4 +6363,4 @@ onAuthStateChanged(
 
 // ======================================================
 // END OF REPORTS.JS
-// ======================================================
+// ====================================================== 
