@@ -36,7 +36,6 @@ const $ = id => document.getElementById(id);
 
 const today = () => {
   const d = new Date();
-
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
@@ -51,25 +50,21 @@ const esc = v =>
 
 const prettyDate = v => {
   if (!v) return "--";
-
   const [y, m, d] = v.split("-");
-
   return `${d}-${m}-${y}`;
 };
 
 function orderNumber() {
   const d = new Date();
-
-  const p = n =>
-    String(n).padStart(2, "0");
+  const p = n => String(n).padStart(2, "0");
 
   return `T-${String(d.getFullYear()).slice(-2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
 
-/* =====================================================
-   ROLE
-===================================================== */
+// ======================================================
+// ROLE
+// ======================================================
 
 function applyRoleUI() {
 
@@ -85,9 +80,9 @@ function applyRoleUI() {
 }
 
 
-/* =====================================================
-   LOAD ORDERS
-===================================================== */
+// ======================================================
+// LOAD ORDERS
+// ======================================================
 
 async function loadOrders() {
 
@@ -119,9 +114,9 @@ async function loadOrders() {
 }
 
 
-/* =====================================================
-   RENDER ORDERS
-===================================================== */
+// ======================================================
+// RENDER
+// ======================================================
 
 function render() {
 
@@ -148,11 +143,15 @@ function render() {
   $("orders").innerHTML =
     list.length
       ? list.map(cardHtml).join("")
-      : '<div class="empty">No orders in this list.</div>';
+      : `<div class="empty">No orders in this list.</div>`;
 
   bindCardActions();
 }
 
+
+// ======================================================
+// ORDER CARD
+// ======================================================
 
 function cardHtml(o) {
 
@@ -166,179 +165,171 @@ function cardHtml(o) {
     o.status === "ready";
 
   return `
-  <div class="order-card">
+    <div class="order-card">
 
-    <div class="order-top">
+      <div class="order-top">
 
-      <div>
+        <div>
 
-        <div class="order-no">
-          ${esc(o.orderNo || "--")}
+          <div class="order-no">
+            ${esc(o.orderNo || "--")}
+          </div>
+
+          <div style="font-size:13px;margin-top:4px">
+            ${esc(o.customerName || "")}
+            ·
+            ${esc(o.customerPhone || "")}
+          </div>
+
         </div>
 
-        <div style="font-size:13px;margin-top:4px">
-          ${esc(o.customerName || "")}
-          ·
-          ${esc(o.customerPhone || "")}
+        <span class="status ${ready ? "ready" : "progress"}">
+          ${ready ? "Ready" : "In Progress"}
+        </span>
+
+      </div>
+
+      <div class="order-meta">
+
+        <div>
+          <b>Quantity</b>
+          ${Number(o.quantity || o.items?.length || 0)}
+        </div>
+
+        <div>
+          <b>Date Given</b>
+          ${prettyDate(o.dateGiven)}
+        </div>
+
+        <div>
+          <b>Ready Date</b>
+          ${prettyDate(o.readyDate)}
+        </div>
+
+        <div>
+          <b>Created By</b>
+          ${esc(o.createdBy || "--")}
         </div>
 
       </div>
 
-      <span class="status ${ready ? "ready" : "progress"}">
-        ${ready ? "Ready" : "In Progress"}
-      </span>
+      <div class="order-actions">
+
+        <button
+          class="secondary-btn view-pdf"
+          data-id="${o.id}">
+          PDF
+        </button>
+
+        ${
+          canWrite
+            ? `
+              <button
+                class="secondary-btn edit-order"
+                data-id="${o.id}">
+                Edit
+              </button>
+            `
+            : ""
+        }
+
+        ${
+          canWrite && !ready
+            ? `
+              <button
+                class="ready-btn ready-order"
+                data-id="${o.id}">
+                ✓ Mark Ready
+              </button>
+            `
+            : ""
+        }
+
+        ${
+          canWrite && ready
+            ? `
+              <button
+                class="whatsapp-btn whatsapp-order"
+                data-id="${o.id}">
+                WhatsApp
+              </button>
+            `
+            : ""
+        }
+
+        ${
+          canDelete
+            ? `
+              <button
+                class="danger-btn delete-order"
+                data-id="${o.id}">
+                Delete
+              </button>
+            `
+            : ""
+        }
+
+      </div>
 
     </div>
-
-
-    <div class="order-meta">
-
-      <div>
-        <b>Quantity</b>
-        ${Number(
-          o.quantity ||
-          o.items?.length ||
-          0
-        )}
-      </div>
-
-      <div>
-        <b>Date Given</b>
-        ${prettyDate(o.dateGiven)}
-      </div>
-
-      <div>
-        <b>Ready Date</b>
-        ${prettyDate(o.readyDate)}
-      </div>
-
-      <div>
-        <b>Created By</b>
-        ${esc(o.createdBy || "--")}
-      </div>
-
-    </div>
-
-
-    <div class="order-actions">
-
-      <button
-        class="secondary-btn view-pdf"
-        data-id="${o.id}">
-        PDF
-      </button>
-
-      ${
-        canWrite
-          ? `
-          <button
-            class="secondary-btn edit-order"
-            data-id="${o.id}">
-            Edit
-          </button>
-          `
-          : ""
-      }
-
-      ${
-        canWrite && !ready
-          ? `
-          <button
-            class="ready-btn ready-order"
-            data-id="${o.id}">
-            ✓ Mark Ready
-          </button>
-          `
-          : ""
-      }
-
-      ${
-        ready
-          ? `
-          <button
-            class="whatsapp-btn whatsapp-order"
-            data-id="${o.id}">
-            WhatsApp
-          </button>
-          `
-          : ""
-      }
-
-      ${
-        canDelete
-          ? `
-          <button
-            class="danger-btn delete-order"
-            data-id="${o.id}">
-            Delete
-          </button>
-          `
-          : ""
-      }
-
-    </div>
-
-  </div>
   `;
 }
 
+
+// ======================================================
+// CARD ACTIONS
+// ======================================================
 
 function bindCardActions() {
 
   document
     .querySelectorAll(".edit-order")
-    .forEach(b =>
-      b.onclick =
-        () => openEdit(b.dataset.id)
-    );
-
+    .forEach(b => {
+      b.onclick = () =>
+        openEdit(b.dataset.id);
+    });
 
   document
     .querySelectorAll(".ready-order")
-    .forEach(b =>
-      b.onclick =
-        () => markReady(b.dataset.id)
-    );
-
+    .forEach(b => {
+      b.onclick = () =>
+        markReady(b.dataset.id);
+    });
 
   document
     .querySelectorAll(".delete-order")
-    .forEach(b =>
-      b.onclick =
-        () => removeOrder(b.dataset.id)
-    );
-
+    .forEach(b => {
+      b.onclick = () =>
+        removeOrder(b.dataset.id);
+    });
 
   document
     .querySelectorAll(".view-pdf")
-    .forEach(b =>
-      b.onclick =
-        () =>
-          generatePdf(
-            orders.find(
-              o => o.id === b.dataset.id
-            )
+    .forEach(b => {
+      b.onclick = () =>
+        generatePdf(
+          orders.find(
+            o => o.id === b.dataset.id
           )
-    );
-
+        );
+    });
 
   document
     .querySelectorAll(".whatsapp-order")
-    .forEach(b =>
-      b.onclick =
-        () =>
-          openWhatsApp(
-            orders.find(
-              o => o.id === b.dataset.id
-            )
+    .forEach(b => {
+      b.onclick = () =>
+        openWhatsApp(
+          orders.find(
+            o => o.id === b.dataset.id
           )
-    );
+        );
+    });
 }
 
 
-/* =====================================================
-   MEASUREMENTS
-===================================================== */
+// ======================================================
+// MEASUREMENTS
+// ======================================================
 
 const measurementTypes = [
 
@@ -380,9 +371,9 @@ const measurementTypes = [
 ];
 
 
-/* =====================================================
-   ALTERATIONS
-===================================================== */
+// ======================================================
+// ALTERATIONS
+// ======================================================
 
 const alterationTypes = [
 
@@ -442,9 +433,9 @@ const alterationTypes = [
 ];
 
 
-/* =====================================================
-   ITEM FORM
-===================================================== */
+// ======================================================
+// ITEM HTML
+// ======================================================
 
 function itemHtml(i, item = {}) {
 
@@ -454,175 +445,172 @@ function itemHtml(i, item = {}) {
   const alts =
     item.alterations || {};
 
-
   return `
-  <div
-    class="item-card"
-    data-index="${i}">
+    <div
+      class="item-card"
+      data-index="${i}">
 
-    <div class="item-title">
-      Jalabiya ${i + 1}
-    </div>
-
-
-    <div class="form-grid">
-
-      <div class="field">
-
-        <label>
-          Code (optional)
-        </label>
-
-        <input
-          class="item-code"
-          value="${esc(item.code || "")}"
-        >
-
+      <div class="item-title">
+        Jalabiya ${i + 1}
       </div>
 
+      <div class="form-grid">
 
-      <div class="field">
-
-        <label>
-          Color (optional)
-        </label>
-
-        <input
-          class="item-color"
-          value="${esc(item.color || "")}"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="mini-section-title">
-      Measurements — inch
-      (fill only what is needed)
-    </div>
-
-
-    <div class="measurement-grid">
-
-      ${measurementTypes.map(m => `
-
-        <div class="measurement-field">
-
+        <div class="field">
           <label>
-            ${m.label}
+            Code (optional)
           </label>
 
-          <div class="inch-wrap">
-
-            <input
-              type="number"
-              min="0"
-              step="0.25"
-              class="measurement-value"
-              data-key="${m.key}"
-              value="${esc(
-                measurements[m.key] ?? ""
-              )}"
-              placeholder="—"
-            >
-
-          </div>
-
+          <input
+            class="item-code"
+            value="${esc(item.code || "")}"
+          >
         </div>
 
-      `).join("")}
-
-    </div>
-
-
-    <div class="mini-section-title">
-      Alterations — select only
-      what needs changing
-    </div>
-
-
-    ${alterationTypes.map(t => {
-
-      const a =
-        alts[t.key] || {};
-
-      return `
-
-      <div class="alt-row">
-
-        <input
-          type="checkbox"
-          class="alt-check"
-          data-key="${t.key}"
-          ${a.selected ? "checked" : ""}
-        >
-
-
-        <strong>
-          ${t.label}
-        </strong>
-
-
-        <select
-          class="alt-action"
-          data-key="${t.key}"
-          ${a.selected ? "" : "disabled"}
-        >
-
-          ${t.actions.map(x => `
-
-            <option
-              ${a.action === x ? "selected" : ""}>
-              ${x}
-            </option>
-
-          `).join("")}
-
-        </select>
-
-
-        <div class="inch-wrap">
+        <div class="field">
+          <label>
+            Color (optional)
+          </label>
 
           <input
-            type="number"
-            min="0"
-            step="0.25"
-            class="alt-value"
-            data-key="${t.key}"
-            value="${esc(a.value ?? "")}"
-            placeholder="Inch"
-            ${a.selected ? "" : "disabled"}
+            class="item-color"
+            value="${esc(item.color || "")}"
           >
-
         </div>
 
       </div>
 
-      `;
+      <div class="mini-section-title">
+        Measurements — inch
+        (fill only what is needed)
+      </div>
 
-    }).join("")}
+      <div class="measurement-grid">
 
+        ${
+          measurementTypes
+            .map(m => `
+              <div class="measurement-field">
 
-    <div
-      class="field"
-      style="margin-top:10px">
+                <label>
+                  ${m.label}
+                </label>
 
-      <label>
-        Notes for this Jalabiya
-        (optional)
-      </label>
+                <div class="inch-wrap">
 
-      <textarea
-        class="item-notes"
-        rows="2">${esc(item.notes || "")}</textarea>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.25"
+                    class="measurement-value"
+                    data-key="${m.key}"
+                    value="${esc(
+                      measurements[m.key] ?? ""
+                    )}"
+                    placeholder="—"
+                  >
+
+                </div>
+
+              </div>
+            `)
+            .join("")
+        }
+
+      </div>
+
+      <div class="mini-section-title">
+        Alterations —
+        select only what needs changing
+      </div>
+
+      ${
+        alterationTypes
+          .map(t => {
+
+            const a =
+              alts[t.key] || {};
+
+            return `
+              <div class="alt-row">
+
+                <input
+                  type="checkbox"
+                  class="alt-check"
+                  data-key="${t.key}"
+                  ${a.selected ? "checked" : ""}
+                >
+
+                <strong>
+                  ${t.label}
+                </strong>
+
+                <select
+                  class="alt-action"
+                  data-key="${t.key}"
+                  ${a.selected ? "" : "disabled"}
+                >
+
+                  ${
+                    t.actions
+                      .map(x => `
+                        <option
+                          ${a.action === x ? "selected" : ""}>
+                          ${x}
+                        </option>
+                      `)
+                      .join("")
+                  }
+
+                </select>
+
+                <div class="inch-wrap">
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.25"
+                    class="alt-value"
+                    data-key="${t.key}"
+                    value="${esc(
+                      a.value ?? ""
+                    )}"
+                    placeholder="Inch"
+                    ${a.selected ? "" : "disabled"}
+                  >
+
+                </div>
+
+              </div>
+            `;
+
+          })
+          .join("")
+      }
+
+      <div
+        class="field"
+        style="margin-top:10px">
+
+        <label>
+          Notes for this Jalabiya
+          (optional)
+        </label>
+
+        <textarea
+          class="item-notes"
+          rows="2">${esc(item.notes || "")}</textarea>
+
+      </div>
 
     </div>
-
-  </div>
   `;
 }
 
+
+// ======================================================
+// RENDER ITEMS
+// ======================================================
 
 function renderItems(items = []) {
 
@@ -637,8 +625,8 @@ function renderItems(items = []) {
       )
     );
 
-  $("quantity").value = qty;
-
+  $("quantity").value =
+    qty;
 
   $("itemsContainer").innerHTML =
     Array.from(
@@ -649,7 +637,6 @@ function renderItems(items = []) {
           items[i] || {}
         )
     ).join("");
-
 
   document
     .querySelectorAll(".alt-check")
@@ -670,7 +657,6 @@ function renderItems(items = []) {
           .disabled =
             !ch.checked;
 
-
         if (!ch.checked) {
 
           row
@@ -685,9 +671,9 @@ function renderItems(items = []) {
 }
 
 
-/* =====================================================
-   COLLECT ITEMS
-===================================================== */
+// ======================================================
+// COLLECT ITEMS
+// ======================================================
 
 function collectItems() {
 
@@ -699,62 +685,60 @@ function collectItems() {
 
     const measurements = {};
 
+    measurementTypes
+      .forEach(m => {
 
-    measurementTypes.forEach(m => {
+        const input =
+          card.querySelector(
+            `.measurement-value[data-key="${m.key}"]`
+          );
 
-      const input =
-        card.querySelector(
-          `.measurement-value[data-key="${m.key}"]`
-        );
+        const v =
+          input
+            ? input.value.trim()
+            : "";
 
-      const v =
-        input
-          ? input.value.trim()
-          : "";
+        if (v !== "") {
+          measurements[m.key] = v;
+        }
 
-
-      if (v !== "") {
-
-        measurements[m.key] = v;
-
-      }
-
-    });
-
+      });
 
     const alterations = {};
 
+    alterationTypes
+      .forEach(t => {
 
-    alterationTypes.forEach(t => {
+        const c =
+          card.querySelector(
+            `.alt-check[data-key="${t.key}"]`
+          );
 
-      const c =
-        card.querySelector(
-          `.alt-check[data-key="${t.key}"]`
-        );
+        if (c?.checked) {
 
+          alterations[t.key] = {
 
-      if (c?.checked) {
+            selected: true,
 
-        alterations[t.key] = {
+            action:
+              card
+                .querySelector(
+                  `.alt-action[data-key="${t.key}"]`
+                )
+                .value,
 
-          selected: true,
+            value:
+              card
+                .querySelector(
+                  `.alt-value[data-key="${t.key}"]`
+                )
+                .value
 
-          action:
-            card.querySelector(
-              `.alt-action[data-key="${t.key}"]`
-            ).value,
+          };
 
-          value:
-            card.querySelector(
-              `.alt-value[data-key="${t.key}"]`
-            ).value
+        }
 
-        };
-
-      }
-
-    });
-
+      });
 
     return {
 
@@ -786,9 +770,9 @@ function collectItems() {
 }
 
 
-/* =====================================================
-   FORM
-===================================================== */
+// ======================================================
+// RESET
+// ======================================================
 
 function resetForm() {
 
@@ -797,26 +781,36 @@ function resetForm() {
   $("modalOrderNo").textContent =
     "New order";
 
-  $("customerName").value = "";
+  $("customerName").value =
+    "";
 
-  $("customerPhone").value = "";
+  $("customerPhone").value =
+    "";
 
   $("dateGiven").value =
     today();
 
-  $("readyDate").value = "";
+  $("readyDate").value =
+    "";
 
-  $("quantity").value = 1;
+  $("quantity").value =
+    1;
 
-  $("referenceNo").value = "";
+  $("referenceNo").value =
+    "";
 
-  $("generalNotes").value = "";
+  $("generalNotes").value =
+    "";
 
   renderItems();
 
   clearSignature();
 }
 
+
+// ======================================================
+// OPEN NEW
+// ======================================================
 
 function openNew() {
 
@@ -832,75 +826,63 @@ function openNew() {
 }
 
 
+// ======================================================
+// OPEN EDIT
+// ======================================================
+
 function openEdit(id) {
 
   if (currentRole === "viewer")
     return;
-
 
   const o =
     orders.find(
       x => x.id === id
     );
 
-
   if (!o)
     return;
 
-
-  editingId = id;
-
+  editingId =
+    id;
 
   $("modalOrderNo").textContent =
     o.orderNo || "";
 
-
   $("customerName").value =
     o.customerName || "";
-
 
   $("customerPhone").value =
     o.customerPhone || "";
 
-
   $("dateGiven").value =
     o.dateGiven || today();
 
-
   $("readyDate").value =
     o.readyDate || "";
-
 
   $("quantity").value =
     o.quantity ||
     o.items?.length ||
     1;
 
-
   $("referenceNo").value =
     o.referenceNo || "";
 
-
   $("generalNotes").value =
     o.generalNotes || "";
-
 
   renderItems(
     o.items || []
   );
 
-
   clearSignature();
 
-
   if (o.signature) {
-
     drawSignatureData(
       o.signature
     );
-
   }
-
 
   $("orderModal")
     .classList
@@ -908,28 +890,80 @@ function openEdit(id) {
 }
 
 
+// ======================================================
+// CLOSE MODAL
+// ======================================================
+
 function closeModal() {
 
   $("orderModal")
     .classList
     .remove("show");
-
 }
 
+
+// ======================================================
+// SIGNATURE DATA
+// ======================================================
 
 function signatureData() {
 
-  return signatureDirty
-    ? $("signatureCanvas")
-        .toDataURL("image/png")
-    : "";
+  if (!signatureDirty)
+    return "";
 
+  const canvas =
+    $("signatureCanvas");
+
+  /*
+    IMPORTANT:
+    Instead of saving the transparent canvas directly,
+    create a WHITE background image.
+    This prevents the signature from appearing black
+    inside the PDF.
+  */
+
+  const temp =
+    document.createElement(
+      "canvas"
+    );
+
+  temp.width =
+    canvas.width;
+
+  temp.height =
+    canvas.height;
+
+  const tempCtx =
+    temp.getContext(
+      "2d"
+    );
+
+  tempCtx.fillStyle =
+    "#ffffff";
+
+  tempCtx.fillRect(
+    0,
+    0,
+    temp.width,
+    temp.height
+  );
+
+  tempCtx.drawImage(
+    canvas,
+    0,
+    0
+  );
+
+  return temp.toDataURL(
+    "image/jpeg",
+    0.95
+  );
 }
 
 
-/* =====================================================
-   VALIDATE
-===================================================== */
+// ======================================================
+// VALIDATE
+// ======================================================
 
 function validate() {
 
@@ -944,9 +978,7 @@ function validate() {
     );
 
     return false;
-
   }
-
 
   if (
     !$("customerPhone")
@@ -959,13 +991,10 @@ function validate() {
     );
 
     return false;
-
   }
-
 
   const items =
     collectItems();
-
 
   const hasAny =
     items.some(it =>
@@ -982,7 +1011,6 @@ function validate() {
 
     );
 
-
   if (!hasAny) {
 
     alert(
@@ -990,17 +1018,15 @@ function validate() {
     );
 
     return false;
-
   }
-
 
   return true;
 }
 
 
-/* =====================================================
-   BUILD DATA
-===================================================== */
+// ======================================================
+// BUILD DATA
+// ======================================================
 
 function buildData(existing = {}) {
 
@@ -1079,18 +1105,18 @@ function buildData(existing = {}) {
 }
 
 
-/* =====================================================
-   SAVE
-===================================================== */
+// ======================================================
+// SAVE ORDER
+// ======================================================
 
 async function saveOrder(generate = false) {
 
   if (
     currentRole === "viewer" ||
     !validate()
-  )
+  ) {
     return null;
-
+  }
 
   $("saveOrderBtn").disabled =
     true;
@@ -1098,12 +1124,10 @@ async function saveOrder(generate = false) {
   $("savePdfBtn").disabled =
     true;
 
-
   try {
 
     let data;
     let id;
-
 
     if (editingId) {
 
@@ -1112,10 +1136,8 @@ async function saveOrder(generate = false) {
           x => x.id === editingId
         ) || {};
 
-
       data =
         buildData(existing);
-
 
       await updateDoc(
 
@@ -1129,18 +1151,16 @@ async function saveOrder(generate = false) {
 
       );
 
-
-      id = editingId;
+      id =
+        editingId;
 
     } else {
 
       data =
         buildData();
 
-
       data.createdAt =
         serverTimestamp();
-
 
       const ref =
         await addDoc(
@@ -1154,16 +1174,14 @@ async function saveOrder(generate = false) {
 
         );
 
+      id =
+        ref.id;
 
-      id = ref.id;
-
-      editingId = id;
-
+      editingId =
+        id;
     }
 
-
     await loadOrders();
-
 
     const saved =
       orders.find(
@@ -1174,7 +1192,6 @@ async function saveOrder(generate = false) {
         ...data
       };
 
-
     if (generate) {
 
       await generatePdf(
@@ -1183,9 +1200,7 @@ async function saveOrder(generate = false) {
 
     }
 
-
     closeModal();
-
 
     return saved;
 
@@ -1207,14 +1222,13 @@ async function saveOrder(generate = false) {
 
     $("savePdfBtn").disabled =
       false;
-
   }
 }
 
 
-/* =====================================================
-   READY
-===================================================== */
+// ======================================================
+// MARK READY
+// ======================================================
 
 async function markReady(id) {
 
@@ -1223,14 +1237,12 @@ async function markReady(id) {
   )
     return;
 
-
   if (
     !confirm(
       "Move this order to Ready Orders?"
     )
   )
     return;
-
 
   try {
 
@@ -1244,11 +1256,11 @@ async function markReady(id) {
 
       {
 
-        status: "ready",
+        status:
+          "ready",
 
         readyAtLocal:
-          new Date()
-            .toISOString(),
+          new Date().toISOString(),
 
         readyBy:
           currentUsername ||
@@ -1261,12 +1273,10 @@ async function markReady(id) {
 
     );
 
-
     await loadOrders();
 
-
-    filter = "ready";
-
+    filter =
+      "ready";
 
     document
       .querySelectorAll(".tab")
@@ -1277,21 +1287,18 @@ async function markReady(id) {
           "active",
 
           x.dataset.filter ===
-          "ready"
+            "ready"
 
         )
 
       );
 
-
     render();
-
 
     const o =
       orders.find(
         x => x.id === id
       );
-
 
     if (
       o &&
@@ -1301,7 +1308,6 @@ async function markReady(id) {
     ) {
 
       openWhatsApp(o);
-
     }
 
   } catch (e) {
@@ -1310,14 +1316,13 @@ async function markReady(id) {
       "Could not update status: " +
       e.message
     );
-
   }
 }
 
 
-/* =====================================================
-   DELETE
-===================================================== */
+// ======================================================
+// DELETE
+// ======================================================
 
 async function removeOrder(id) {
 
@@ -1326,14 +1331,12 @@ async function removeOrder(id) {
   )
     return;
 
-
   if (
     !confirm(
       "Delete this tailoring order?"
     )
   )
     return;
-
 
   try {
 
@@ -1347,7 +1350,6 @@ async function removeOrder(id) {
 
     );
 
-
     await loadOrders();
 
   } catch (e) {
@@ -1356,69 +1358,66 @@ async function removeOrder(id) {
       "Could not delete: " +
       e.message
     );
-
   }
 }
 
 
-/* =====================================================
-   WHATSAPP
-===================================================== */
+// ======================================================
+// PHONE
+// ======================================================
 
 function normalizePhone(phone) {
 
   let p =
-    String(phone || "")
-      .replace(/\D/g, "");
-
+    String(
+      phone || ""
+    )
+    .replace(
+      /\D/g,
+      ""
+    );
 
   if (
     p.startsWith("00")
   ) {
-
     p =
       p.slice(2);
-
   }
-
 
   if (
     p.startsWith("0")
   ) {
-
     p =
       "971" +
       p.slice(1);
-
   }
-
 
   if (
     !p.startsWith("971") &&
     p.length === 9
   ) {
-
     p =
-      "971" + p;
-
+      "971" +
+      p;
   }
-
 
   return p;
 }
 
+
+// ======================================================
+// WHATSAPP
+// ======================================================
 
 function openWhatsApp(o) {
 
   if (!o)
     return;
 
-
   const phone =
     normalizePhone(
       o.customerPhone
     );
-
 
   if (!phone) {
 
@@ -1427,9 +1426,7 @@ function openWhatsApp(o) {
     );
 
     return;
-
   }
-
 
   const message =
 `مرحباً ✨
@@ -1442,42 +1439,34 @@ function openWhatsApp(o) {
 ALHUDU
 Abu Dhabi – Shamkhah`;
 
-
   window.open(
 
     `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
 
     "_blank"
-
   );
 }
 
 
-/* =====================================================
-   PDF HELPERS
-===================================================== */
+// ======================================================
+// PDF ROWS
+// ======================================================
 
 function measurementLines(item) {
 
-  return measurementTypes.flatMap(
-    m => {
+  return measurementTypes
+    .flatMap(m => {
 
       const v =
-        item.measurements?.[
-          m.key
-        ];
-
+        item.measurements?.[m.key];
 
       if (
         v === undefined ||
         v === null ||
         String(v).trim() === ""
       ) {
-
         return [];
-
       }
-
 
       return [{
 
@@ -1489,36 +1478,21 @@ function measurementLines(item) {
 
       }];
 
-    }
-  );
+    });
 }
 
 
-/*
-  IMPORTANT:
-  This uses alterationTypes.
-  There is NO altTypes variable.
-*/
-
 function alterationLines(item) {
 
-  return alterationTypes.flatMap(
-    t => {
+  return alterationTypes
+    .flatMap(t => {
 
       const a =
-        item.alterations?.[
-          t.key
-        ];
+        item.alterations?.[t.key];
 
-
-      if (
-        !a?.selected
-      ) {
-
+      if (!a?.selected) {
         return [];
-
       }
-
 
       const val =
         a.value !== undefined &&
@@ -1528,7 +1502,6 @@ function alterationLines(item) {
           ? `${a.value}"`
 
           : "";
-
 
       return [{
 
@@ -1540,10 +1513,13 @@ function alterationLines(item) {
 
       }];
 
-    }
-  );
+    });
 }
 
+
+// ======================================================
+// IMAGE LOADER
+// ======================================================
 
 async function imageToDataUrl(src) {
 
@@ -1553,23 +1529,19 @@ async function imageToDataUrl(src) {
       await fetch(
         src,
         {
-          cache: "no-store"
+          cache:
+            "no-store"
         }
       );
 
-
     if (!res.ok) {
-
       throw new Error(
         `Image HTTP ${res.status}`
       );
-
     }
-
 
     const blob =
       await res.blob();
-
 
     return await new Promise(
       (resolve, reject) => {
@@ -1577,22 +1549,18 @@ async function imageToDataUrl(src) {
         const fr =
           new FileReader();
 
-
         fr.onload =
           () =>
             resolve(
               fr.result
             );
 
-
         fr.onerror =
           reject;
-
 
         fr.readAsDataURL(
           blob
         );
-
       }
     );
 
@@ -1604,7 +1572,6 @@ async function imageToDataUrl(src) {
     );
 
     return "";
-
   }
 }
 
@@ -1612,7 +1579,8 @@ async function imageToDataUrl(src) {
 function safeName(v) {
 
   return String(
-    v || "customer"
+    v ||
+    "customer"
   )
 
     .replace(
@@ -1625,23 +1593,23 @@ function safeName(v) {
       ""
     )
 
-    || "customer";
+    ||
+
+    "customer";
 }
 
 
-/* =====================================================
-   PDF
-===================================================== */
+// ======================================================
+// PDF
+// ======================================================
 
 async function generatePdf(o) {
 
   if (!o)
     return;
 
-
   const jsPDFCtor =
     window.jspdf?.jsPDF;
-
 
   if (!jsPDFCtor) {
 
@@ -1650,9 +1618,7 @@ async function generatePdf(o) {
     );
 
     return;
-
   }
-
 
   try {
 
@@ -1673,47 +1639,45 @@ async function generatePdf(o) {
 
       });
 
+    const left =
+      18;
 
-    const left = 14;
+    const right =
+      192;
 
-    const right = 196;
-
-    const contentW = 182;
-
+    const contentW =
+      174;
 
     const brown =
       [111, 80, 55];
 
-    const light =
+    const cream =
       [247, 241, 233];
 
+    const softCream =
+      [252, 249, 245];
+
     const line =
-      [222, 207, 188];
+      [225, 211, 194];
 
     const dark =
-      [55, 43, 34];
+      [57, 44, 35];
 
     const muted =
       [139, 116, 92];
 
-
-    let y = 12;
+    let y =
+      12;
 
 
     const writeText = (
 
       value,
-
       x,
-
       yy,
-
       size = 10,
-
       style = "normal",
-
       color = dark,
-
       options = {}
 
     ) => {
@@ -1732,83 +1696,62 @@ async function generatePdf(o) {
       );
 
       pdf.text(
-
         String(
           value ?? ""
         ),
-
         x,
-
         yy,
-
         options
-
       );
-
     };
 
 
-    const drawPageHeader =
-      (withLogo = true) => {
-
+    const drawHeader =
+      (showLogo = true) => {
 
         pdf.setFillColor(
-          ...light
+          ...cream
         );
 
-
         pdf.roundedRect(
-
           left,
-
-          8,
-
+          9,
           contentW,
-
-          24,
-
+          25,
           3,
-
           3,
-
           "F"
-
         );
 
 
         if (
-          withLogo &&
+          showLogo &&
           window.__alhuduLogo
         ) {
 
           try {
 
-            const logoFormat =
+            const format =
               String(
                 window.__alhuduLogo
               ).startsWith(
                 "data:image/png"
               )
-
                 ? "PNG"
-
                 : "JPEG";
 
+            /*
+              New logo is vertical.
+              Keep the original ratio so it is not stretched.
+            */
 
             pdf.addImage(
-
               window.__alhuduLogo,
-
-              logoFormat,
-
-              17,
-
-              10,
-
-              20,
-
+              format,
+              21,
+              11,
+              15,
               20
-
             );
 
           } catch (e) {
@@ -1817,79 +1760,51 @@ async function generatePdf(o) {
               "Logo add failed",
               e
             );
-
           }
-
         }
 
 
         writeText(
-
           "ALHUDU",
-
-          withLogo
-            ? 42
-            : 18,
-
-          18,
-
-          18,
-
+          showLogo ? 42 : 22,
+          19,
+          17,
           "bold",
-
           brown
-
         );
 
 
         writeText(
-
           "TAILORING ORDER",
-
-          withLogo
-            ? 42
-            : 18,
-
-          24,
-
-          8,
-
+          showLogo ? 42 : 22,
+          25,
+          7.5,
           "normal",
-
           muted
-
         );
 
 
         writeText(
-
-          "Abu Dhabi - Shamkhah",
-
-          right - 3,
-
-          24,
-
-          8,
-
+          "Abu Dhabi · Shamkhah",
+          right - 4,
+          25,
+          7.5,
           "normal",
-
           muted,
-
           {
-            align: "right"
+            align:
+              "right"
           }
-
         );
 
 
-        y = 38;
-
+        y =
+          40;
       };
 
 
     const ensureSpace =
       (need = 20) => {
-
 
         if (
           y + need >
@@ -1898,84 +1813,80 @@ async function generatePdf(o) {
 
           pdf.addPage();
 
-          drawPageHeader(
+          drawHeader(
             false
           );
-
         }
-
       };
 
 
+    // ==================================================
+    // LOAD NEW LOGO
+    // ==================================================
+
     window.__alhuduLogo =
-
-      window.__alhuduLogo ||
-
-      await imageToDataUrl(
-        "alhudu-logo-small.jpg"
+  window.__alhuduLogo ||
+  await imageToDataUrl(
+    "IMG_9270.png"
       );
 
 
-    drawPageHeader(
+    drawHeader(
       true
     );
 
 
-    /* TITLE */
+    // ==================================================
+    // TITLE
+    // ==================================================
 
     writeText(
-
       "TAILORING FORM",
-
       105,
-
       y,
-
-      15,
-
+      14,
       "bold",
-
       brown,
-
       {
-        align: "center"
+        align:
+          "center"
       }
-
     );
 
+    y +=
+      7;
 
-    y += 8;
 
-
-    /* ORDER INFORMATION */
+    // ==================================================
+    // CUSTOMER INFORMATION
+    // ==================================================
 
     const info = [
 
       [
-        "Order No.",
+        "ORDER NO.",
         o.orderNo || "--"
       ],
 
       [
-        "Date Given",
+        "DATE GIVEN",
         prettyDate(
           o.dateGiven
         )
       ],
 
       [
-        "Customer Name",
+        "CUSTOMER NAME",
         o.customerName || "--"
       ],
 
       [
-        "Phone Number",
+        "PHONE NUMBER",
         o.customerPhone || "--"
       ],
 
       [
-        "Total Jalabiyas",
-
+        "TOTAL JALABIYAS",
         String(
           o.quantity ||
           o.items?.length ||
@@ -1984,8 +1895,7 @@ async function generatePdf(o) {
       ],
 
       [
-        "Ready Date",
-
+        "READY DATE",
         prettyDate(
           o.readyDate
         )
@@ -1997,8 +1907,8 @@ async function generatePdf(o) {
     const cellW =
       contentW / 2;
 
-
-    const rowH = 14;
+    const rowH =
+      12;
 
 
     for (
@@ -2021,180 +1931,114 @@ async function generatePdf(o) {
             r * 2 + c
           ];
 
-
         const x =
           left +
           c * cellW;
 
+        pdf.setFillColor(
+          ...softCream
+        );
 
         pdf.setDrawColor(
           ...line
         );
 
-
-        pdf.setFillColor(
-          255,
-          253,
-          249
-        );
-
-
         pdf.rect(
-
           x,
-
           y,
-
           cellW,
-
           rowH,
-
           "FD"
-
         );
 
-
         writeText(
-
-          label.toUpperCase(),
-
+          label,
           x + 4,
-
-          y + 4.8,
-
-          7,
-
+          y + 4,
+          6.5,
           "normal",
-
           muted
-
         );
-
-
-        const valueLines =
-          pdf.splitTextToSize(
-
-            String(
-              value ?? "--"
-            ),
-
-            cellW - 8
-
-          );
-
 
         writeText(
-
-          valueLines[0] ||
-          "--",
-
+          String(value),
           x + 4,
-
-          y + 10.5,
-
-          10,
-
+          y + 9.2,
+          9,
           "bold",
-
           dark
-
         );
-
       }
 
-
-      y += rowH;
-
+      y +=
+        rowH;
     }
 
 
-    y += 6;
+    y +=
+      5;
 
 
-    /* REFERENCE NUMBER */
+    // ==================================================
+    // REFERENCE NUMBER
+    // ==================================================
 
     if (
       o.referenceNo
     ) {
 
-      ensureSpace(14);
-
-
-      pdf.setFillColor(
-        255,
-        250,
-        244
+      ensureSpace(
+        11
       );
 
+      pdf.setFillColor(
+        ...softCream
+      );
 
       pdf.setDrawColor(
         ...line
       );
 
-
       pdf.roundedRect(
-
         left,
-
         y,
-
         contentW,
-
-        10,
-
-        2,
-
-        2,
-
-        "FD"
-
-      );
-
-
-      writeText(
-
-        "REFERENCE NO.",
-
-        left + 4,
-
-        y + 6.5,
-
-        8,
-
-        "bold",
-
-        muted
-
-      );
-
-
-      writeText(
-
-        o.referenceNo,
-
-        right - 4,
-
-        y + 6.5,
-
         9,
-
-        "bold",
-
-        brown,
-
-        {
-          align: "right"
-        }
-
+        2,
+        2,
+        "FD"
       );
 
+      writeText(
+        "REFERENCE NO.",
+        left + 4,
+        y + 5.8,
+        7,
+        "bold",
+        muted
+      );
 
-      y += 15;
+      writeText(
+        o.referenceNo,
+        right - 4,
+        y + 5.8,
+        8.5,
+        "bold",
+        brown,
+        {
+          align:
+            "right"
+        }
+      );
 
+      y +=
+        12;
     }
 
 
-    /* JALABIYAS */
+    // ==================================================
+    // JALABIYAS
+    // ==================================================
 
     const items =
       o.items || [];
@@ -2209,89 +2053,63 @@ async function generatePdf(o) {
       const item =
         items[i];
 
-
       const measurementRows =
         measurementLines(
           item
         );
-
 
       const alterationRows =
         alterationLines(
           item
         );
 
-
       const note =
         String(
-          item.notes || ""
+          item.notes ||
+          ""
         ).trim();
-
 
       const noteLines =
         note
-
           ? pdf.splitTextToSize(
               note,
               contentW - 10
             )
-
           : [];
 
 
       let estimatedHeight =
-        13;
-
+        12;
 
       if (
         measurementRows.length
       ) {
-
         estimatedHeight +=
-          7 +
+          6 +
           measurementRows.length *
-          9;
-
+          7;
       }
-
 
       if (
         alterationRows.length
       ) {
-
         estimatedHeight +=
-          7 +
+          6 +
           alterationRows.length *
-          9;
-
+          7;
       }
-
-
-      if (
-        !measurementRows.length &&
-        !alterationRows.length
-      ) {
-
-        estimatedHeight +=
-          9;
-
-      }
-
 
       if (
         noteLines.length
       ) {
-
         estimatedHeight +=
-          9 +
+          8 +
           noteLines.length *
-          5;
-
+          4.5;
       }
 
-
       estimatedHeight +=
-        6;
+        4;
 
 
       ensureSpace(
@@ -2299,53 +2117,37 @@ async function generatePdf(o) {
       );
 
 
-      /* JALABIYA HEADER */
+      // ================================================
+      // JALABIYA HEADER
+      // ================================================
 
       pdf.setFillColor(
-        243,
-        232,
-        218
+        240,
+        229,
+        215
       );
-
 
       pdf.setDrawColor(
         ...line
       );
 
-
       pdf.roundedRect(
-
         left,
-
         y,
-
         contentW,
-
-        10,
-
+        9,
         2,
-
         2,
-
         "FD"
-
       );
 
-
       writeText(
-
         `Jalabiya ${i + 1}`,
-
         left + 4,
-
-        y + 6.5,
-
-        10,
-
+        y + 5.8,
+        9,
         "bold",
-
         brown
-
       );
 
 
@@ -2360,371 +2162,244 @@ async function generatePdf(o) {
           : ""
 
       ]
-
         .filter(Boolean)
-
         .join(
           "   |   "
         );
 
 
-      if (meta) {
+      if (
+        meta
+      ) {
 
         writeText(
-
           meta,
-
           right - 4,
-
-          y + 6.5,
-
-          8,
-
+          y + 5.8,
+          7.5,
           "normal",
-
           muted,
-
           {
-            align: "right"
+            align:
+              "right"
           }
-
         );
-
       }
 
 
-      y += 12;
+      y +=
+        11;
 
 
-      /* MEASUREMENTS */
+      // ================================================
+      // MEASUREMENTS
+      // ================================================
 
       if (
         measurementRows.length
       ) {
 
         writeText(
-
           "MEASUREMENTS",
-
           left + 4,
-
-          y + 4,
-
-          7.5,
-
+          y + 3.5,
+          7,
           "bold",
-
           muted
-
         );
 
-
-        y += 6;
+        y +=
+          5;
 
 
         for (
-          const row
-          of measurementRows
+          const row of measurementRows
         ) {
 
-          ensureSpace(10);
-
-
           pdf.setDrawColor(
-            238,
-            228,
-            216
+            239,
+            230,
+            220
           );
-
 
           pdf.line(
-
             left + 3,
-
-            y + 9,
-
+            y + 7,
             right - 3,
-
-            y + 9
-
+            y + 7
           );
 
-
           writeText(
-
             row.label,
-
             left + 4,
-
-            y + 6,
-
-            9,
-
+            y + 4.8,
+            8.5,
             "bold",
-
             dark
-
           );
-
 
           writeText(
-
             row.value,
-
             right - 4,
-
-            y + 6,
-
-            9,
-
+            y + 4.8,
+            8.5,
             "bold",
-
             brown,
-
             {
-              align: "right"
+              align:
+                "right"
             }
-
           );
 
-
-          y += 9;
-
+          y +=
+            7;
         }
 
-
-        y += 3;
-
+        y +=
+          2;
       }
 
 
-      /* ALTERATIONS */
+      // ================================================
+      // ALTERATIONS
+      // ================================================
 
       if (
         alterationRows.length
       ) {
 
         writeText(
-
           "ALTERATIONS",
-
           left + 4,
-
-          y + 4,
-
-          7.5,
-
+          y + 3.5,
+          7,
           "bold",
-
           muted
-
         );
 
-
-        y += 6;
+        y +=
+          5;
 
 
         for (
-          const row
-          of alterationRows
+          const row of alterationRows
         ) {
 
-          ensureSpace(10);
-
-
           pdf.setDrawColor(
-            238,
-            228,
-            216
+            239,
+            230,
+            220
           );
-
 
           pdf.line(
-
             left + 3,
-
-            y + 9,
-
+            y + 7,
             right - 3,
-
-            y + 9
-
+            y + 7
           );
 
-
           writeText(
-
             row.label,
-
             left + 4,
-
-            y + 6,
-
-            9,
-
+            y + 4.8,
+            8.5,
             "bold",
-
             dark
-
           );
-
 
           writeText(
-
             row.value,
-
             right - 4,
-
-            y + 6,
-
-            9,
-
+            y + 4.8,
+            8.5,
             "bold",
-
             brown,
-
             {
-              align: "right"
+              align:
+                "right"
             }
-
           );
 
-
-          y += 9;
-
+          y +=
+            7;
         }
 
-
-        y += 3;
-
+        y +=
+          2;
       }
 
 
-      if (
-        !measurementRows.length &&
-        !alterationRows.length
-      ) {
-
-        writeText(
-
-          "No measurement or alteration entered",
-
-          left + 4,
-
-          y + 6,
-
-          9,
-
-          "normal",
-
-          muted
-
-        );
-
-
-        y += 9;
-
-      }
-
-
-      /* ITEM NOTES */
+      // ================================================
+      // ITEM NOTES
+      // ================================================
 
       if (
         noteLines.length
       ) {
 
-        ensureSpace(
-          10 +
+        const boxH =
+          7 +
           noteLines.length *
-          5
-        );
-
-
-        const noteBoxH =
-          8 +
-          noteLines.length *
-          5;
-
+          4.5;
 
         pdf.setFillColor(
-          255,
-          250,
+          253,
+          249,
           244
         );
 
-
-        pdf.rect(
-
+        pdf.roundedRect(
           left,
-
           y,
-
           contentW,
-
-          noteBoxH,
-
+          boxH,
+          1.5,
+          1.5,
           "F"
-
         );
-
 
         writeText(
-
           "NOTES",
-
           left + 4,
-
-          y + 5,
-
-          8,
-
+          y + 4.5,
+          7,
           "bold",
-
           brown
-
         );
-
 
         pdf.setFont(
           "helvetica",
           "normal"
         );
 
-
         pdf.setFontSize(
-          8.5
+          8
         );
-
 
         pdf.setTextColor(
           ...dark
         );
 
-
         pdf.text(
-
           noteLines,
-
           left + 4,
-
-          y + 11
-
+          y + 9
         );
 
-
         y +=
-          noteBoxH +
+          boxH +
           2;
-
       }
 
 
-      y += 5;
-
+      y +=
+        3;
     }
 
 
-    /* GENERAL NOTES */
+    // ==================================================
+    // GENERAL NOTES
+    // ==================================================
 
     if (
       o.generalNotes
@@ -2732,132 +2407,91 @@ async function generatePdf(o) {
 
       const generalLines =
         pdf.splitTextToSize(
-
           String(
             o.generalNotes
           ),
-
           contentW - 10
-
         );
 
+      const boxH =
+        8 +
+        generalLines.length *
+        4.5;
 
       ensureSpace(
-
-        14 +
-        generalLines.length *
+        boxH +
         5
-
       );
-
-
-      const boxH =
-        11 +
-        generalLines.length *
-        5;
-
 
       pdf.setFillColor(
-        255,
-        250,
+        253,
+        249,
         244
       );
-
 
       pdf.setDrawColor(
         ...line
       );
 
-
       pdf.roundedRect(
-
         left,
-
         y,
-
         contentW,
-
         boxH,
-
         2,
-
         2,
-
         "FD"
-
       );
-
 
       writeText(
-
         "GENERAL NOTES",
-
         left + 4,
-
-        y + 5,
-
-        8,
-
+        y + 4.8,
+        7,
         "bold",
-
         brown
-
       );
-
 
       pdf.setFont(
         "helvetica",
         "normal"
       );
 
-
       pdf.setFontSize(
-        8.5
+        8
       );
-
 
       pdf.setTextColor(
         ...dark
       );
 
-
       pdf.text(
-
         generalLines,
-
         left + 4,
-
-        y + 11
-
+        y + 9
       );
-
 
       y +=
         boxH +
-        5;
-
+        4;
     }
 
 
-    /* CUSTOMER SIGNATURE */
+    // ==================================================
+    // SIGNATURE
+    // ==================================================
 
-    ensureSpace(42);
-
+    ensureSpace(
+      32
+    );
 
     writeText(
-
       "Customer Signature",
-
       left,
-
-      y + 6,
-
-      9,
-
+      y + 5,
+      8,
       "bold",
-
       brown
-
     );
 
 
@@ -2867,32 +2501,44 @@ async function generatePdf(o) {
 
       try {
 
+        /*
+          First paint a white rectangle.
+          This also fixes older transparent PNG
+          signatures already saved in Firestore.
+        */
+
+        pdf.setFillColor(
+          255,
+          255,
+          255
+        );
+
+        pdf.rect(
+          left,
+          y + 7,
+          54,
+          18,
+          "F"
+        );
+
+
         const sigFormat =
           String(
             o.signature
           ).startsWith(
             "data:image/png"
           )
-
             ? "PNG"
-
             : "JPEG";
 
 
         pdf.addImage(
-
           o.signature,
-
           sigFormat,
-
           left,
-
-          y + 9,
-
-          55,
-
-          20
-
+          y + 7,
+          54,
+          18
         );
 
       } catch (e) {
@@ -2902,24 +2548,16 @@ async function generatePdf(o) {
           e
         );
 
-
         pdf.setDrawColor(
           ...muted
         );
 
-
         pdf.line(
-
           left,
-
-          y + 29,
-
-          left + 58,
-
-          y + 29
-
+          y + 24,
+          left + 55,
+          y + 24
         );
-
       }
 
     } else {
@@ -2928,31 +2566,26 @@ async function generatePdf(o) {
         ...muted
       );
 
-
       pdf.line(
-
         left,
-
-        y + 29,
-
-        left + 58,
-
-        y + 29
-
+        y + 24,
+        left + 55,
+        y + 24
       );
-
     }
 
 
-    y += 35;
+    y +=
+      28;
 
 
-    /* FOOTER */
+    // ==================================================
+    // FOOTER DIRECTLY AFTER CONTENT
+    // ==================================================
 
     pdf.setDrawColor(
       ...line
     );
-
 
     pdf.line(
       left,
@@ -2961,50 +2594,39 @@ async function generatePdf(o) {
       y
     );
 
-
-    y += 5;
+    y +=
+      5;
 
 
     writeText(
-
       "ALHUDU",
-
       left,
-
       y,
-
-      9,
-
+      8.5,
       "bold",
-
       brown
-
     );
 
 
     writeText(
-
-      "Abu Dhabi - Shamkhah",
-
+      "Abu Dhabi · Shamkhah",
       right,
-
       y,
-
-      8,
-
+      7.5,
       "normal",
-
       muted,
-
       {
-        align: "right"
+        align:
+          "right"
       }
-
     );
 
+
+    // ==================================================
+    // SAVE
+    // ==================================================
 
     const filename =
-
       `${safeName(
         o.orderNo ||
         "tailoring"
@@ -3024,61 +2646,46 @@ async function generatePdf(o) {
     ) {
 
       console.warn(
-
-        "Direct save failed, using blob fallback",
-
+        "Direct save failed",
         saveErr
-
       );
-
 
       const blob =
         pdf.output(
           "blob"
         );
 
-
       const url =
         URL.createObjectURL(
           blob
         );
-
 
       const a =
         document.createElement(
           "a"
         );
 
-
       a.href =
         url;
-
 
       a.download =
         filename;
 
-
-      document.body
-        .appendChild(a);
-
+      document.body.appendChild(
+        a
+      );
 
       a.click();
 
-
       a.remove();
 
-
       setTimeout(
-
         () =>
           URL.revokeObjectURL(
             url
           ),
-
         15000
-
       );
-
     }
 
   } catch (e) {
@@ -3088,27 +2695,25 @@ async function generatePdf(o) {
       e
     );
 
-
     alert(
-
       "PDF could not be generated: " +
       (e.message || e)
-
     );
-
   }
 }
 
 
-/* =====================================================
-   SIGNATURE
-===================================================== */
+// ======================================================
+// SIGNATURE CANVAS
+// ======================================================
 
 const canvas =
   $("signatureCanvas");
 
 const ctx =
-  canvas.getContext("2d");
+  canvas.getContext(
+    "2d"
+  );
 
 let drawing =
   false;
@@ -3119,11 +2724,9 @@ function pos(e) {
   const r =
     canvas.getBoundingClientRect();
 
-
   const t =
     e.touches?.[0] ||
     e;
-
 
   return {
 
@@ -3153,19 +2756,15 @@ function start(e) {
   signatureDirty =
     true;
 
-
   const p =
     pos(e);
 
-
   ctx.beginPath();
-
 
   ctx.moveTo(
     p.x,
     p.y
   );
-
 
   e.preventDefault();
 }
@@ -3176,31 +2775,27 @@ function move(e) {
   if (!drawing)
     return;
 
-
   const p =
     pos(e);
-
 
   ctx.lineWidth =
     2.4;
 
-
   ctx.lineCap =
     "round";
 
+  ctx.lineJoin =
+    "round";
 
   ctx.strokeStyle =
     "#4b3728";
-
 
   ctx.lineTo(
     p.x,
     p.y
   );
 
-
   ctx.stroke();
-
 
   e.preventDefault();
 }
@@ -3210,7 +2805,6 @@ function end() {
 
   drawing =
     false;
-
 }
 
 
@@ -3219,44 +2813,33 @@ canvas.addEventListener(
   start
 );
 
-
 canvas.addEventListener(
   "mousemove",
   move
 );
-
 
 window.addEventListener(
   "mouseup",
   end
 );
 
-
 canvas.addEventListener(
-
   "touchstart",
-
   start,
-
   {
-    passive: false
+    passive:
+      false
   }
-
 );
-
 
 canvas.addEventListener(
-
   "touchmove",
-
   move,
-
   {
-    passive: false
+    passive:
+      false
   }
-
 );
-
 
 canvas.addEventListener(
   "touchend",
@@ -3267,17 +2850,11 @@ canvas.addEventListener(
 function clearSignature() {
 
   ctx.clearRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
-
 
   signatureDirty =
     false;
@@ -3289,69 +2866,66 @@ function drawSignatureData(src) {
   const img =
     new Image();
 
-
   img.onload =
     () => {
 
-
       ctx.clearRect(
-
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
-
       );
 
+      /*
+        White background before drawing an old signature.
+      */
+
+      ctx.save();
+
+      ctx.fillStyle =
+        "#ffffff";
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
       ctx.drawImage(
-
         img,
-
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
-
       );
 
+      ctx.restore();
 
       signatureDirty =
         true;
-
     };
-
 
   img.src =
     src;
 }
 
 
-/* =====================================================
-   BUTTONS
-===================================================== */
+// ======================================================
+// EVENTS
+// ======================================================
 
 $("newOrderBtn").onclick =
   openNew;
 
-
 $("closeModal").onclick =
   closeModal;
-
 
 $("cancelOrder").onclick =
   closeModal;
 
-
 $("clearSignature").onclick =
   clearSignature;
-
 
 $("quantity").onchange =
   () =>
@@ -3359,16 +2933,17 @@ $("quantity").onchange =
       collectItems()
     );
 
-
 $("saveOrderBtn").onclick =
   () =>
-    saveOrder(false);
-
+    saveOrder(
+      false
+    );
 
 $("savePdfBtn").onclick =
   () =>
-    saveOrder(true);
-
+    saveOrder(
+      true
+    );
 
 $("orderModal")
   .addEventListener(
@@ -3379,14 +2954,15 @@ $("orderModal")
         e.target ===
         $("orderModal")
       ) {
-
         closeModal();
-
       }
-
     }
   );
 
+
+// ======================================================
+// TABS
+// ======================================================
 
 document
   .querySelectorAll(".tab")
@@ -3394,7 +2970,6 @@ document
 
     b.onclick =
       () => {
-
 
         document
           .querySelectorAll(".tab")
@@ -3404,53 +2979,48 @@ document
             )
           );
 
-
         b.classList.add(
           "active"
         );
 
-
         filter =
           b.dataset.filter;
 
-
         render();
-
       };
 
   });
 
+
+// ======================================================
+// LOGOUT
+// ======================================================
 
 $("logoutLink").onclick =
   async e => {
 
     e.preventDefault();
 
-
     await signOut(
       auth
     );
-
 
     localStorage.clear();
 
     sessionStorage.clear();
 
-
     location.href =
       "login.html";
-
   };
 
 
-/* =====================================================
-   LOGIN / AUTH
-===================================================== */
+// ======================================================
+// AUTH
+// ======================================================
 
 onAuthStateChanged(
   auth,
   async user => {
-
 
     if (!user) {
 
@@ -3458,9 +3028,7 @@ onAuthStateChanged(
         "login.html";
 
       return;
-
     }
-
 
     try {
 
@@ -3475,7 +3043,6 @@ onAuthStateChanged(
 
         );
 
-
       if (
         !snap.exists()
       ) {
@@ -3488,45 +3055,48 @@ onAuthStateChanged(
           "login.html";
 
         return;
-
       }
-
 
       const data =
         snap.data();
 
-
       currentRole =
         String(
-          data.role || ""
+          data.role ||
+          ""
         )
-          .trim()
-          .toLowerCase();
-
+        .trim()
+        .toLowerCase();
 
       currentUsername =
         (
           sessionStorage.getItem(
             "alhuduUsername"
-          ) ||
+          )
+
+          ||
 
           localStorage.getItem(
             "username"
-          ) ||
+          )
 
-          data.username ||
+          ||
+
+          data.username
+
+          ||
 
           ""
         )
-          .toLowerCase();
-
+        .toLowerCase();
 
       if (
         ![
           "admin",
           "viewer",
           "tailor"
-        ].includes(
+        ]
+        .includes(
           currentRole
         )
       ) {
@@ -3539,27 +3109,22 @@ onAuthStateChanged(
           "login.html";
 
         return;
-
       }
-
 
       localStorage.setItem(
         "alhuduLogin",
         "true"
       );
 
-
       localStorage.setItem(
         "role",
         currentRole
       );
 
-
       sessionStorage.setItem(
         "alhuduRole",
         currentRole
       );
-
 
       applyRoleUI();
 
@@ -3567,20 +3132,16 @@ onAuthStateChanged(
 
       await loadOrders();
 
-
     } catch (e) {
 
-      console.error(e);
-
-
-      alert(
-
-        "Could not load tailoring: " +
-        (e.message || e)
-
+      console.error(
+        e
       );
 
+      alert(
+        "Could not load tailoring: " +
+        (e.message || e)
+      );
     }
-
   }
 );
