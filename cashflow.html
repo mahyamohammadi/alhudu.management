@@ -7,6 +7,16 @@
 
 <link rel="stylesheet" href="style.css">
 
+
+<script>
+(function(){
+  const r=(sessionStorage.getItem("alhuduRole")||localStorage.getItem("role")||"").toLowerCase();
+  if(r==="tailor" && !location.pathname.endsWith("tailoring.html")){
+    location.replace("tailoring.html");
+  }
+})();
+</script>
+
 </head>
 
 <body>
@@ -24,6 +34,8 @@
 <a href="cashflow.html">💵 Cash Flow</a>
 <a href="reports.html">📊 Reports</a>
 <a href="withdrawals.html">💸 Cash Withdrawal</a>
+<a href="tailoring.html">✂️ Tailoring</a>
+
 <a href="settings.html">⚙️ Settings</a>
 
 </div>

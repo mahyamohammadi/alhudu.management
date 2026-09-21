@@ -1,0 +1,17 @@
+AL HUDU - Tailor Login Setup
+
+The website code now supports username: tailor
+Mapped Firebase Auth email: tailor@alhudu.ae
+Expected Firestore role: tailor
+
+To activate this login in Firebase Console:
+1. Authentication > Users > Add user
+2. Email: tailor@alhudu.ae
+3. Choose the password you want the tailor to use
+4. Copy the new user's UID
+5. Firestore Database > collection: user > create document with Document ID = that UID
+6. Add field: role (string) = tailor
+
+Do not change the existing Mahya or user2 accounts.
+
+Important: Firestore security rules must allow the authenticated tailor role to read/write tailoringOrders, while denying access to accounting collections. The UI redirects tailor away from accounting pages, but real security should also be enforced in Firestore rules.

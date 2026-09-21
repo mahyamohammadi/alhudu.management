@@ -45,7 +45,9 @@ const users = {
 
   mahya: "m.mohammadi.7994@gmail.com",
 
-  user2: "mahyamohammadi115@gmail.com"
+  user2: "mahyamohammadi115@gmail.com",
+
+  tailor: "tailor@alhudu.ae"
 
 };
 
@@ -175,12 +177,13 @@ async function login() {
 
 
     // ========================================
-    // ONLY ADMIN / VIEWER
+    // ALLOWED ROLES
     // ========================================
 
     if (
       role !== "admin" &&
-      role !== "viewer"
+      role !== "viewer" &&
+      role !== "tailor"
     ) {
 
 
@@ -237,11 +240,13 @@ async function login() {
 
 
     // ========================================
-    // OPEN DASHBOARD
+    // OPEN CORRECT HOME
     // ========================================
 
     window.location.href =
-      "dashboard.html";
+      role === "tailor"
+        ? "tailoring.html"
+        : "dashboard.html";
 
 
   } catch (error) {
