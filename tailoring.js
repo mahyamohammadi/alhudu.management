@@ -54,11 +54,28 @@ const prettyDate = v => {
   return `${d}-${m}-${y}`;
 };
 
-function orderNumber() {
-  const d = new Date();
-  const p = n => String(n).padStart(2, "0");
 
-  return `T-${String(d.getFullYear()).slice(-2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+// ======================================================
+// SHORT ORDER NUMBER
+// T-1001, T-1002, T-1003...
+// ======================================================
+
+function orderNumber() {
+  let highest = 1000;
+
+  orders.forEach(order => {
+    const match = String(order.orderNo || "").match(/^T-(\d+)$/i);
+
+    if (match) {
+      const number = Number(match[1]);
+
+      if (number > highest) {
+        highest = number;
+      }
+    }
+  });
+
+  return `T-${highest + 1}`;
 }
 
 
@@ -215,18 +232,14 @@ function cardHtml(o) {
 
       <div class="order-actions">
 
-        <button
-          class="secondary-btn view-pdf"
-          data-id="${o.id}">
+        <button class="secondary-btn view-pdf" data-id="${o.id}">
           PDF
         </button>
 
         ${
           canWrite
             ? `
-              <button
-                class="secondary-btn edit-order"
-                data-id="${o.id}">
+              <button class="secondary-btn edit-order" data-id="${o.id}">
                 Edit
               </button>
             `
@@ -236,9 +249,7 @@ function cardHtml(o) {
         ${
           canWrite && !ready
             ? `
-              <button
-                class="ready-btn ready-order"
-                data-id="${o.id}">
+              <button class="ready-btn ready-order" data-id="${o.id}">
                 ✓ Mark Ready
               </button>
             `
@@ -248,9 +259,7 @@ function cardHtml(o) {
         ${
           canWrite && ready
             ? `
-              <button
-                class="whatsapp-btn whatsapp-order"
-                data-id="${o.id}">
+              <button class="whatsapp-btn whatsapp-order" data-id="${o.id}">
                 WhatsApp
               </button>
             `
@@ -260,9 +269,7 @@ function cardHtml(o) {
         ${
           canDelete
             ? `
-              <button
-                class="danger-btn delete-order"
-                data-id="${o.id}">
+              <button class="danger-btn delete-order" data-id="${o.id}">
                 Delete
               </button>
             `
@@ -308,9 +315,7 @@ function bindCardActions() {
     .forEach(b => {
       b.onclick = () =>
         generatePdf(
-          orders.find(
-            o => o.id === b.dataset.id
-          )
+          orders.find(o => o.id === b.dataset.id)
         );
     });
 
@@ -319,9 +324,7 @@ function bindCardActions() {
     .forEach(b => {
       b.onclick = () =>
         openWhatsApp(
-          orders.find(
-            o => o.id === b.dataset.id
-          )
+          orders.find(o => o.id === b.dataset.id)
         );
     });
 }
@@ -332,42 +335,13 @@ function bindCardActions() {
 // ======================================================
 
 const measurementTypes = [
-
-  {
-    key: "bustChest",
-    label: "BUST / CHEST"
-  },
-
-  {
-    key: "hips",
-    label: "HIPS"
-  },
-
-  {
-    key: "shoulder",
-    label: "SHOULDER"
-  },
-
-  {
-    key: "sleeves",
-    label: "SLEEVES"
-  },
-
-  {
-    key: "armhole",
-    label: "ARMHOLE"
-  },
-
-  {
-    key: "length",
-    label: "LENGTH"
-  },
-
-  {
-    key: "bottomWide",
-    label: "BOTTOM WIDE"
-  }
-
+  { key: "bustChest", label: "BUST / CHEST" },
+  { key: "hips", label: "HIPS" },
+  { key: "shoulder", label: "SHOULDER" },
+  { key: "sleeves", label: "SLEEVES" },
+  { key: "armhole", label: "ARMHOLE" },
+  { key: "length", label: "LENGTH" },
+  { key: "bottomWide", label: "BOTTOM WIDE" }
 ];
 
 
@@ -376,60 +350,36 @@ const measurementTypes = [
 // ======================================================
 
 const alterationTypes = [
-
   {
     key: "length",
     label: "Length",
-    actions: [
-      "Shorter",
-      "Longer"
-    ]
+    actions: ["Shorter", "Longer"]
   },
-
   {
     key: "width",
     label: "Width",
-    actions: [
-      "Narrower",
-      "Wider"
-    ]
+    actions: ["Narrower", "Wider"]
   },
-
   {
     key: "sleeve",
     label: "Sleeve",
-    actions: [
-      "Shorter",
-      "Longer"
-    ]
+    actions: ["Shorter", "Longer"]
   },
-
   {
     key: "shoulder",
     label: "Shoulder",
-    actions: [
-      "Narrower",
-      "Wider"
-    ]
+    actions: ["Narrower", "Wider"]
   },
-
   {
     key: "armhole",
     label: "Armhole",
-    actions: [
-      "Smaller",
-      "Bigger"
-    ]
+    actions: ["Smaller", "Bigger"]
   },
-
   {
     key: "other",
     label: "Other",
-    actions: [
-      "Adjust"
-    ]
+    actions: ["Adjust"]
   }
-
 ];
 
 
@@ -446,9 +396,7 @@ function itemHtml(i, item = {}) {
     item.alterations || {};
 
   return `
-    <div
-      class="item-card"
-      data-index="${i}">
+    <div class="item-card" data-index="${i}">
 
       <div class="item-title">
         Jalabiya ${i + 1}
@@ -457,10 +405,7 @@ function itemHtml(i, item = {}) {
       <div class="form-grid">
 
         <div class="field">
-          <label>
-            Code (optional)
-          </label>
-
+          <label>Code (optional)</label>
           <input
             class="item-code"
             value="${esc(item.code || "")}"
@@ -468,10 +413,7 @@ function itemHtml(i, item = {}) {
         </div>
 
         <div class="field">
-          <label>
-            Color (optional)
-          </label>
-
+          <label>Color (optional)</label>
           <input
             class="item-color"
             value="${esc(item.color || "")}"
@@ -492,24 +434,18 @@ function itemHtml(i, item = {}) {
             .map(m => `
               <div class="measurement-field">
 
-                <label>
-                  ${m.label}
-                </label>
+                <label>${m.label}</label>
 
                 <div class="inch-wrap">
-
                   <input
                     type="number"
                     min="0"
                     step="0.25"
                     class="measurement-value"
                     data-key="${m.key}"
-                    value="${esc(
-                      measurements[m.key] ?? ""
-                    )}"
+                    value="${esc(measurements[m.key] ?? "")}"
                     placeholder="—"
                   >
-
                 </div>
 
               </div>
@@ -554,8 +490,7 @@ function itemHtml(i, item = {}) {
                   ${
                     t.actions
                       .map(x => `
-                        <option
-                          ${a.action === x ? "selected" : ""}>
+                        <option ${a.action === x ? "selected" : ""}>
                           ${x}
                         </option>
                       `)
@@ -572,9 +507,7 @@ function itemHtml(i, item = {}) {
                     step="0.25"
                     class="alt-value"
                     data-key="${t.key}"
-                    value="${esc(
-                      a.value ?? ""
-                    )}"
+                    value="${esc(a.value ?? "")}"
                     placeholder="Inch"
                     ${a.selected ? "" : "disabled"}
                   >
@@ -588,9 +521,7 @@ function itemHtml(i, item = {}) {
           .join("")
       }
 
-      <div
-        class="field"
-        style="margin-top:10px">
+      <div class="field" style="margin-top:10px">
 
         <label>
           Notes for this Jalabiya
@@ -619,9 +550,7 @@ function renderItems(items = []) {
       1,
       Math.min(
         20,
-        Number(
-          $("quantity").value || 1
-        )
+        Number($("quantity").value || 1)
       )
     );
 
@@ -632,10 +561,7 @@ function renderItems(items = []) {
     Array.from(
       { length: qty },
       (_, i) =>
-        itemHtml(
-          i,
-          items[i] || {}
-        )
+        itemHtml(i, items[i] || {})
     ).join("");
 
   document
@@ -647,26 +573,16 @@ function renderItems(items = []) {
         const row =
           ch.closest(".alt-row");
 
-        row
-          .querySelector(".alt-action")
-          .disabled =
-            !ch.checked;
+        row.querySelector(".alt-action").disabled =
+          !ch.checked;
 
-        row
-          .querySelector(".alt-value")
-          .disabled =
-            !ch.checked;
+        row.querySelector(".alt-value").disabled =
+          !ch.checked;
 
         if (!ch.checked) {
-
-          row
-            .querySelector(".alt-value")
-            .value = "";
-
+          row.querySelector(".alt-value").value = "";
         }
-
       };
-
     });
 }
 
@@ -678,67 +594,57 @@ function renderItems(items = []) {
 function collectItems() {
 
   return [
-    ...document.querySelectorAll(
-      ".item-card"
-    )
+    ...document.querySelectorAll(".item-card")
   ].map(card => {
 
     const measurements = {};
 
-    measurementTypes
-      .forEach(m => {
+    measurementTypes.forEach(m => {
 
-        const input =
-          card.querySelector(
-            `.measurement-value[data-key="${m.key}"]`
-          );
+      const input =
+        card.querySelector(
+          `.measurement-value[data-key="${m.key}"]`
+        );
 
-        const v =
-          input
-            ? input.value.trim()
-            : "";
+      const v =
+        input ? input.value.trim() : "";
 
-        if (v !== "") {
-          measurements[m.key] = v;
-        }
-
-      });
+      if (v !== "") {
+        measurements[m.key] = v;
+      }
+    });
 
     const alterations = {};
 
-    alterationTypes
-      .forEach(t => {
+    alterationTypes.forEach(t => {
 
-        const c =
-          card.querySelector(
-            `.alt-check[data-key="${t.key}"]`
-          );
+      const c =
+        card.querySelector(
+          `.alt-check[data-key="${t.key}"]`
+        );
 
-        if (c?.checked) {
+      if (c?.checked) {
 
-          alterations[t.key] = {
+        alterations[t.key] = {
 
-            selected: true,
+          selected: true,
 
-            action:
-              card
-                .querySelector(
-                  `.alt-action[data-key="${t.key}"]`
-                )
-                .value,
+          action:
+            card
+              .querySelector(
+                `.alt-action[data-key="${t.key}"]`
+              )
+              .value,
 
-            value:
-              card
-                .querySelector(
-                  `.alt-value[data-key="${t.key}"]`
-                )
-                .value
-
-          };
-
-        }
-
-      });
+          value:
+            card
+              .querySelector(
+                `.alt-value[data-key="${t.key}"]`
+              )
+              .value
+        };
+      }
+    });
 
     return {
 
@@ -761,11 +667,8 @@ function collectItems() {
           .trim(),
 
       measurements,
-
       alterations
-
     };
-
   });
 }
 
@@ -781,26 +684,13 @@ function resetForm() {
   $("modalOrderNo").textContent =
     "New order";
 
-  $("customerName").value =
-    "";
-
-  $("customerPhone").value =
-    "";
-
-  $("dateGiven").value =
-    today();
-
-  $("readyDate").value =
-    "";
-
-  $("quantity").value =
-    1;
-
-  $("referenceNo").value =
-    "";
-
-  $("generalNotes").value =
-    "";
+  $("customerName").value = "";
+  $("customerPhone").value = "";
+  $("dateGiven").value = today();
+  $("readyDate").value = "";
+  $("quantity").value = 1;
+  $("referenceNo").value = "";
+  $("generalNotes").value = "";
 
   renderItems();
 
@@ -821,7 +711,6 @@ function openNew() {
     $("orderModal")
       .classList
       .add("show");
-
   }
 }
 
@@ -836,15 +725,12 @@ function openEdit(id) {
     return;
 
   const o =
-    orders.find(
-      x => x.id === id
-    );
+    orders.find(x => x.id === id);
 
   if (!o)
     return;
 
-  editingId =
-    id;
+  editingId = id;
 
   $("modalOrderNo").textContent =
     o.orderNo || "";
@@ -872,16 +758,12 @@ function openEdit(id) {
   $("generalNotes").value =
     o.generalNotes || "";
 
-  renderItems(
-    o.items || []
-  );
+  renderItems(o.items || []);
 
   clearSignature();
 
   if (o.signature) {
-    drawSignatureData(
-      o.signature
-    );
+    drawSignatureData(o.signature);
   }
 
   $("orderModal")
@@ -914,18 +796,8 @@ function signatureData() {
   const canvas =
     $("signatureCanvas");
 
-  /*
-    IMPORTANT:
-    Instead of saving the transparent canvas directly,
-    create a WHITE background image.
-    This prevents the signature from appearing black
-    inside the PDF.
-  */
-
   const temp =
-    document.createElement(
-      "canvas"
-    );
+    document.createElement("canvas");
 
   temp.width =
     canvas.width;
@@ -934,9 +806,7 @@ function signatureData() {
     canvas.height;
 
   const tempCtx =
-    temp.getContext(
-      "2d"
-    );
+    temp.getContext("2d");
 
   tempCtx.fillStyle =
     "#ffffff";
@@ -956,7 +826,80 @@ function signatureData() {
 
   return temp.toDataURL(
     "image/jpeg",
-    0.95
+    0.98
+  );
+}
+
+
+// ======================================================
+// CLEAN SIGNATURE FOR PDF
+// Removes black background from OLD transparent PNGs too
+// ======================================================
+
+async function signatureForPdf(src) {
+
+  if (!src)
+    return "";
+
+  return await new Promise(
+    (resolve, reject) => {
+
+      const img =
+        new Image();
+
+      img.onload =
+        () => {
+
+          const temp =
+            document.createElement("canvas");
+
+          temp.width =
+            img.naturalWidth ||
+            img.width ||
+            600;
+
+          temp.height =
+            img.naturalHeight ||
+            img.height ||
+            180;
+
+          const tempCtx =
+            temp.getContext("2d");
+
+          // Normal white PDF background
+          tempCtx.fillStyle =
+            "#ffffff";
+
+          tempCtx.fillRect(
+            0,
+            0,
+            temp.width,
+            temp.height
+          );
+
+          // Signature on top
+          tempCtx.drawImage(
+            img,
+            0,
+            0,
+            temp.width,
+            temp.height
+          );
+
+          resolve(
+            temp.toDataURL(
+              "image/jpeg",
+              0.98
+            )
+          );
+        };
+
+      img.onerror =
+        reject;
+
+      img.src =
+        src;
+    }
   );
 }
 
@@ -973,9 +916,7 @@ function validate() {
       .trim()
   ) {
 
-    alert(
-      "Enter customer name"
-    );
+    alert("Enter customer name");
 
     return false;
   }
@@ -986,9 +927,7 @@ function validate() {
       .trim()
   ) {
 
-    alert(
-      "Enter phone number"
-    );
+    alert("Enter phone number");
 
     return false;
   }
@@ -1008,7 +947,6 @@ function validate() {
       ).length ||
 
       it.notes
-
     );
 
   if (!hasAny) {
@@ -1100,7 +1038,6 @@ function buildData(existing = {}) {
 
     updatedAt:
       serverTimestamp()
-
   };
 }
 
@@ -1118,11 +1055,8 @@ async function saveOrder(generate = false) {
     return null;
   }
 
-  $("saveOrderBtn").disabled =
-    true;
-
-  $("savePdfBtn").disabled =
-    true;
+  $("saveOrderBtn").disabled = true;
+  $("savePdfBtn").disabled = true;
 
   try {
 
@@ -1140,15 +1074,12 @@ async function saveOrder(generate = false) {
         buildData(existing);
 
       await updateDoc(
-
         doc(
           db,
           "tailoringOrders",
           editingId
         ),
-
         data
-
       );
 
       id =
@@ -1164,14 +1095,11 @@ async function saveOrder(generate = false) {
 
       const ref =
         await addDoc(
-
           collection(
             db,
             "tailoringOrders"
           ),
-
           data
-
         );
 
       id =
@@ -1193,11 +1121,7 @@ async function saveOrder(generate = false) {
       };
 
     if (generate) {
-
-      await generatePdf(
-        saved
-      );
-
+      await generatePdf(saved);
     }
 
     closeModal();
@@ -1232,9 +1156,7 @@ async function saveOrder(generate = false) {
 
 async function markReady(id) {
 
-  if (
-    currentRole === "viewer"
-  )
+  if (currentRole === "viewer")
     return;
 
   if (
@@ -1247,13 +1169,11 @@ async function markReady(id) {
   try {
 
     await updateDoc(
-
       doc(
         db,
         "tailoringOrders",
         id
       ),
-
       {
 
         status:
@@ -1268,9 +1188,7 @@ async function markReady(id) {
 
         updatedAt:
           serverTimestamp()
-
       }
-
     );
 
     await loadOrders();
@@ -1281,24 +1199,16 @@ async function markReady(id) {
     document
       .querySelectorAll(".tab")
       .forEach(x =>
-
         x.classList.toggle(
-
           "active",
-
-          x.dataset.filter ===
-            "ready"
-
+          x.dataset.filter === "ready"
         )
-
       );
 
     render();
 
     const o =
-      orders.find(
-        x => x.id === id
-      );
+      orders.find(x => x.id === id);
 
     if (
       o &&
@@ -1326,9 +1236,7 @@ async function markReady(id) {
 
 async function removeOrder(id) {
 
-  if (
-    currentRole !== "admin"
-  )
+  if (currentRole !== "admin")
     return;
 
   if (
@@ -1341,13 +1249,11 @@ async function removeOrder(id) {
   try {
 
     await deleteDoc(
-
       doc(
         db,
         "tailoringOrders",
         id
       )
-
     );
 
     await loadOrders();
@@ -1369,24 +1275,14 @@ async function removeOrder(id) {
 function normalizePhone(phone) {
 
   let p =
-    String(
-      phone || ""
-    )
-    .replace(
-      /\D/g,
-      ""
-    );
+    String(phone || "")
+      .replace(/\D/g, "");
 
-  if (
-    p.startsWith("00")
-  ) {
-    p =
-      p.slice(2);
+  if (p.startsWith("00")) {
+    p = p.slice(2);
   }
 
-  if (
-    p.startsWith("0")
-  ) {
+  if (p.startsWith("0")) {
     p =
       "971" +
       p.slice(1);
@@ -1440,9 +1336,7 @@ ALHUDU
 Abu Dhabi – Shamkhah`;
 
   window.open(
-
     `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
-
     "_blank"
   );
 }
@@ -1469,15 +1363,9 @@ function measurementLines(item) {
       }
 
       return [{
-
-        label:
-          m.label,
-
-        value:
-          `${v}"`
-
+        label: m.label,
+        value: `${v}"`
       }];
-
     });
 }
 
@@ -1498,21 +1386,16 @@ function alterationLines(item) {
         a.value !== undefined &&
         a.value !== null &&
         String(a.value).trim() !== ""
-
           ? `${a.value}"`
-
           : "";
 
       return [{
-
         label:
           t.label.toUpperCase(),
 
         value:
           `${a.action}${val ? " · " + val : ""}`
-
       }];
-
     });
 }
 
@@ -1529,8 +1412,7 @@ async function imageToDataUrl(src) {
       await fetch(
         src,
         {
-          cache:
-            "no-store"
+          cache: "no-store"
         }
       );
 
@@ -1551,16 +1433,12 @@ async function imageToDataUrl(src) {
 
         fr.onload =
           () =>
-            resolve(
-              fr.result
-            );
+            resolve(fr.result);
 
         fr.onerror =
           reject;
 
-        fr.readAsDataURL(
-          blob
-        );
+        fr.readAsDataURL(blob);
       }
     );
 
@@ -1582,19 +1460,15 @@ function safeName(v) {
     v ||
     "customer"
   )
-
     .replace(
       /[^a-z0-9_-]+/gi,
       "-"
     )
-
     .replace(
       /^-+|-+$/g,
       ""
     )
-
     ||
-
     "customer";
 }
 
@@ -1636,17 +1510,11 @@ async function generatePdf(o) {
 
         compress:
           true
-
       });
 
-    const left =
-      18;
-
-    const right =
-      192;
-
-    const contentW =
-      174;
+    const left = 18;
+    const right = 192;
+    const contentW = 174;
 
     const brown =
       [111, 80, 55];
@@ -1666,12 +1534,10 @@ async function generatePdf(o) {
     const muted =
       [139, 116, 92];
 
-    let y =
-      12;
+    let y = 12;
 
 
     const writeText = (
-
       value,
       x,
       yy,
@@ -1679,7 +1545,6 @@ async function generatePdf(o) {
       style = "normal",
       color = dark,
       options = {}
-
     ) => {
 
       pdf.setFont(
@@ -1687,18 +1552,11 @@ async function generatePdf(o) {
         style
       );
 
-      pdf.setFontSize(
-        size
-      );
-
-      pdf.setTextColor(
-        ...color
-      );
+      pdf.setFontSize(size);
+      pdf.setTextColor(...color);
 
       pdf.text(
-        String(
-          value ?? ""
-        ),
+        String(value ?? ""),
         x,
         yy,
         options
@@ -1709,9 +1567,7 @@ async function generatePdf(o) {
     const drawHeader =
       (showLogo = true) => {
 
-        pdf.setFillColor(
-          ...cream
-        );
+        pdf.setFillColor(...cream);
 
         pdf.roundedRect(
           left,
@@ -1722,7 +1578,6 @@ async function generatePdf(o) {
           3,
           "F"
         );
-
 
         if (
           showLogo &&
@@ -1739,11 +1594,6 @@ async function generatePdf(o) {
               )
                 ? "PNG"
                 : "JPEG";
-
-            /*
-              New logo is vertical.
-              Keep the original ratio so it is not stretched.
-            */
 
             pdf.addImage(
               window.__alhuduLogo,
@@ -1763,7 +1613,6 @@ async function generatePdf(o) {
           }
         }
 
-
         writeText(
           "ALHUDU",
           showLogo ? 42 : 22,
@@ -1772,7 +1621,6 @@ async function generatePdf(o) {
           "bold",
           brown
         );
-
 
         writeText(
           "TAILORING ORDER",
@@ -1783,7 +1631,6 @@ async function generatePdf(o) {
           muted
         );
 
-
         writeText(
           "Abu Dhabi · Shamkhah",
           right - 4,
@@ -1792,14 +1639,11 @@ async function generatePdf(o) {
           "normal",
           muted,
           {
-            align:
-              "right"
+            align: "right"
           }
         );
 
-
-        y =
-          40;
+        y = 40;
       };
 
 
@@ -1813,27 +1657,22 @@ async function generatePdf(o) {
 
           pdf.addPage();
 
-          drawHeader(
-            false
-          );
+          drawHeader(false);
         }
       };
 
 
     // ==================================================
-    // LOAD NEW LOGO
+    // LOGO
     // ==================================================
 
     window.__alhuduLogo =
-  window.__alhuduLogo ||
-  await imageToDataUrl(
-    "IMG_9270.png"
+      window.__alhuduLogo ||
+      await imageToDataUrl(
+        "IMG_9270.png"
       );
 
-
-    drawHeader(
-      true
-    );
+    drawHeader(true);
 
 
     // ==================================================
@@ -1848,17 +1687,15 @@ async function generatePdf(o) {
       "bold",
       brown,
       {
-        align:
-          "center"
+        align: "center"
       }
     );
 
-    y +=
-      7;
+    y += 7;
 
 
     // ==================================================
-    // CUSTOMER INFORMATION
+    // CUSTOMER INFO
     // ==================================================
 
     const info = [
@@ -1870,9 +1707,7 @@ async function generatePdf(o) {
 
       [
         "DATE GIVEN",
-        prettyDate(
-          o.dateGiven
-        )
+        prettyDate(o.dateGiven)
       ],
 
       [
@@ -1896,13 +1731,9 @@ async function generatePdf(o) {
 
       [
         "READY DATE",
-        prettyDate(
-          o.readyDate
-        )
+        prettyDate(o.readyDate)
       ]
-
     ];
-
 
     const cellW =
       contentW / 2;
@@ -1927,9 +1758,7 @@ async function generatePdf(o) {
           label,
           value
         ] =
-          info[
-            r * 2 + c
-          ];
+          info[r * 2 + c];
 
         const x =
           left +
@@ -1970,26 +1799,19 @@ async function generatePdf(o) {
         );
       }
 
-      y +=
-        rowH;
+      y += rowH;
     }
 
-
-    y +=
-      5;
+    y += 5;
 
 
     // ==================================================
-    // REFERENCE NUMBER
+    // REFERENCE
     // ==================================================
 
-    if (
-      o.referenceNo
-    ) {
+    if (o.referenceNo) {
 
-      ensureSpace(
-        11
-      );
+      ensureSpace(11);
 
       pdf.setFillColor(
         ...softCream
@@ -2026,13 +1848,11 @@ async function generatePdf(o) {
         "bold",
         brown,
         {
-          align:
-            "right"
+          align: "right"
         }
       );
 
-      y +=
-        12;
+      y += 12;
     }
 
 
@@ -2054,14 +1874,10 @@ async function generatePdf(o) {
         items[i];
 
       const measurementRows =
-        measurementLines(
-          item
-        );
+        measurementLines(item);
 
       const alterationRows =
-        alterationLines(
-          item
-        );
+        alterationLines(item);
 
       const note =
         String(
@@ -2086,8 +1902,7 @@ async function generatePdf(o) {
       ) {
         estimatedHeight +=
           6 +
-          measurementRows.length *
-          7;
+          measurementRows.length * 7;
       }
 
       if (
@@ -2095,8 +1910,7 @@ async function generatePdf(o) {
       ) {
         estimatedHeight +=
           6 +
-          alterationRows.length *
-          7;
+          alterationRows.length * 7;
       }
 
       if (
@@ -2104,22 +1918,17 @@ async function generatePdf(o) {
       ) {
         estimatedHeight +=
           8 +
-          noteLines.length *
-          4.5;
+          noteLines.length * 4.5;
       }
 
-      estimatedHeight +=
-        4;
-
+      estimatedHeight += 4;
 
       ensureSpace(
         estimatedHeight
       );
 
 
-      // ================================================
       // JALABIYA HEADER
-      // ================================================
 
       pdf.setFillColor(
         240,
@@ -2163,14 +1972,10 @@ async function generatePdf(o) {
 
       ]
         .filter(Boolean)
-        .join(
-          "   |   "
-        );
+        .join("   |   ");
 
 
-      if (
-        meta
-      ) {
+      if (meta) {
 
         writeText(
           meta,
@@ -2180,20 +1985,15 @@ async function generatePdf(o) {
           "normal",
           muted,
           {
-            align:
-              "right"
+            align: "right"
           }
         );
       }
 
-
-      y +=
-        11;
+      y += 11;
 
 
-      // ================================================
       // MEASUREMENTS
-      // ================================================
 
       if (
         measurementRows.length
@@ -2208,8 +2008,7 @@ async function generatePdf(o) {
           muted
         );
 
-        y +=
-          5;
+        y += 5;
 
 
         for (
@@ -2246,23 +2045,18 @@ async function generatePdf(o) {
             "bold",
             brown,
             {
-              align:
-                "right"
+              align: "right"
             }
           );
 
-          y +=
-            7;
+          y += 7;
         }
 
-        y +=
-          2;
+        y += 2;
       }
 
 
-      // ================================================
       // ALTERATIONS
-      // ================================================
 
       if (
         alterationRows.length
@@ -2277,8 +2071,7 @@ async function generatePdf(o) {
           muted
         );
 
-        y +=
-          5;
+        y += 5;
 
 
         for (
@@ -2315,23 +2108,18 @@ async function generatePdf(o) {
             "bold",
             brown,
             {
-              align:
-                "right"
+              align: "right"
             }
           );
 
-          y +=
-            7;
+          y += 7;
         }
 
-        y +=
-          2;
+        y += 2;
       }
 
 
-      // ================================================
-      // ITEM NOTES
-      // ================================================
+      // NOTES
 
       if (
         noteLines.length
@@ -2339,8 +2127,7 @@ async function generatePdf(o) {
 
         const boxH =
           7 +
-          noteLines.length *
-          4.5;
+          noteLines.length * 4.5;
 
         pdf.setFillColor(
           253,
@@ -2372,13 +2159,8 @@ async function generatePdf(o) {
           "normal"
         );
 
-        pdf.setFontSize(
-          8
-        );
-
-        pdf.setTextColor(
-          ...dark
-        );
+        pdf.setFontSize(8);
+        pdf.setTextColor(...dark);
 
         pdf.text(
           noteLines,
@@ -2387,13 +2169,10 @@ async function generatePdf(o) {
         );
 
         y +=
-          boxH +
-          2;
+          boxH + 2;
       }
 
-
-      y +=
-        3;
+      y += 3;
     }
 
 
@@ -2401,26 +2180,20 @@ async function generatePdf(o) {
     // GENERAL NOTES
     // ==================================================
 
-    if (
-      o.generalNotes
-    ) {
+    if (o.generalNotes) {
 
       const generalLines =
         pdf.splitTextToSize(
-          String(
-            o.generalNotes
-          ),
+          String(o.generalNotes),
           contentW - 10
         );
 
       const boxH =
         8 +
-        generalLines.length *
-        4.5;
+        generalLines.length * 4.5;
 
       ensureSpace(
-        boxH +
-        5
+        boxH + 5
       );
 
       pdf.setFillColor(
@@ -2457,13 +2230,8 @@ async function generatePdf(o) {
         "normal"
       );
 
-      pdf.setFontSize(
-        8
-      );
-
-      pdf.setTextColor(
-        ...dark
-      );
+      pdf.setFontSize(8);
+      pdf.setTextColor(...dark);
 
       pdf.text(
         generalLines,
@@ -2472,18 +2240,15 @@ async function generatePdf(o) {
       );
 
       y +=
-        boxH +
-        4;
+        boxH + 4;
     }
 
 
     // ==================================================
-    // SIGNATURE
+    // SIGNATURE — FIXED BLACK BACKGROUND
     // ==================================================
 
-    ensureSpace(
-      32
-    );
+    ensureSpace(32);
 
     writeText(
       "Customer Signature",
@@ -2495,46 +2260,24 @@ async function generatePdf(o) {
     );
 
 
-    if (
-      o.signature
-    ) {
+    if (o.signature) {
 
       try {
 
+        const cleanSignature =
+          await signatureForPdf(
+            o.signature
+          );
+
         /*
-          First paint a white rectangle.
-          This also fixes older transparent PNG
-          signatures already saved in Firestore.
+          No black box.
+          Signature image has the same white
+          background as the normal PDF page.
         */
 
-        pdf.setFillColor(
-          255,
-          255,
-          255
-        );
-
-        pdf.rect(
-          left,
-          y + 7,
-          54,
-          18,
-          "F"
-        );
-
-
-        const sigFormat =
-          String(
-            o.signature
-          ).startsWith(
-            "data:image/png"
-          )
-            ? "PNG"
-            : "JPEG";
-
-
         pdf.addImage(
-          o.signature,
-          sigFormat,
+          cleanSignature,
+          "JPEG",
           left,
           y + 7,
           54,
@@ -2574,13 +2317,11 @@ async function generatePdf(o) {
       );
     }
 
-
-    y +=
-      28;
+    y += 28;
 
 
     // ==================================================
-    // FOOTER DIRECTLY AFTER CONTENT
+    // FOOTER
     // ==================================================
 
     pdf.setDrawColor(
@@ -2594,8 +2335,7 @@ async function generatePdf(o) {
       y
     );
 
-    y +=
-      5;
+    y += 5;
 
 
     writeText(
@@ -2616,8 +2356,7 @@ async function generatePdf(o) {
       "normal",
       muted,
       {
-        align:
-          "right"
+        align: "right"
       }
     );
 
@@ -2637,13 +2376,9 @@ async function generatePdf(o) {
 
     try {
 
-      pdf.save(
-        filename
-      );
+      pdf.save(filename);
 
-    } catch (
-      saveErr
-    ) {
+    } catch (saveErr) {
 
       console.warn(
         "Direct save failed",
@@ -2651,19 +2386,13 @@ async function generatePdf(o) {
       );
 
       const blob =
-        pdf.output(
-          "blob"
-        );
+        pdf.output("blob");
 
       const url =
-        URL.createObjectURL(
-          blob
-        );
+        URL.createObjectURL(blob);
 
       const a =
-        document.createElement(
-          "a"
-        );
+        document.createElement("a");
 
       a.href =
         url;
@@ -2671,9 +2400,7 @@ async function generatePdf(o) {
       a.download =
         filename;
 
-      document.body.appendChild(
-        a
-      );
+      document.body.appendChild(a);
 
       a.click();
 
@@ -2681,9 +2408,7 @@ async function generatePdf(o) {
 
       setTimeout(
         () =>
-          URL.revokeObjectURL(
-            url
-          ),
+          URL.revokeObjectURL(url),
         15000
       );
     }
@@ -2711,9 +2436,7 @@ const canvas =
   $("signatureCanvas");
 
 const ctx =
-  canvas.getContext(
-    "2d"
-  );
+  canvas.getContext("2d");
 
 let drawing =
   false;
@@ -2743,18 +2466,14 @@ function pos(e) {
         canvas.height /
         r.height
       )
-
   };
 }
 
 
 function start(e) {
 
-  drawing =
-    true;
-
-  signatureDirty =
-    true;
+  drawing = true;
+  signatureDirty = true;
 
   const p =
     pos(e);
@@ -2778,17 +2497,10 @@ function move(e) {
   const p =
     pos(e);
 
-  ctx.lineWidth =
-    2.4;
-
-  ctx.lineCap =
-    "round";
-
-  ctx.lineJoin =
-    "round";
-
-  ctx.strokeStyle =
-    "#4b3728";
+  ctx.lineWidth = 2.4;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#4b3728";
 
   ctx.lineTo(
     p.x,
@@ -2802,9 +2514,7 @@ function move(e) {
 
 
 function end() {
-
-  drawing =
-    false;
+  drawing = false;
 }
 
 
@@ -2827,8 +2537,7 @@ canvas.addEventListener(
   "touchstart",
   start,
   {
-    passive:
-      false
+    passive: false
   }
 );
 
@@ -2836,8 +2545,7 @@ canvas.addEventListener(
   "touchmove",
   move,
   {
-    passive:
-      false
+    passive: false
   }
 );
 
@@ -2856,8 +2564,7 @@ function clearSignature() {
     canvas.height
   );
 
-  signatureDirty =
-    false;
+  signatureDirty = false;
 }
 
 
@@ -2876,12 +2583,6 @@ function drawSignatureData(src) {
         canvas.height
       );
 
-      /*
-        White background before drawing an old signature.
-      */
-
-      ctx.save();
-
       ctx.fillStyle =
         "#ffffff";
 
@@ -2899,8 +2600,6 @@ function drawSignatureData(src) {
         canvas.width,
         canvas.height
       );
-
-      ctx.restore();
 
       signatureDirty =
         true;
@@ -2935,15 +2634,11 @@ $("quantity").onchange =
 
 $("saveOrderBtn").onclick =
   () =>
-    saveOrder(
-      false
-    );
+    saveOrder(false);
 
 $("savePdfBtn").onclick =
   () =>
-    saveOrder(
-      true
-    );
+    saveOrder(true);
 
 $("orderModal")
   .addEventListener(
@@ -2988,7 +2683,6 @@ document
 
         render();
       };
-
   });
 
 
@@ -3001,12 +2695,9 @@ $("logoutLink").onclick =
 
     e.preventDefault();
 
-    await signOut(
-      auth
-    );
+    await signOut(auth);
 
     localStorage.clear();
-
     sessionStorage.clear();
 
     location.href =
@@ -3034,22 +2725,16 @@ onAuthStateChanged(
 
       const snap =
         await getDoc(
-
           doc(
             db,
             "user",
             user.uid
           )
-
         );
 
-      if (
-        !snap.exists()
-      ) {
+      if (!snap.exists()) {
 
-        await signOut(
-          auth
-        );
+        await signOut(auth);
 
         location.href =
           "login.html";
@@ -3101,9 +2786,7 @@ onAuthStateChanged(
         )
       ) {
 
-        await signOut(
-          auth
-        );
+        await signOut(auth);
 
         location.href =
           "login.html";
@@ -3134,9 +2817,7 @@ onAuthStateChanged(
 
     } catch (e) {
 
-      console.error(
-        e
-      );
+      console.error(e);
 
       alert(
         "Could not load tailoring: " +
