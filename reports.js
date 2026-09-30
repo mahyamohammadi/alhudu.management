@@ -658,6 +658,106 @@ function calculateReport(
     cash + card;
 
 
+  // ====================================================
+  // PREVIOUS MONTH SALES COMPARISON
+  // ====================================================
+
+  let previousMonthSales = 0;
+  let previousMonthName = "";
+  let salesChangePercent = null;
+
+
+  if(reportType === "monthly"){
+
+    const parts =
+      from.split("-");
+
+
+    const year =
+      Number(parts[0]);
+
+
+    const month =
+      Number(parts[1]);
+
+
+    const previousDate =
+      new Date(
+        year,
+        month - 2,
+        1
+      );
+
+
+    const previousYear =
+      previousDate.getFullYear();
+
+
+    const previousMonth =
+      previousDate.getMonth() + 1;
+
+
+    previousMonthName =
+      previousDate.toLocaleString(
+        "en-US",
+        {
+          month:"long",
+          year:"numeric"
+        }
+      );
+
+
+    data.sales.forEach(
+      sale=>{
+
+        if(!validDate(sale.date)){
+          return;
+        }
+
+
+        const saleParts =
+          sale.date.split("-");
+
+
+        const saleYear =
+          Number(saleParts[0]);
+
+
+        const saleMonth =
+          Number(saleParts[1]);
+
+
+        if(
+          saleYear === previousYear &&
+          saleMonth === previousMonth
+        ){
+
+          previousMonthSales +=
+            number(sale.cash) +
+            number(sale.card);
+
+        }
+
+      }
+    );
+
+
+    if(previousMonthSales > 0){
+
+      salesChangePercent =
+        (
+          (
+            salesTotal -
+            previousMonthSales
+          ) /
+          previousMonthSales
+        ) * 100;
+
+    }
+
+  }
+
+
   return {
 
     title,
@@ -673,6 +773,12 @@ function calculateReport(
     card,
 
     salesTotal,
+
+    previousMonthSales,
+
+    previousMonthName,
+
+    salesChangePercent,
 
     expensesTotal,
 
@@ -4229,7 +4335,7 @@ async function createMonthlyPDF(
     pdf,
     10,
     y,
-    92,
+    61,
     27,
     "Cash Sales",
     money(
@@ -4241,15 +4347,48 @@ async function createMonthlyPDF(
 
   addPDFCard(
     pdf,
-    108,
+    74,
     y,
-    92,
+    61,
     27,
     "Card Sales",
     money(
       report.card
     ),
     `${stats.cardPercent.toFixed(1)}% of Total Sales`
+  );
+
+
+  let comparisonText = "N/A";
+
+  if(
+    report.salesChangePercent !== null &&
+    Number.isFinite(report.salesChangePercent)
+  ){
+
+    comparisonText =
+      `${report.salesChangePercent >= 0 ? "+" : ""}${report.salesChangePercent.toFixed(1)}% vs ${report.previousMonthName}`;
+
+  }
+  else{
+
+    comparisonText =
+      `N/A vs ${report.previousMonthName || "Previous Month"}`;
+
+  }
+
+
+  addPDFCard(
+    pdf,
+    138,
+    y,
+    62,
+    27,
+    "Previous Month Sales",
+    money(
+      report.previousMonthSales
+    ),
+    comparisonText
   );
 
 
@@ -4667,6 +4806,7 @@ async function createMonthlyPDF(
 
   // ====================================================
   // PAGE 5
+  // ADVERTISING + CASH WITHDRAWAL
   // ====================================================
 
   pdf.addPage();
@@ -4748,41 +4888,30 @@ async function createMonthlyPDF(
         ];
 
 
-  drawPDFTable(
-    pdf,
-    "Advertising Records",
-    [
-      "Date",
-      "Platform",
-      "Campaign",
-      "Note",
-      "Amount"
-    ],
-    advertisingRows,
-    [
-      31,
-      35,
-      40,
-      51,
-      33
-    ],
-    y
-  );
-
-
-  // ====================================================
-  // PAGE 6
-  // ====================================================
-
-  pdf.addPage();
-
-
   y =
-    await addPDFHeader(
+    drawPDFTable(
       pdf,
-      "Payment Details",
-      period
+      "Advertising Records",
+      [
+        "Date",
+        "Platform",
+        "Campaign",
+        "Note",
+        "Amount"
+      ],
+      advertisingRows,
+      [
+        31,
+        35,
+        40,
+        51,
+        33
+      ],
+      y
     );
+
+
+  y += 10;
 
 
   y =
@@ -4857,56 +4986,39 @@ async function createMonthlyPDF(
         ];
 
 
-  y =
-    drawPDFTable(
-      pdf,
-      "Withdrawal Records",
-      [
-        "Date",
-        "Person",
-        "Amount",
-        "Reason"
-      ],
-      withdrawalRows,
-      [
-        37,
-        45,
-        38,
-        70
-      ],
-      y
-    );
-
-
-  y += 10;
-
-
-  pdf.setDrawColor(
-    ...PDF_GOLD
-  );
-
-
-  pdf.setLineWidth(
-    0.7
-  );
-
-
-  pdf.line(
-    10,
-    y,
-    200,
+  drawPDFTable(
+    pdf,
+    "Withdrawal Records",
+    [
+      "Date",
+      "Person",
+      "Amount",
+      "Reason"
+    ],
+    withdrawalRows,
+    [
+      37,
+      45,
+      38,
+      70
+    ],
     y
   );
 
 
-  y += 10;
+  // ====================================================
+  // PAGE 6
+  // STAFF PAYMENT - SEPARATE PAGE
+  // ====================================================
+
+  pdf.addPage();
 
 
   y =
-    addPDFSectionTitle(
+    await addPDFHeader(
       pdf,
       "Staff Payment Details",
-      y
+      period
     );
 
 
@@ -4944,7 +5056,7 @@ async function createMonthlyPDF(
     10,
     y,
     45,
-    25,
+    27,
     "Salary",
     money(
       totalSalary
@@ -4957,7 +5069,7 @@ async function createMonthlyPDF(
     58,
     y,
     45,
-    25,
+    27,
     "Commission",
     money(
       totalCommission
@@ -4970,7 +5082,7 @@ async function createMonthlyPDF(
     106,
     y,
     45,
-    25,
+    27,
     "Car Lift",
     money(
       totalCarLift
@@ -4983,7 +5095,7 @@ async function createMonthlyPDF(
     154,
     y,
     46,
-    25,
+    27,
     "Total Payment",
     money(
       report.staffTotal
@@ -4991,7 +5103,7 @@ async function createMonthlyPDF(
   );
 
 
-  y += 34;
+  y += 37;
 
 
   const staffRows =
