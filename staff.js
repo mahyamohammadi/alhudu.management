@@ -14,7 +14,8 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1226,6 +1227,180 @@ window.deleteStaff =
   };
 
 
+
+// ======================================================
+// INDEPENDENT STAFF SALES MODULE
+// Uses staffMembers + staffDailySales collections only.
+// Does not read/write the accounting "sales" collection.
+// ======================================================
+
+let sellerRecords = [];
+let dailySalesRecords = [];
+
+const sellerNameInput = document.getElementById("sellerName");
+const addSellerButton = document.getElementById("addSeller");
+const sellerListBox = document.getElementById("sellerList");
+const dailySellerSelect = document.getElementById("dailySeller");
+const dailySalesDateInput = document.getElementById("dailySalesDate");
+const dailySalesAmountInput = document.getElementById("dailySalesAmount");
+const saveDailySalesButton = document.getElementById("saveDailySales");
+const staffSalesMonthInput = document.getElementById("staffSalesMonth");
+
+function localDateString(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function setSalesDefaults(){
+  if(dailySalesDateInput && !dailySalesDateInput.value) dailySalesDateInput.value = localDateString();
+  if(staffSalesMonthInput && !staffSalesMonthInput.value) staffSalesMonthInput.value = localDateString().slice(0,7);
+}
+
+async function loadSellerRecords(){
+  const snap = await getDocs(collection(db,"staffMembers"));
+  sellerRecords = [];
+  snap.forEach(item=>sellerRecords.push({id:item.id,...item.data()}));
+  sellerRecords.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+  renderSellerRecords();
+  renderSellerSelect();
+}
+
+function renderSellerRecords(){
+  if(!sellerListBox) return;
+  const active = sellerRecords.filter(s=>s.active !== false);
+  const inactive = sellerRecords.filter(s=>s.active === false);
+  if(!sellerRecords.length){
+    sellerListBox.innerHTML = '<p>No sellers added yet.</p>';
+    return;
+  }
+  sellerListBox.innerHTML = sellerRecords.map(s=>`
+    <div class="seller-row">
+      <div><b>${escapeHTML(s.name||"-")}</b> ${s.active===false?'<span class="inactive-label">(Inactive)</span>':''}</div>
+      <div class="seller-actions">
+        <button class="seller-edit" onclick="editSeller('${s.id}')">Edit</button>
+        ${s.active===false
+          ? `<button class="seller-off" onclick="activateSeller('${s.id}')">Activate</button>`
+          : `<button class="seller-off" onclick="deactivateSeller('${s.id}')">Deactivate</button>`}
+      </div>
+    </div>`).join("");
+}
+
+function renderSellerSelect(){
+  if(!dailySellerSelect) return;
+  const active = sellerRecords.filter(s=>s.active !== false);
+  dailySellerSelect.innerHTML = '<option value="">Select seller</option>' +
+    active.map(s=>`<option value="${s.id}">${escapeHTML(s.name||"")}</option>`).join("");
+}
+
+if(addSellerButton){
+  addSellerButton.onclick = async()=>{
+    if(!authReady || !auth.currentUser){ alert("Please login again."); return; }
+    const name = (sellerNameInput.value||"").trim();
+    if(!name){ alert("Enter seller name."); return; }
+    if(sellerRecords.some(s=>s.active!==false && String(s.name||"").toLowerCase()===name.toLowerCase())){
+      alert("This seller already exists."); return;
+    }
+    addSellerButton.disabled = true;
+    try{
+      await addDoc(collection(db,"staffMembers"),{name,active:true,createdAt:new Date().toISOString()});
+      sellerNameInput.value="";
+      await loadSellerRecords();
+      alert("Seller added.");
+    }catch(e){ console.error(e); alert("Could not add seller: "+(e.code||e.message)); }
+    finally{ addSellerButton.disabled=false; }
+  };
+}
+
+window.editSeller = async(id)=>{
+  const seller=sellerRecords.find(s=>s.id===id);
+  if(!seller) return;
+  const name=prompt("Edit seller name:",seller.name||"");
+  if(name===null) return;
+  const clean=name.trim();
+  if(!clean){ alert("Seller name cannot be empty."); return; }
+  try{
+    await updateDoc(doc(db,"staffMembers",id),{name:clean,updatedAt:new Date().toISOString()});
+    await loadSellerRecords();
+  }catch(e){ alert("Could not update seller: "+(e.code||e.message)); }
+};
+
+window.deactivateSeller = async(id)=>{
+  const seller=sellerRecords.find(s=>s.id===id);
+  if(!seller || !confirm(`Deactivate ${seller.name}? Previous sales records will be kept.`)) return;
+  try{
+    await updateDoc(doc(db,"staffMembers",id),{active:false,updatedAt:new Date().toISOString()});
+    await loadSellerRecords();
+  }catch(e){ alert("Could not deactivate seller: "+(e.code||e.message)); }
+};
+
+window.activateSeller = async(id)=>{
+  try{
+    await updateDoc(doc(db,"staffMembers",id),{active:true,updatedAt:new Date().toISOString()});
+    await loadSellerRecords();
+  }catch(e){ alert("Could not activate seller: "+(e.code||e.message)); }
+};
+
+async function loadDailySalesRecords(){
+  const snap=await getDocs(collection(db,"staffDailySales"));
+  dailySalesRecords=[];
+  snap.forEach(item=>dailySalesRecords.push({id:item.id,...item.data()}));
+  renderStaffSalesReport();
+}
+
+if(saveDailySalesButton){
+  saveDailySalesButton.onclick=async()=>{
+    if(!authReady || !auth.currentUser){alert("Please login again.");return;}
+    const sellerId=dailySellerSelect.value;
+    const date=dailySalesDateInput.value;
+    const amount=Number(dailySalesAmountInput.value);
+    const seller=sellerRecords.find(s=>s.id===sellerId && s.active!==false);
+    if(!seller){alert("Select an active seller.");return;}
+    if(!date){alert("Select a date.");return;}
+    if(!Number.isFinite(amount) || amount<0 || dailySalesAmountInput.value===""){
+      alert("Enter a valid sales amount.");return;
+    }
+    // Deterministic document ID means a repeat save replaces that seller/date record.
+    const recordId=`${sellerId}_${date}`;
+    saveDailySalesButton.disabled=true;
+    try{
+      await setDoc(doc(db,"staffDailySales",recordId),{
+        sellerId,sellerName:seller.name,date,amount,
+        updatedAt:new Date().toISOString()
+      });
+      dailySalesAmountInput.value="";
+      await loadDailySalesRecords();
+      alert("Daily staff sales saved.");
+    }catch(e){console.error(e);alert("Could not save daily sales: "+(e.code||e.message));}
+    finally{saveDailySalesButton.disabled=false;}
+  };
+}
+
+function renderStaffSalesReport(){
+  const month=staffSalesMonthInput?.value || localDateString().slice(0,7);
+  const rows=dailySalesRecords.filter(r=>String(r.date||"").startsWith(month))
+    .sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  const totals={};
+  rows.forEach(r=>{
+    const key=r.sellerId||r.sellerName||"unknown";
+    if(!totals[key]) totals[key]={name:r.sellerName||"Unknown",amount:0,days:0};
+    totals[key].amount+=Number(r.amount||0);
+    totals[key].days+=1;
+  });
+  const ranked=Object.values(totals).sort((a,b)=>b.amount-a.amount);
+  const grand=ranked.reduce((sum,r)=>sum+r.amount,0);
+  const summary=document.getElementById("staffSalesSummary");
+  const report=document.getElementById("staffSalesReport");
+  if(summary) summary.innerHTML=`<div class="sales-total-box"><span>Total staff sales for ${escapeHTML(month)}</span><br><b>${money(grand)}</b></div>`;
+  if(report){
+    if(!rows.length){report.innerHTML="<p>No staff sales found for this month.</p>";return;}
+    const ranking=ranked.map((r,i)=>`<div class="staff-sales-row"><span>${i+1}. <b>${escapeHTML(r.name)}</b><br><small>${r.days} day(s) recorded</small></span><b>${money(r.amount)}</b></div>`).join("");
+    const history=rows.map(r=>`<div class="staff-sales-row"><span><b>${escapeHTML(r.sellerName||"Unknown")}</b><br><small>${escapeHTML(r.date||"")}</small></span><b>${money(r.amount)}</b></div>`).join("");
+    report.innerHTML=`<h3>Seller Ranking</h3>${ranking}<h3 style="margin-top:22px">Daily Records</h3>${history}`;
+  }
+}
+
+if(staffSalesMonthInput) staffSalesMonthInput.onchange=renderStaffSalesReport;
+
 // ======================================================
 // FIREBASE AUTH START
 // ======================================================
@@ -1306,6 +1481,9 @@ onAuthStateChanged(
 
 
     await loadStaff();
+    setSalesDefaults();
+    await loadSellerRecords();
+    await loadDailySalesRecords();
 
   }
 );

@@ -83,6 +83,20 @@ background:#eee;
 
 }
 
+
+
+.seller-row,.staff-sales-row{
+  background:#fff;border-radius:12px;padding:12px;margin-top:10px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.06);flex-wrap:wrap;
+}
+.seller-actions{display:flex;gap:8px;flex-wrap:wrap}
+.seller-actions button{border:0;border-radius:8px;padding:8px 10px;cursor:pointer}
+.seller-edit{background:#d4af37}
+.seller-off{background:#eee}
+.sales-total-box{background:#f7f2e8;border-radius:12px;padding:16px;margin:12px 0}
+.sales-total-box b{font-size:22px}
+.inactive-label{color:#999;font-size:12px}
 </style>
 
 
@@ -233,8 +247,34 @@ placeholder="🔍 Search staff..."
 
 </div>
 
+<!-- INDEPENDENT STAFF SALES MODULE -->
+<div class="card">
+  <h2>Manage Sales Staff</h2>
+  <label>New Seller Name</label>
+  <input type="text" id="sellerName" placeholder="Enter seller name">
+  <button id="addSeller">Add Seller</button>
+  <div id="sellerList"></div>
+</div>
 
+<div class="card">
+  <h2>Daily Staff Sales</h2>
+  <label>Seller</label>
+  <select id="dailySeller"></select>
+  <label>Date</label>
+  <input type="date" id="dailySalesDate">
+  <label>Total Sales (AED)</label>
+  <input type="number" id="dailySalesAmount" min="0" step="0.01" placeholder="Total sales amount">
+  <button id="saveDailySales">Save Daily Sales</button>
+  <p style="color:#777;font-size:13px">Saving again for the same seller and date replaces the previous amount.</p>
+</div>
 
+<div class="card">
+  <h2>Staff Sales Report</h2>
+  <label>Report Month</label>
+  <input type="month" id="staffSalesMonth">
+  <div id="staffSalesSummary"></div>
+  <div id="staffSalesReport"></div>
+</div>
 
 
 </div>
