@@ -50,8 +50,6 @@ let authReady = false;
 let currentRole = "";
 let currentUsername = "";
 
-let sellerRecords = [];
-let dailySalesRecords = [];
 
 
 // ======================================================
@@ -69,16 +67,8 @@ const saveButton = document.getElementById("saveStaff");
 const searchInput = document.getElementById("searchStaff");
 const staffList = document.getElementById("staffList");
 
-const sellerNameInput = document.getElementById("sellerName");
-const addSellerButton = document.getElementById("addSeller");
-const sellerListBox = document.getElementById("sellerList");
 
-const dailySellerSelect = document.getElementById("dailySeller");
-const dailySalesDateInput = document.getElementById("dailySalesDate");
-const dailySalesAmountInput = document.getElementById("dailySalesAmount");
-const saveDailySalesButton = document.getElementById("saveDailySales");
 
-const staffSalesMonthInput = document.getElementById("staffSalesMonth");
 
 
 // ======================================================
@@ -149,15 +139,6 @@ function setDefaultDate() {
   }
 }
 
-function setSalesDefaults() {
-  if (dailySalesDateInput && !dailySalesDateInput.value) {
-    dailySalesDateInput.value = localDateString();
-  }
-
-  if (staffSalesMonthInput && !staffSalesMonthInput.value) {
-    staffSalesMonthInput.value = localDateString().slice(0, 7);
-  }
-}
 
 
 // ======================================================
@@ -175,10 +156,6 @@ function applyViewerMode() {
     "total",
     "date",
     "status",
-    "sellerName",
-    "dailySeller",
-    "dailySalesDate",
-    "dailySalesAmount"
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = true;
@@ -186,8 +163,6 @@ function applyViewerMode() {
 
   [
     "saveStaff",
-    "addSeller",
-    "saveDailySales"
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
@@ -502,453 +477,6 @@ window.deleteStaff = async function (id) {
 
 
 // ======================================================
-// INDEPENDENT STAFF SALES MODULE
-// Collections: staffMembers + staffDailySales
-// Does NOT use the accounting "sales" collection.
-// ======================================================
-
-
-// ======================================================
-// SELLER LIST - LOAD
-// ======================================================
-
-async function loadSellerRecords() {
-  const snap = await getDocs(collection(db, "staffMembers"));
-
-  sellerRecords = [];
-
-  snap.forEach(item => {
-    sellerRecords.push({
-      id: item.id,
-      ...item.data()
-    });
-  });
-
-  sellerRecords.sort((a, b) =>
-    String(a.name || "").localeCompare(String(b.name || ""))
-  );
-
-  renderSellerRecords();
-  renderSellerSelect();
-}
-
-
-// ======================================================
-// SELLER LIST - DISPLAY
-// ======================================================
-
-function renderSellerRecords() {
-  if (!sellerListBox) return;
-
-  if (sellerRecords.length === 0) {
-    sellerListBox.innerHTML = "<p>No sellers added yet.</p>";
-    return;
-  }
-
-  sellerListBox.innerHTML = sellerRecords.map(seller => {
-    const inactive = seller.active === false;
-
-    const actions = isAdmin() ? `
-      <div class="seller-actions">
-        <button class="seller-edit" onclick="editSeller('${seller.id}')">Edit</button>
-        ${inactive
-          ? `<button class="seller-off" onclick="activateSeller('${seller.id}')">Activate</button>`
-          : `<button class="seller-off" onclick="deactivateSeller('${seller.id}')">Deactivate</button>`
-        }
-      </div>
-    ` : "";
-
-    return `
-      <div class="seller-row">
-        <div>
-          <b>${escapeHTML(seller.name || "-")}</b>
-          ${inactive ? '<span class="inactive-label">(Inactive)</span>' : ""}
-        </div>
-        ${actions}
-      </div>
-    `;
-  }).join("");
-}
-
-
-// ======================================================
-// SELLER SELECT - ACTIVE SELLERS ONLY
-// ======================================================
-
-function renderSellerSelect() {
-  if (!dailySellerSelect) return;
-
-  const active = sellerRecords.filter(s => s.active !== false);
-
-  dailySellerSelect.innerHTML =
-    '<option value="">Select seller</option>' +
-    active.map(seller =>
-      `<option value="${escapeHTML(seller.id)}">${escapeHTML(seller.name || "")}</option>`
-    ).join("");
-}
-
-
-// ======================================================
-// ADD SELLER
-// ======================================================
-
-if (addSellerButton) {
-  addSellerButton.onclick = async () => {
-    if (!isAdmin()) {
-      alert("Admin access required.");
-      return;
-    }
-
-    const name = (sellerNameInput?.value || "").trim();
-
-    if (!name) {
-      alert("Enter seller name.");
-      return;
-    }
-
-    const duplicate = sellerRecords.some(seller =>
-      seller.active !== false &&
-      String(seller.name || "").toLowerCase() === name.toLowerCase()
-    );
-
-    if (duplicate) {
-      alert("This seller already exists.");
-      return;
-    }
-
-    addSellerButton.disabled = true;
-
-    try {
-      await addDoc(collection(db, "staffMembers"), {
-        name,
-        active: true,
-        createdAt: new Date().toISOString()
-      });
-
-      sellerNameInput.value = "";
-
-      await loadSellerRecords();
-
-      alert("Seller added successfully.");
-
-    } catch (error) {
-      console.error("Add Seller Error:", error);
-      alert("Could not add seller: " + (error.code || error.message));
-
-    } finally {
-      addSellerButton.disabled = false;
-    }
-  };
-}
-
-
-// ======================================================
-// EDIT SELLER
-// ======================================================
-
-window.editSeller = async function (id) {
-  if (!isAdmin()) {
-    alert("Admin access required.");
-    return;
-  }
-
-  const seller = sellerRecords.find(s => s.id === id);
-  if (!seller) return;
-
-  const name = prompt("Edit seller name:", seller.name || "");
-
-  if (name === null) return;
-
-  const clean = name.trim();
-
-  if (!clean) {
-    alert("Seller name cannot be empty.");
-    return;
-  }
-
-  const duplicate = sellerRecords.some(s =>
-    s.id !== id &&
-    s.active !== false &&
-    String(s.name || "").toLowerCase() === clean.toLowerCase()
-  );
-
-  if (duplicate) {
-    alert("Another active seller already has this name.");
-    return;
-  }
-
-  try {
-    await updateDoc(doc(db, "staffMembers", id), {
-      name: clean,
-      updatedAt: new Date().toISOString()
-    });
-
-    await loadSellerRecords();
-
-    alert("Seller updated.");
-
-  } catch (error) {
-    console.error("Edit Seller Error:", error);
-    alert("Could not update seller: " + (error.code || error.message));
-  }
-};
-
-
-// ======================================================
-// DEACTIVATE SELLER
-// Historical sales are preserved.
-// ======================================================
-
-window.deactivateSeller = async function (id) {
-  if (!isAdmin()) {
-    alert("Admin access required.");
-    return;
-  }
-
-  const seller = sellerRecords.find(s => s.id === id);
-
-  if (!seller) return;
-
-  if (!confirm(`Deactivate ${seller.name}? Previous sales records will be kept.`)) {
-    return;
-  }
-
-  try {
-    await updateDoc(doc(db, "staffMembers", id), {
-      active: false,
-      updatedAt: new Date().toISOString()
-    });
-
-    await loadSellerRecords();
-
-    alert("Seller deactivated. Previous records are safe.");
-
-  } catch (error) {
-    console.error("Deactivate Seller Error:", error);
-    alert("Could not deactivate seller: " + (error.code || error.message));
-  }
-};
-
-
-// ======================================================
-// ACTIVATE SELLER
-// ======================================================
-
-window.activateSeller = async function (id) {
-  if (!isAdmin()) {
-    alert("Admin access required.");
-    return;
-  }
-
-  try {
-    await updateDoc(doc(db, "staffMembers", id), {
-      active: true,
-      updatedAt: new Date().toISOString()
-    });
-
-    await loadSellerRecords();
-
-    alert("Seller activated.");
-
-  } catch (error) {
-    console.error("Activate Seller Error:", error);
-    alert("Could not activate seller: " + (error.code || error.message));
-  }
-};
-
-
-// ======================================================
-// DAILY SALES - LOAD RECORDS
-// ======================================================
-
-async function loadDailySalesRecords() {
-  const snap = await getDocs(collection(db, "staffDailySales"));
-
-  dailySalesRecords = [];
-
-  snap.forEach(item => {
-    dailySalesRecords.push({
-      id: item.id,
-      ...item.data()
-    });
-  });
-
-  renderStaffSalesReport();
-}
-
-
-// ======================================================
-// SAVE DAILY SELLER SALES
-// Same seller + same date = replace previous amount.
-// ======================================================
-
-if (saveDailySalesButton) {
-  saveDailySalesButton.onclick = async () => {
-    if (!isAdmin()) {
-      alert("Admin access required.");
-      return;
-    }
-
-    const sellerId = dailySellerSelect?.value || "";
-    const date = dailySalesDateInput?.value || "";
-    const rawAmount = dailySalesAmountInput?.value ?? "";
-    const amount = Number(rawAmount);
-
-    const seller = sellerRecords.find(s =>
-      s.id === sellerId && s.active !== false
-    );
-
-    if (!seller) {
-      alert("Select an active seller.");
-      return;
-    }
-
-    if (!date) {
-      alert("Select a date.");
-      return;
-    }
-
-    if (rawAmount.trim() === "" || !Number.isFinite(amount) || amount < 0) {
-      alert("Enter a valid sales amount.");
-      return;
-    }
-
-    // Stable ID: one record for each seller on each date.
-    const recordId = `${sellerId}_${date}`;
-
-    saveDailySalesButton.disabled = true;
-    saveDailySalesButton.textContent = "Saving...";
-
-    try {
-      await setDoc(doc(db, "staffDailySales", recordId), {
-        sellerId,
-        sellerName: seller.name,
-        date,
-        amount,
-        updatedAt: new Date().toISOString()
-      });
-
-      dailySalesAmountInput.value = "";
-
-      await loadDailySalesRecords();
-
-      alert("Daily staff sales saved.");
-
-    } catch (error) {
-      console.error("Save Daily Sales Error:", error);
-      alert("Could not save daily sales: " + (error.code || error.message));
-
-    } finally {
-      saveDailySalesButton.disabled = false;
-      saveDailySalesButton.textContent = "Save Daily Sales";
-    }
-  };
-}
-
-
-// ======================================================
-// STAFF SALES REPORT
-// Includes historical records of inactive sellers.
-// ======================================================
-
-function renderStaffSalesReport() {
-  const month =
-    staffSalesMonthInput?.value ||
-    localDateString().slice(0, 7);
-
-  const rows = dailySalesRecords
-    .filter(record => String(record.date || "").startsWith(month))
-    .sort((a, b) =>
-      String(b.date || "").localeCompare(String(a.date || ""))
-    );
-
-  const totals = {};
-
-  rows.forEach(record => {
-    const key = record.sellerId || record.sellerName || "unknown";
-
-    if (!totals[key]) {
-      totals[key] = {
-        name: record.sellerName || "Unknown",
-        amount: 0,
-        days: 0
-      };
-    }
-
-    totals[key].amount += number(record.amount);
-    totals[key].days += 1;
-  });
-
-  const ranked = Object.values(totals)
-    .sort((a, b) => b.amount - a.amount);
-
-  const grandTotal = ranked.reduce(
-    (sum, seller) => sum + seller.amount,
-    0
-  );
-
-  const summary = document.getElementById("staffSalesSummary");
-  const report = document.getElementById("staffSalesReport");
-
-  if (summary) {
-    summary.innerHTML = `
-      <div class="sales-total-box">
-        <span>Total staff sales for ${escapeHTML(month)}</span>
-        <br>
-        <b>${money(grandTotal)}</b>
-      </div>
-    `;
-  }
-
-  if (!report) return;
-
-  if (rows.length === 0) {
-    report.innerHTML = "<p>No staff sales found for this month.</p>";
-    return;
-  }
-
-  const rankingHTML = ranked.map((seller, index) => `
-    <div class="staff-sales-row">
-      <span>
-        ${index + 1}. <b>${escapeHTML(seller.name)}</b>
-        <br>
-        <small>${seller.days} day(s) recorded</small>
-      </span>
-      <b>${money(seller.amount)}</b>
-    </div>
-  `).join("");
-
-  const historyHTML = rows.map(record => `
-    <div class="staff-sales-row">
-      <span>
-        <b>${escapeHTML(record.sellerName || "Unknown")}</b>
-        <br>
-        <small>${escapeHTML(record.date || "")}</small>
-      </span>
-      <b>${money(record.amount)}</b>
-    </div>
-  `).join("");
-
-  report.innerHTML = `
-    <h3>Seller Ranking</h3>
-    ${rankingHTML}
-
-    <h3 style="margin-top:22px">Daily Records</h3>
-    ${historyHTML}
-  `;
-}
-
-
-// ======================================================
-// REPORT MONTH CHANGE
-// ======================================================
-
-if (staffSalesMonthInput) {
-  staffSalesMonthInput.onchange = renderStaffSalesReport;
-}
-
-
-// ======================================================
 // AUTH START
 // ======================================================
 
@@ -977,11 +505,8 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem("uid", user.uid);
 
     setDefaultDate();
-    setSalesDefaults();
 
     await loadStaff();
-    await loadSellerRecords();
-    await loadDailySalesRecords();
 
     applyViewerMode();
 
