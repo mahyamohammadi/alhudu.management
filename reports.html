@@ -256,6 +256,7 @@
 <a href="staff.html">
 👨‍💼 Staff Payment
 </a>
+<a href="sellers.html">👩‍💼 Seller Management</a>
 
 <a href="cashflow.html">
 💵 Cash Flow
@@ -308,6 +309,10 @@ Accounting & Management System
 </h1>
 
 
+
+
+<section class="report-section" id="sellerPerformanceReport">
+<div class="report-selector"><h2>👩‍💼 Seller Performance</h2><p>Independent seller sales statistics. Not included in accounting sales or profit.</p><label>Select Month</label><input type="month" id="reportSellerMonth"><div class="report-grid"><div class="report-box"><span>Total Seller Sales</span><b id="reportSellerTotal">AED 0</b></div><div class="report-box"><span>Recorded Sales Days</span><b id="reportSellerDays">0</b></div><div class="report-box"><span>Top Seller</span><b id="reportSellerTop">—</b></div></div><div class="monthly-chart-card" style="margin-top:15px"><h3>Seller Daily Sales Trend</h3><div class="chart-container"><canvas id="reportSellerChart"></canvas></div></div><div id="reportSellerRanking"></div></div></section>
 
 <!-- =========================================
      REPORT SELECTION
@@ -765,6 +770,7 @@ src="reports.js">
 </script>
 
 
+<script type="module" src="seller-reports.js"></script>
 </body>
 
 </html>
